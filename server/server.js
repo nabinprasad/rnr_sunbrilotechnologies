@@ -12,6 +12,7 @@ import activityRoutes from "./routes/activityRoutes.js";
 import quizRoutes from "./routes/quizRoutes.js";
 import quizSessionRoutes from "./routes/quizSessionRoutes.js";
 import quizAnswerRoutes from "./routes/quizAnswerRoutes.js";
+import eventRoutes from "./routes/eventRoutes.js";
 
 import { startQuizTimer } from "./controllers/quizSessionController.js";
 
@@ -74,6 +75,7 @@ app.use("/api/activities", activityRoutes);
 app.use("/api/quiz", quizRoutes);
 app.use("/api/quiz-session", quizSessionRoutes);
 app.use("/api/quiz-answer", quizAnswerRoutes);
+app.use("/api/event", eventRoutes);
 app.use("/api/employees", employeeRoutes);
 
 // ==========================
