@@ -8,7 +8,7 @@ import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.get("/", protect, getSession);
+router.get("/", getSession);
 router.put("/", protect, updateSession);
 
 export default router;

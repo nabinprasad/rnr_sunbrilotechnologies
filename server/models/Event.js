@@ -41,6 +41,17 @@ const eventSchema = new mongoose.Schema(
       enum: ["Upcoming", "Live", "Completed"],
       default: "Upcoming",
     },
+
+    currentActivity: {
+      type: String,
+      default: "",
+    },
+
+    hostMessage: {
+      type: String,
+      default: "",
+    },
+
     quizEnabled: {
   type: Boolean,
   default: false,

@@ -5,6 +5,7 @@ import {
   FaCalendarAlt,
   FaCheckCircle,
   FaClock,
+  FaDice,
   FaGift,
   FaMapMarkerAlt,
   FaPoll,
@@ -14,20 +15,24 @@ import {
 } from "react-icons/fa";
 import { getEmployeeStatus } from "../../api/employeeApi";
 import { getEvent } from "../../api/eventApi";
+import { getQuizSession } from "../../api/quizSessionApi";
+import { getTambolaSession } from "../../api/tambolaApi";
 import { getEmployee, setEmployee as setStoredEmployee } from "../../utils/employeeStorage";
 
 export default function Lobby() {
   const [employee, setEmployee] = useState(getEmployee());
   const [event, setEvent] = useState(null);
+  const [quizSession, setQuizSession] = useState(null);
+  const [tambolaSession, setTambolaSession] = useState(null);
   const [countdown, setCountdown] = useState(300);
 
   useEffect(() => {
     loadEmployee();
-    loadEvent();
+    loadLiveData();
 
     const refreshInterval = setInterval(() => {
       loadEmployee();
-      loadEvent();
+      loadLiveData();
     }, 3000);
 
     const countdownInterval = setInterval(() => {
@@ -53,14 +58,35 @@ export default function Lobby() {
     }
   };
 
-  const loadEvent = async () => {
+  const loadLiveData = async () => {
     try {
-      const res = await getEvent();
-      setEvent(res.data.event);
+      const [eventRes, quizRes, tambolaRes] = await Promise.all([
+        getEvent(),
+        getQuizSession(),
+        getTambolaSession(),
+      ]);
+
+      setEvent(eventRes.data.event);
+      setQuizSession(quizRes.data.session);
+      setTambolaSession(tambolaRes.data.session);
     } catch (err) {
       console.log(err);
     }
   };
+
+  const getLiveActivity = () => {
+    const quizLive = quizSession?.status === "Live";
+    const tambolaLive = tambolaSession?.status === "Live";
+
+    if (event?.currentActivity === "Tambola" && tambolaLive) return "Tambola";
+    if (event?.currentActivity === "Quiz" && quizLive) return "Quiz";
+    if (tambolaLive) return "Tambola";
+    if (quizLive) return "Quiz";
+
+    return null;
+  };
+
+  const liveActivity = getLiveActivity();
 
   const minutes = String(Math.floor(countdown / 60)).padStart(2, "0");
   const seconds = String(countdown % 60).padStart(2, "0");
@@ -76,6 +102,7 @@ export default function Lobby() {
   const activities = [
     { label: "Quiz", enabled: event?.quizEnabled, icon: <FaQuestionCircle /> },
     { label: "Poll", enabled: event?.pollEnabled, icon: <FaPoll /> },
+    { label: "Tambola", enabled: event?.tambolaEnabled, icon: <FaDice /> },
     { label: "Lucky Draw", enabled: event?.luckyDrawEnabled, icon: <FaGift /> },
     { label: "Leaderboard", enabled: event?.leaderboardEnabled, icon: <FaTrophy /> },
     { label: "Awards", enabled: event?.awardEnabled, icon: <FaAward /> },
@@ -164,6 +191,29 @@ export default function Lobby() {
                   </p>
                 </div>
               </div>
+
+              {liveActivity && isApproved && (
+                <div className="mt-6 rounded-xl border border-green-200 bg-green-50 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-green-700">
+                    Live Now
+                  </p>
+                  <p className="mt-1 font-bold text-slate-950">{liveActivity}</p>
+                  <Link
+                    to={
+                      liveActivity === "Tambola"
+                        ? "/employee/tambola"
+                        : "/employee/live-quiz"
+                    }
+                    className={`mt-4 flex w-full items-center justify-center rounded-xl px-5 py-3 font-bold text-white shadow-lg transition ${
+                      liveActivity === "Tambola"
+                        ? "bg-purple-600 hover:bg-purple-700 shadow-purple-600/25"
+                        : "bg-green-600 hover:bg-green-700 shadow-green-600/25"
+                    }`}
+                  >
+                    Join {liveActivity}
+                  </Link>
+                </div>
+              )}
 
               <div className="mt-6">
                 {isApproved ? (
