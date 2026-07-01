@@ -63,6 +63,7 @@ export const submitAnswer = async (req, res) => {
     res.json({
       success: true,
       message: isCorrect ? "Correct Answer!" : "Wrong Answer",
+      isCorrect,
       earnedPoints,
       totalPoints: employee.points,
     });

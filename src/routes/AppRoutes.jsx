@@ -21,7 +21,7 @@ import EventPage from "../pages/event/EventPage";
 import Activities from "../pages/admin/Activities";
 import LiveQuizControl from "../pages/admin/LiveQuizControl";
 import EmployeeLiveQuiz from "../pages/employee/LiveQuiz";
-import LiveQuiz from "../pages/employee/LiveQuiz";
+import LiveQuiz from "../pages/live/LiveQuiz";
 import JoinRequests from "../pages/admin/JoinRequests";
 
 export default function AppRoutes() {
@@ -88,15 +88,7 @@ export default function AppRoutes() {
     </ProtectedRoute>
   }
 />
-<Route
-  path="/employee/live-quiz"
-  element={<LiveQuiz />}
-/>
-
-<Route
-  path="/employee/live-quiz"
-  element={<EmployeeLiveQuiz />}
-/>
+<Route path="/employee/live-quiz" element={<EmployeeLiveQuiz />} />
 
       <Route
         path="/admin/event-control"

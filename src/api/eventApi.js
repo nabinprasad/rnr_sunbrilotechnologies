@@ -1,6 +1,6 @@
 import api from "./api";
 
-export const getEvent = () => api.get("/activities");
+export const getEvent = () => api.get("/event");
 
-export const updateEvent = (id, data) =>
-  api.put(`/activities/${id}`, data);
+export const updateEvent = (data) =>
+  api.put(`/event`, data);
