@@ -31,7 +31,6 @@ useEffect(() => {
   if (employee?._id) {
     socket.emit("joinEmployee", employee._id);
   }
-
   socket.on("employeeApproved", (data) => {
     localStorage.setItem(
       "employee",
@@ -43,9 +42,17 @@ useEffect(() => {
     navigate("/employee/lobby");
   });
 
+  const handleSession = (session) => {
+    if (!session) return;
+    setSession(session);
+  };
+
+  socket.on("quizSessionUpdated", handleSession);
+
   return () => {
     clearInterval(interval);
     socket.off("employeeApproved");
+    socket.off("quizSessionUpdated");
   };
 }, [navigate]);
 

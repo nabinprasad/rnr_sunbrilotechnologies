@@ -3,6 +3,7 @@ import { getQuiz } from "../../api/quizApi";
 import { getQuizSession } from "../../api/quizSessionApi";
 import { submitAnswer } from "../../api/quizAnswerApi";
 import toast from "react-hot-toast";
+import socket from "../../socket";
 
 export default function EmployeeLiveQuiz() {
   const [session, setSession] = useState(null);
@@ -20,7 +21,21 @@ export default function EmployeeLiveQuiz() {
       loadData();
     }, 2000);
 
+    const handleSession = (session) => {
+      if (!session) return;
+      setSession(session);
+      setTimer(session.timer || 0);
+    };
+
+    socket.on("quizSessionUpdated", handleSession);
+
     return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      socket.off("quizSessionUpdated");
+    };
   }, []);
 
   const loadData = async () => {

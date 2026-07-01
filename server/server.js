@@ -45,9 +45,12 @@ io.on("connection", (socket) => {
 
   // Employee joins personal room
   socket.on("joinEmployee", (employeeId) => {
-    socket.join(employeeId);
+    if (!employeeId) return;
 
-    console.log(`Employee Joined Room: ${employeeId}`);
+    const room = `employee:${employeeId}`;
+    socket.join(room);
+
+    console.log(`Employee Joined Room: ${room}`);
   });
 
   // Admin joins room

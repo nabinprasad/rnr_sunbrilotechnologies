@@ -69,8 +69,9 @@ export const approveEmployee = async (req, res) => {
       });
     }
 
-    // Notify only this employee
-    io.to(employee._id.toString()).emit("employeeApproved", {
+    // Notify only this employee using namespaced room
+    const room = `employee:${employee._id.toString()}`;
+    io.to(room).emit("employeeApproved", {
       success: true,
       employee,
     });
