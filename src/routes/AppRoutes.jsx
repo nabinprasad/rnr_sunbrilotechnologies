@@ -23,6 +23,9 @@ import LiveQuizControl from "../pages/admin/LiveQuizControl";
 import EmployeeLiveQuiz from "../pages/employee/LiveQuiz";
 import LiveQuiz from "../pages/live/LiveQuiz";
 import JoinRequests from "../pages/admin/JoinRequests";
+import LiveTambolaControl from "../pages/admin/LiveTambolaControl";
+import EmployeeTambola from "../pages/employee/Tambola";
+import LiveTambola from "../pages/live/LiveTambola";
 
 export default function AppRoutes() {
   return (
@@ -89,6 +92,16 @@ export default function AppRoutes() {
   }
 />
 <Route path="/employee/live-quiz" element={<EmployeeLiveQuiz />} />
+<Route path="/employee/tambola" element={<EmployeeTambola />} />
+
+      <Route
+  path="/admin/live-tambola"
+  element={
+    <ProtectedRoute>
+      <LiveTambolaControl />
+    </ProtectedRoute>
+  }
+/>
 
       <Route
         path="/admin/event-control"
@@ -146,6 +159,7 @@ export default function AppRoutes() {
 
       {/* Live Quiz */}
       <Route path="/live-quiz" element={<LiveQuiz />} />
+      <Route path="/live-tambola" element={<LiveTambola />} />
 
       {/* Employee Routes */}
       <Route path="/employee/login" element={<EmployeeLogin />} />

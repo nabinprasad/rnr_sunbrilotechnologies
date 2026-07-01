@@ -46,6 +46,11 @@ const menus = [
     icon: "🎯",
   },
   {
+    name: "Live Tambola",
+    path: "/admin/live-tambola",
+    icon: "🎲",
+  },
+  {
     name: "Event Control",
     path: "/admin/event-control",
     icon: <FaEvernote />,
