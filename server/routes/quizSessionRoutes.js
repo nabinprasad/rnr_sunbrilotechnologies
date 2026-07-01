@@ -1,0 +1,14 @@
+import express from "express";
+import {
+  getSession,
+  updateSession,
+} from "../controllers/quizSessionController.js";
+
+import { protect } from "../middleware/authMiddleware.js";
+
+const router = express.Router();
+
+router.get("/", protect, getSession);
+router.put("/", protect, updateSession);
+
+export default router;
