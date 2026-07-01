@@ -1,22 +1,91 @@
+import { useEffect, useState } from "react";
 import AdminLayout from "../../components/layout/AdminLayout";
 import PageHeader from "../../components/ui/PageHeader";
 import Button from "../../components/ui/Button";
+import CertificateModal from "../../components/certificates/CertificateModal";
+import CertificateTable from "../../components/certificates/CertificateTable";
+import { getEmployees } from "../../api/employeeApi";
+import {
+  getCertificates,
+  deleteCertificate,
+} from "../../api/certificateApi";
+import { generateCertificate } from "../../utils/certificateGenerator";
 
 export default function Certificates() {
+  const [openModal, setOpenModal] = useState(false);
+  const [employees, setEmployees] = useState([]);
+  const [certificates, setCertificates] = useState([]);
+  const [editData, setEditData] = useState(null);
+  const [isEdit, setIsEdit] = useState(false);
+
+  useEffect(() => {
+    fetchEmployees();
+    fetchCertificates();
+  }, []);
+
+  const fetchEmployees = async () => {
+    const res = await getEmployees();
+    setEmployees(res.data.employees);
+  };
+
+  const fetchCertificates = async () => {
+    const res = await getCertificates();
+    setCertificates(res.data.certificates);
+  };
+
+  const handleAdd = () => {
+    setEditData(null);
+    setIsEdit(false);
+    setOpenModal(true);
+  };
+
+  const handleEdit = (cert) => {
+    setEditData(cert);
+    setIsEdit(true);
+    setOpenModal(true);
+  };
+
+  const handleDelete = async (cert) => {
+    if (!window.confirm("Delete certificate?")) return;
+    await deleteCertificate(cert._id);
+    fetchCertificates();
+  };
+
+  const handleDownload = async (cert) => {
+    await generateCertificate(
+      cert.templateName,
+      cert.employeeName
+    );
+  };
+
   return (
     <AdminLayout>
       <PageHeader
-        title="Certificate Management"
-        subtitle="Generate and manage employee certificates"
-      >
-        <Button variant="success">
+              title="Certificate Management"
+              subtitle="Generate and manage certificates"
+            >
+        <Button variant="success" onClick={handleAdd}>
           + Generate Certificate
         </Button>
       </PageHeader>
 
-      <div className="bg-white rounded-xl shadow p-10 text-center">
-        Certificate Module Coming Next...
-      </div>
+      <CertificateTable
+        certificates={certificates}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        onDownload={handleDownload}
+      />
+
+      <CertificateModal
+        isOpen={openModal}
+        onClose={() => {
+          setOpenModal(false);
+          fetchCertificates();
+        }}
+        employees={employees}
+        editData={editData}
+        isEdit={isEdit}
+      />
     </AdminLayout>
   );
 }
