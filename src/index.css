@@ -110,3 +110,85 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+@keyframes blob {
+  0%, 100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(30px, -40px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 30px) scale(0.95);
+  }
+}
+
+@keyframes blob-slow {
+  0%, 100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  25% {
+    transform: translate(40px, 20px) scale(1.08);
+  }
+  50% {
+    transform: translate(-30px, 10px) scale(0.95);
+  }
+  75% {
+    transform: translate(20px, -30px) scale(1.03);
+  }
+}
+
+.animate-blob {
+  animation: blob 15s ease-in-out infinite;
+}
+
+.animate-blob-slow {
+  animation: blob-slow 18s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+    opacity: 0.85;
+  }
+  50% {
+    transform: translateY(-18px);
+    opacity: 0.6;
+  }
+}
+
+@keyframes float-slow {
+  0%, 100% {
+    transform: translateY(0px);
+    opacity: 0.85;
+  }
+  50% {
+    transform: translateY(-24px);
+    opacity: 0.55;
+  }
+}
+
+.animate-float {
+  animation: float 8s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: float-slow 12s ease-in-out infinite;
+}
+
+.landing-page-bg {
+  background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), transparent 18%),
+    radial-gradient(circle at bottom right, rgba(236, 72, 153, 0.12), transparent 18%),
+    linear-gradient(135deg, #f8fafc 0%, #e2e8f0 35%, #ffffff 100%);
+  background-size: 200% 200%, 180% 180%, 100% 100%;
+  animation: gradientShift 14s ease infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% {
+    background-position: 0% 50%, 100% 50%, 50% 50%;
+  }
+  50% {
+    background-position: 100% 50%, 0% 50%, 50% 50%;
+  }
+}
