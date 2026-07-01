@@ -2,6 +2,7 @@ import express from "express";
 import {
   submitAnswer,
   resetQuizAnswers,
+  resetEmployeeAnswers,
 } from "../controllers/quizAnswerController.js";
 
 import { protect } from "../middleware/authMiddleware.js";
@@ -12,5 +13,6 @@ router.post("/submit", submitAnswer);
 
 // Admin only
 router.delete("/reset", protect, resetQuizAnswers);
+router.delete("/reset-employee/:employeeId", protect, resetEmployeeAnswers);
 
 export default router;

@@ -3,6 +3,7 @@ import { getQuiz } from "../../api/quizApi";
 import { getQuizSession } from "../../api/quizSessionApi";
 import { submitAnswer } from "../../api/quizAnswerApi";
 import toast from "react-hot-toast";
+import { getEmployee } from "../../utils/employeeStorage";
 import socket from "../../socket";
 
 export default function EmployeeLiveQuiz() {
@@ -12,7 +13,10 @@ export default function EmployeeLiveQuiz() {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [submitted, setSubmitted] = useState(false);
   const [timer, setTimer] = useState(0);
+  const [employeeName, setEmployeeName] = useState("");
   const lastQuestionId = useRef(null);
+  const questionStartTime = useRef(null);
+  const timerStarted = useRef(false);
 
   useEffect(() => {
     loadData();
@@ -38,6 +42,13 @@ export default function EmployeeLiveQuiz() {
     };
   }, []);
 
+  useEffect(() => {
+    const employee = getEmployee();
+    if (employee?.name) {
+      setEmployeeName(employee.name);
+    }
+  }, []);
+
   const loadData = async () => {
     try {
       const quizRes = await getQuiz();
@@ -47,6 +58,7 @@ export default function EmployeeLiveQuiz() {
       const quizSession = sessionRes.data.session;
 
       setSession(quizSession);
+      setTimer(quizSession?.timer || 0);
 
       const currentId =
         quizSession.currentQuestion?._id || quizSession.currentQuestion;
@@ -58,6 +70,7 @@ export default function EmployeeLiveQuiz() {
       // Reset only when question changes
       if (current && current._id !== lastQuestionId.current) {
         lastQuestionId.current = current._id;
+        questionStartTime.current = Date.now();
 
         setCurrentQuestion(current);
 
@@ -89,10 +102,30 @@ export default function EmployeeLiveQuiz() {
   }, [timer]);
 
   useEffect(() => {
-    if (timer === 0 && !submitted) {
-      handleSubmit();
+    if (timer > 0) {
+      timerStarted.current = true;
     }
-  }, [timer]);
+
+    if (!timerStarted.current || submitted || timer !== 0 || !currentQuestion) return;
+    if (!questionStartTime.current) return;
+
+    if (selectedAnswer === null || selectedAnswer === undefined) {
+      setSubmitted(true);
+      toast.error("Time is up! You did not select an answer.");
+      return;
+    }
+
+    handleSubmit();
+  }, [timer, submitted, currentQuestion, selectedAnswer]);
+
+  // Reset answer state whenever question changes (explicit dependency)
+  useEffect(() => {
+    if (currentQuestion?._id) {
+      setSelectedAnswer(null);
+      setSubmitted(false);
+      timerStarted.current = false;
+    }
+  }, [currentQuestion?._id]);
 
  const handleSubmit = async () => {
   if (submitted) return;
@@ -102,29 +135,40 @@ export default function EmployeeLiveQuiz() {
     return;
   }
 
-  if (selectedAnswer === null) {
+  if (selectedAnswer === null || selectedAnswer === undefined) {
     toast.error("Please select an answer");
     return;
   }
 
   try {
-    const employee = JSON.parse(localStorage.getItem("employee"));
+    const employee = getEmployee();
 
     if (!employee?._id) {
       toast.error("Employee not found. Please login again.");
       return;
     }
 
-    const res = await submitAnswer({
+    // Calculate time taken in seconds
+    const timeTaken = questionStartTime.current 
+      ? Math.round((Date.now() - questionStartTime.current) / 1000)
+      : 0;
+
+    const payload = {
       employeeId: employee._id,
       questionId: currentQuestion._id,
-      selectedAnswer,
-    });
+      selectedAnswer: Number(selectedAnswer),
+      timeTaken,
+    };
+
+    console.log("Submitting answer:", payload);
+
+    const res = await submitAnswer(payload);
 
     setSubmitted(true);
 
     if (res.data.isCorrect) {
-      toast.success(`✅ Correct! +${res.data.earnedPoints} Points`);
+      const bonus = res.data.speedBonus ? ` + ${res.data.speedBonus} Speed Bonus` : "";
+      toast.success(`✅ Correct! +${res.data.earnedPoints}${bonus} Points`);
     } else {
       toast.error("❌ Wrong Answer");
     }
@@ -132,11 +176,11 @@ export default function EmployeeLiveQuiz() {
     console.log(res.data);
 
   } catch (err) {
-    console.log(err.response?.data);
+    console.log("Submit error:", err.response?.data || err.message);
+    setSubmitted(false);
 
-    toast.error(
-      err.response?.data?.message || "Something went wrong"
-    );
+    const errorMsg = err.response?.data?.message || err.message || "Something went wrong";
+    toast.error(errorMsg);
   }
 };
   if (!session) return <h2 className="text-center mt-20">Loading...</h2>;
@@ -158,13 +202,25 @@ export default function EmployeeLiveQuiz() {
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-8">
       <div className="bg-white rounded-2xl shadow-xl max-w-4xl w-full p-10">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-bold">
-            Question {session.questionNumber}
-          </h2>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+          <div>
+            <h2 className="text-2xl font-bold">
+              Question {session.questionNumber}
+            </h2>
+            {employeeName && (
+              <p className="mt-2 text-sm text-slate-500">
+                Logged in as <span className="font-semibold text-slate-900">{employeeName}</span>
+              </p>
+            )}
+          </div>
 
-          <div className="bg-red-600 text-white px-5 py-2 rounded-lg text-lg font-bold">
-            ⏱ {timer}s
+          <div className="flex items-center gap-4">
+            <div className="text-right text-sm text-slate-500">
+              {employeeName ? `Hello, ${employeeName}` : ""}
+            </div>
+            <div className="bg-red-600 text-white px-5 py-2 rounded-lg text-lg font-bold">
+              ⏱ {timer}s
+            </div>
           </div>
         </div>
 
@@ -175,7 +231,7 @@ export default function EmployeeLiveQuiz() {
         <div className="grid md:grid-cols-2 gap-5">
           {currentQuestion?.options?.map((option, index) => (
             <button
-              key={index}
+              key={`${currentQuestion._id}-${index}`}
               disabled={submitted}
               onClick={() => {
                 if (!submitted) {

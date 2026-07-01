@@ -28,3 +28,6 @@ export const joinEmployee = (employeeId) =>
   export const resetEmployeePoints = () =>
   api.put("/employees/reset-points");
 
+export const getLeaderboard = () =>
+  api.get("/employees/leaderboard");
+

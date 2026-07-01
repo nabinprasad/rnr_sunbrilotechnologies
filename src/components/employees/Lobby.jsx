@@ -8,9 +8,10 @@ import {
   FaDice,
 } from "react-icons/fa";
 import { getEvent } from "../../api/eventApi";
+import { getEmployee } from "../../utils/employeeStorage";
 
 export default function Lobby() {
-  const employee = JSON.parse(localStorage.getItem("employee"));
+  const employee = getEmployee();
 
   const [event, setEvent] = useState(null);
 

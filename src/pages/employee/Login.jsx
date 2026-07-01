@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { joinEmployee } from "../../api/employeeApi";
+import { setEmployee } from "../../utils/employeeStorage";
 import socket from "../../socket";
 
 export default function EmployeeLogin() {
@@ -19,7 +20,7 @@ export default function EmployeeLogin() {
     try {
       const res = await joinEmployee(employeeId.trim());
       const emp = res.data.employee;
-      localStorage.setItem("employee", JSON.stringify(emp));
+      setEmployee(emp);
 
       // Join personal socket room
       try { socket.emit("joinEmployee", emp._id); } catch (e) {}
