@@ -1,4 +1,5 @@
 import QuizSession from "../models/QuizSession.js";
+import { io } from "../server.js";
 
 export const getSession = async (req, res) => {
   try {
@@ -35,6 +36,12 @@ export const updateSession = async (req, res) => {
       success: true,
       session,
     });
+    // Broadcast updated session to all connected clients
+    try {
+      io.emit("quizSessionUpdated", session);
+    } catch (e) {
+      console.log("Socket emit failed:", e.message);
+    }
   } catch (error) {
     console.log(error); // <-- Make sure this exists
     res.status(500).json({
@@ -61,6 +68,12 @@ export const startQuizTimer = () => {
       if (session.timer > 0) {
         session.timer -= 1;
         await session.save();
+        // Broadcast timer tick so clients stay in sync
+        try {
+          io.emit("quizSessionUpdated", session);
+        } catch (e) {
+          console.log("Socket emit failed:", e.message);
+        }
       }
     } catch (err) {
       console.log(err);
