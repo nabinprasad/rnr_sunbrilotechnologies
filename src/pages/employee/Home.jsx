@@ -3,15 +3,14 @@ import { Link, useNavigate } from "react-router-dom";
 import socket from "../../socket";
 import { getQuizSession } from "../../api/quizSessionApi";
 import { getEmployeeStatus } from "../../api/employeeApi";
+import { getEmployee, setEmployee } from "../../utils/employeeStorage";
 
 export default function EmployeeHome() {
   const navigate = useNavigate();
 
 
   // Declare employee FIRST
-  const employee = JSON.parse(
-    localStorage.getItem("employee") || "{}"
-  );
+  const employee = getEmployee();
 
   // Then use it
   const [employeeData, setEmployeeData] = useState(employee);
@@ -26,16 +25,13 @@ useEffect(() => {
     loadSession();
   }, 3000);
 
-  const employee = JSON.parse(localStorage.getItem("employee") || "{}");
+  const employee = getEmployee();
 
   if (employee?._id) {
     socket.emit("joinEmployee", employee._id);
   }
   socket.on("employeeApproved", (data) => {
-    localStorage.setItem(
-      "employee",
-      JSON.stringify(data.employee)
-    );
+    setEmployee(data.employee);
 
     setEmployeeData(data.employee);
 
@@ -66,16 +62,13 @@ useEffect(() => {
   };
 const loadEmployee = async () => {
   try {
-    const employee = JSON.parse(localStorage.getItem("employee"));
+    const employee = getEmployee();
 
     if (!employee?._id) return;
 
     const res = await getEmployeeStatus(employee._id);
 
-    localStorage.setItem(
-      "employee",
-      JSON.stringify(res.data.employee)
-    );
+    setEmployee(res.data.employee);
 
     setEmployeeData(res.data.employee);
 

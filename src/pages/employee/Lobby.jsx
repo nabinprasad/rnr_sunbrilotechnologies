@@ -2,13 +2,12 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getEmployeeStatus } from "../../api/employeeApi";
 import { getEvent } from "../../api/eventApi";
+import { getEmployee, setEmployee as setStoredEmployee } from "../../utils/employeeStorage";
 
 export default function Lobby() {
   const navigate = useNavigate();
 
-  const [employee, setEmployee] = useState(
-    JSON.parse(localStorage.getItem("employee"))
-  );
+  const [employee, setEmployee] = useState(getEmployee());
 
   const [event, setEvent] = useState(null);
   const [countdown, setCountdown] = useState(300);
@@ -32,11 +31,7 @@ export default function Lobby() {
       const res = await getEmployeeStatus(employee._id);
 
       setEmployee(res.data.employee);
-
-      localStorage.setItem(
-        "employee",
-        JSON.stringify(res.data.employee)
-      );
+      setStoredEmployee(res.data.employee);
 
       // Employee approved
       if (res.data.employee.approvalStatus === "Approved") {

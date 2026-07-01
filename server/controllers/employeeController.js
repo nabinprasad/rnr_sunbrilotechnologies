@@ -254,4 +254,21 @@ export const getEmployeeStatus = async (req, res) => {
   }
 };
 
+// Get Leaderboard (sorted by points)
+export const getLeaderboard = async (req, res) => {
+  try {
+    const employees = await Employee.find()
+      .sort({ points: -1 })
+      .select("name department designation photo points approvalStatus");
 
+    res.json({
+      success: true,
+      employees,
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};

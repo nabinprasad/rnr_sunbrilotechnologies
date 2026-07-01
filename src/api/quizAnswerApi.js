@@ -5,3 +5,6 @@ export const submitAnswer = (data) =>
 
 export const resetQuizAnswers = () =>
   api.delete("/quiz-answer/reset");
+
+export const resetEmployeeAnswers = (employeeId) =>
+  api.delete(`/quiz-answer/reset-employee/${employeeId}`);
