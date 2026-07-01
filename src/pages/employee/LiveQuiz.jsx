@@ -13,10 +13,13 @@ export default function EmployeeLiveQuiz() {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [submitted, setSubmitted] = useState(false);
   const [timer, setTimer] = useState(0);
-  const [employeeName, setEmployeeName] = useState("");
+  const [employeeName] = useState(() => getEmployee()?.name || "");
+  const [questions, setQuestions] = useState([]);
   const lastQuestionId = useRef(null);
+  const lastSessionQuestionId = useRef(null);
+  const lastSessionStatus = useRef(null);
+  const employeeFinished = useRef(false);
   const questionStartTime = useRef(null);
-  const timerStarted = useRef(false);
 
   useEffect(() => {
     loadData();
@@ -27,29 +30,34 @@ export default function EmployeeLiveQuiz() {
 
     const handleSession = (session) => {
       if (!session) return;
+      if (employeeFinished.current && session.status === "Live") return;
+
+      if (session.status === "Waiting") {
+        employeeFinished.current = false;
+      }
+
+      const currentId =
+        session.currentQuestion?._id || session.currentQuestion;
+
+      if (
+        String(currentId) === String(lastSessionQuestionId.current) &&
+        session.status === lastSessionStatus.current
+      ) {
+        return;
+      }
+
       setSession(session);
-      setTimer(session.timer || 0);
     };
 
     socket.on("quizSessionUpdated", handleSession);
 
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
     return () => {
-      socket.off("quizSessionUpdated");
+      clearInterval(interval);
+      socket.off("quizSessionUpdated", handleSession);
     };
   }, []);
 
-  useEffect(() => {
-    const employee = getEmployee();
-    if (employee?.name) {
-      setEmployeeName(employee.name);
-    }
-  }, []);
-
-  const loadData = async () => {
+  async function loadData() {
     try {
       const quizRes = await getQuiz();
       const sessionRes = await getQuizSession();
@@ -57,11 +65,28 @@ export default function EmployeeLiveQuiz() {
       const allQuestions = quizRes.data.questions;
       const quizSession = sessionRes.data.session;
 
-      setSession(quizSession);
-      setTimer(quizSession?.timer || 0);
+      setQuestions(allQuestions);
+
+      if (employeeFinished.current && quizSession?.status === "Live") return;
+
+      if (quizSession?.status === "Waiting") {
+        employeeFinished.current = false;
+      }
 
       const currentId =
         quizSession.currentQuestion?._id || quizSession.currentQuestion;
+      const sessionStatus = quizSession?.status;
+
+      if (
+        String(currentId) === String(lastSessionQuestionId.current) &&
+        sessionStatus === lastSessionStatus.current
+      ) {
+        return;
+      }
+
+      lastSessionQuestionId.current = currentId;
+      lastSessionStatus.current = sessionStatus;
+      setSession(quizSession);
 
       const current = allQuestions.find(
         (q) => String(q._id) === String(currentId),
@@ -73,61 +98,69 @@ export default function EmployeeLiveQuiz() {
         questionStartTime.current = Date.now();
 
         setCurrentQuestion(current);
-
         setSelectedAnswer(null);
-
         setSubmitted(false);
+        setTimer(Number(current.timer || quizSession?.timer || 30));
+      } else if (!current) {
+        setCurrentQuestion(null);
       }
-
-      setCurrentQuestion(current);
     } catch (err) {
       console.log(err);
     }
-  };
+  }
 
   useEffect(() => {
-    if (session) {
-      setTimer(session.timer);
-    }
-  }, [session?.questionNumber]);
-
-  useEffect(() => {
-    if (timer <= 0) return;
+    if (session?.status !== "Live" || !currentQuestion || submitted) return;
 
     const interval = setInterval(() => {
-      setTimer((prev) => prev - 1);
+      setTimer((prev) => Math.max(prev - 1, 0));
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [timer]);
+  }, [session?.status, currentQuestion?._id, submitted]);
 
   useEffect(() => {
-    if (timer > 0) {
-      timerStarted.current = true;
-    }
-
-    if (!timerStarted.current || submitted || timer !== 0 || !currentQuestion) return;
+    if (submitted || timer !== 0 || !currentQuestion) return;
     if (!questionStartTime.current) return;
 
     if (selectedAnswer === null || selectedAnswer === undefined) {
-      setSubmitted(true);
+      setTimeout(() => setSubmitted(true), 0);
       toast.error("Time is up! You did not select an answer.");
       return;
     }
 
     handleSubmit();
-  }, [timer, submitted, currentQuestion, selectedAnswer]);
+  }, [timer, submitted, currentQuestion?._id, selectedAnswer]);
 
-  // Reset answer state whenever question changes (explicit dependency)
-  useEffect(() => {
-    if (currentQuestion?._id) {
-      setSelectedAnswer(null);
-      setSubmitted(false);
-      timerStarted.current = false;
-    }
-  }, [currentQuestion?._id]);
+ function moveToNextQuestion() {
+  const currentIndex = questions.findIndex(
+    (question) => String(question._id) === String(currentQuestion?._id),
+  );
+  const nextQuestion = questions[currentIndex + 1];
 
- const handleSubmit = async () => {
+  if (!nextQuestion) {
+    employeeFinished.current = true;
+    setSession((prev) => ({ ...prev, status: "Finished" }));
+    setCurrentQuestion(null);
+    setTimer(0);
+    return;
+  }
+
+  lastQuestionId.current = nextQuestion._id;
+  questionStartTime.current = Date.now();
+
+  setSession((prev) => ({
+    ...prev,
+    questionNumber: (prev?.questionNumber || currentIndex + 1) + 1,
+    currentQuestion: nextQuestion._id,
+  }));
+  setCurrentQuestion(nextQuestion);
+  setSelectedAnswer(null);
+  setSubmitted(false);
+  setTimer(Number(nextQuestion.timer || 30));
+}
+
+ async function handleSubmit() {
   if (submitted) return;
 
   if (!currentQuestion) {
@@ -175,6 +208,8 @@ export default function EmployeeLiveQuiz() {
 
     console.log(res.data);
 
+    setTimeout(moveToNextQuestion, 1000);
+
   } catch (err) {
     console.log("Submit error:", err.response?.data || err.message);
     setSubmitted(false);
@@ -182,8 +217,15 @@ export default function EmployeeLiveQuiz() {
     const errorMsg = err.response?.data?.message || err.message || "Something went wrong";
     toast.error(errorMsg);
   }
-};
+}
   if (!session) return <h2 className="text-center mt-20">Loading...</h2>;
+
+  const currentQuestionNumber =
+    questions.findIndex(
+      (question) => String(question._id) === String(currentQuestion?._id),
+    ) + 1;
+  const displayQuestionNumber =
+    currentQuestionNumber > 0 ? currentQuestionNumber : session.questionNumber;
 
   if (session.status === "Waiting")
     return (
@@ -205,7 +247,7 @@ export default function EmployeeLiveQuiz() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
             <h2 className="text-2xl font-bold">
-              Question {session.questionNumber}
+              Question {displayQuestionNumber}
             </h2>
             {employeeName && (
               <p className="mt-2 text-sm text-slate-500">
