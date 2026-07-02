@@ -39,23 +39,30 @@ export default function CertificateModal({
                 return;
             }
 
-            await generateCertificate(
-                selectedTemplate,
-                selectedEmployee.name
-            );
-
             const payload = {
                 employeeId: selectedEmployee._id,
                 employeeName: selectedEmployee.name,
                 templateName: selectedTemplate,
             };
 
+            let savedCertId = null;
+
             if (isEdit) {
-                await updateCertificate(editData._id, payload);
+                const res = await updateCertificate(editData._id, payload);
+                savedCertId = editData._id;
                 alert("Certificate Updated");
             } else {
-                await addCertificate(payload);
+                const res = await addCertificate(payload);
+                savedCertId = res.data?._id || res.data?.certificate?._id;
                 alert("Certificate Added");
+            }
+
+            if (savedCertId) {
+                await generateCertificate(
+                    selectedTemplate,
+                    selectedEmployee.name,
+                    savedCertId
+                );
             }
 
             onClose();

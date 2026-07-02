@@ -19,6 +19,7 @@ import pollRoutes from "./routes/pollRoutes.js";
 import { startQuizTimer } from "./controllers/quizSessionController.js";
 
 import certificateRoutes from "./routes/certificateRoutes.js";
+import awardRoutes from "./routes/awardRoutes.js";
 
 dotenv.config();
 
@@ -86,6 +87,7 @@ app.use("/api/event", eventRoutes);
 app.use("/api/tambola", tambolaRoutes);
 app.use("/api/polls", pollRoutes);
 app.use("/api/employees", employeeRoutes);
+app.use("/api/awards", awardRoutes);
 
 // ==========================
 // Health Check

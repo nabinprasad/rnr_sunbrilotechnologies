@@ -7,6 +7,7 @@ const TEMPLATE_CONFIG = {
         y: 215,
         fontSize: 42,
         color: rgb(0.1, 0.2, 0.45),
+        qr: { x: 80, y: 70, size: 60 }
     },
 
     // Image 1 (gold template)
@@ -14,6 +15,7 @@ const TEMPLATE_CONFIG = {
         y: 310,
         fontSize: 52,
         color: rgb(0.78, 0.58, 0.15),
+        qr: { x: 90, y: 80, size: 90 }
     },
 
     // Image 2 (blue template)
@@ -21,10 +23,11 @@ const TEMPLATE_CONFIG = {
         y: 290,
         fontSize: 46,
         color: rgb(0.1, 0.25, 0.5),
+        qr: { y: 80, size: 90 }
     },
 };
 
-export const generateCertificate = async (templatePath, employeeName) => {
+export const generateCertificate = async (templatePath, employeeName, certificateId, download = true) => {
     try {
         const existingPdfBytes = await fetch(templatePath).then((res) =>
             res.arrayBuffer()
@@ -40,7 +43,7 @@ export const generateCertificate = async (templatePath, employeeName) => {
         const customFont = await pdfDoc.embedFont(fontBytes);
 
         const page = pdfDoc.getPages()[0];
-        const { width } = page.getSize();
+        const { width, height } = page.getSize();
 
         const config = TEMPLATE_CONFIG[templatePath];
 
@@ -67,6 +70,27 @@ export const generateCertificate = async (templatePath, employeeName) => {
             color: config.color,
         });
 
+        // Add verification QR Code if certificateId is provided
+        if (certificateId && config.qr) {
+            const verificationUrl = `${window.location.origin}/verify-certificate/${certificateId}`;
+            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(verificationUrl)}`;
+            try {
+                const qrImageBytes = await fetch(qrApiUrl).then((res) => res.arrayBuffer());
+                const qrImage = await pdfDoc.embedPng(qrImageBytes);
+
+                const qrSize = config.qr.size;
+                // Center the QR Code horizontally to overlay the template's placeholder QR
+                page.drawImage(qrImage, {
+                    x: (width - qrSize) / 2,
+                    y: config.qr.y,
+                    width: qrSize,
+                    height: qrSize,
+                });
+            } catch (qrErr) {
+                console.log("Failed to load or embed QR code image", qrErr);
+            }
+        }
+
         const pdfBytes = await pdfDoc.save();
 
         const blob = new Blob([pdfBytes], {
@@ -75,10 +99,14 @@ export const generateCertificate = async (templatePath, employeeName) => {
 
         const url = URL.createObjectURL(blob);
 
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `${employeeName}_certificate.pdf`;
-        link.click();
+        if (download) {
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `${employeeName}_certificate.pdf`;
+            link.click();
+        }
+
+        return url;
     } catch (error) {
         console.log("Certificate Error:", error);
     }

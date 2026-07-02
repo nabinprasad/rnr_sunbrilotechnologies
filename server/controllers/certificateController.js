@@ -36,3 +36,15 @@ export const deleteCertificate = async (req, res) => {
     await Certificate.findByIdAndDelete(req.params.id);
     res.json({ message: "Deleted" });
 };
+
+export const getCertificateById = async (req, res) => {
+    try {
+        const certificate = await Certificate.findById(req.params.id);
+        if (!certificate) {
+            return res.status(404).json({ message: "Certificate not found" });
+        }
+        res.json({ certificate });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
