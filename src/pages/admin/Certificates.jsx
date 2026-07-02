@@ -54,7 +54,8 @@ export default function Certificates() {
   const handleDownload = async (cert) => {
     await generateCertificate(
       cert.templateName,
-      cert.employeeName
+      cert.employeeName,
+      cert._id
     );
   };
 

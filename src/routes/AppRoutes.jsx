@@ -28,6 +28,8 @@ import EmployeeTambola from "../pages/employee/Tambola";
 import LiveTambola from "../pages/live/LiveTambola";
 import EmployeeLivePoll from "../pages/employee/LivePoll";
 import LivePollScreen from "../pages/live/LivePoll";
+import VerifyCertificate from "../pages/live/VerifyCertificate";
+import LiveAwards from "../pages/live/LiveAwards";
 
 export default function AppRoutes() {
   return (
@@ -159,10 +161,12 @@ export default function AppRoutes() {
         }
       />
 
-      {/* Live Quiz / Tambola / Poll */}
+      {/* Live Quiz / Tambola / Poll / Verification / Awards */}
       <Route path="/live-quiz" element={<LiveQuiz />} />
       <Route path="/live-tambola" element={<LiveTambola />} />
       <Route path="/live-poll" element={<LivePollScreen />} />
+      <Route path="/live-awards" element={<LiveAwards />} />
+      <Route path="/verify-certificate/:id" element={<VerifyCertificate />} />
 
       {/* Employee Routes */}
       <Route path="/employee/login" element={<EmployeeLogin />} />
