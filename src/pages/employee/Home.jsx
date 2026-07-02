@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import socket from "../../socket";
 import { getQuizSession } from "../../api/quizSessionApi";
 import { getTambolaSession } from "../../api/tambolaApi";
+import { getActivePoll } from "../../api/pollApi";
 import { getEvent } from "../../api/eventApi";
 import { getEmployeeStatus } from "../../api/employeeApi";
 import { getEmployee, setEmployee } from "../../utils/employeeStorage";
@@ -27,6 +28,7 @@ export default function EmployeeHome() {
   const [event, setEvent] = useState(null);
   const [quizSession, setQuizSession] = useState(null);
   const [tambolaSession, setTambolaSession] = useState(null);
+  const [activePoll, setActivePoll] = useState(null);
 
   useEffect(() => {
     loadEmployee();
@@ -56,25 +58,41 @@ export default function EmployeeHome() {
     socket.on("quizSessionUpdated", handleQuizSession);
     socket.on("tambolaSessionUpdated", handleTambolaSession);
 
+    const handlePollUpdated = (poll) => {
+      if (poll?.status === "Active") {
+        setActivePoll(poll);
+      } else {
+        setActivePoll(null);
+      }
+    };
+    socket.on("pollUpdated", handlePollUpdated);
+
     return () => {
       clearInterval(interval);
       socket.off("employeeApproved");
       socket.off("quizSessionUpdated", handleQuizSession);
       socket.off("tambolaSessionUpdated", handleTambolaSession);
+      socket.off("pollUpdated", handlePollUpdated);
     };
   }, [navigate]);
 
   const loadLiveData = async () => {
     try {
-      const [eventRes, quizRes, tambolaRes] = await Promise.all([
+      const [eventRes, quizRes, tambolaRes, pollRes] = await Promise.all([
         getEvent(),
         getQuizSession(),
         getTambolaSession(),
+        getActivePoll(),
       ]);
 
       setEvent(eventRes.data.event);
       setQuizSession(quizRes.data.session);
       setTambolaSession(tambolaRes.data.session);
+      if (pollRes.data.poll?.status === "Active") {
+        setActivePoll(pollRes.data.poll);
+      } else {
+        setActivePoll(null);
+      }
     } catch (err) {
       console.log(err);
     }
@@ -175,6 +193,21 @@ export default function EmployeeHome() {
                   className="mt-6 bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-lg"
                 >
                   Join Tambola
+                </button>
+              </div>
+            )}
+
+            {activePoll && (
+              <div className="bg-indigo-100 rounded-xl p-6">
+                <h2 className="text-2xl font-bold text-indigo-700">
+                  📊 Live Poll Active!
+                </h2>
+                <p className="mt-3 text-indigo-600">{activePoll.question}</p>
+                <button
+                  onClick={() => navigate("/employee/live-poll")}
+                  className="mt-6 bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg"
+                >
+                  Vote Now
                 </button>
               </div>
             )}

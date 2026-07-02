@@ -26,6 +26,8 @@ import JoinRequests from "../pages/admin/JoinRequests";
 import LiveTambolaControl from "../pages/admin/LiveTambolaControl";
 import EmployeeTambola from "../pages/employee/Tambola";
 import LiveTambola from "../pages/live/LiveTambola";
+import EmployeeLivePoll from "../pages/employee/LivePoll";
+import LivePollScreen from "../pages/live/LivePoll";
 
 export default function AppRoutes() {
   return (
@@ -157,14 +159,16 @@ export default function AppRoutes() {
         }
       />
 
-      {/* Live Quiz */}
+      {/* Live Quiz / Tambola / Poll */}
       <Route path="/live-quiz" element={<LiveQuiz />} />
       <Route path="/live-tambola" element={<LiveTambola />} />
+      <Route path="/live-poll" element={<LivePollScreen />} />
 
       {/* Employee Routes */}
       <Route path="/employee/login" element={<EmployeeLogin />} />
       <Route path="/employee/home" element={<EmployeeHome />} />
       <Route path="/employee/lobby" element={<Lobby />} />
+      <Route path="/employee/live-poll" element={<EmployeeLivePoll />} />
     </Routes>
   );
 }

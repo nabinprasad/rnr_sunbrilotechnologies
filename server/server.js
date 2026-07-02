@@ -14,6 +14,7 @@ import quizSessionRoutes from "./routes/quizSessionRoutes.js";
 import quizAnswerRoutes from "./routes/quizAnswerRoutes.js";
 import eventRoutes from "./routes/eventRoutes.js";
 import tambolaRoutes from "./routes/tambolaRoutes.js";
+import pollRoutes from "./routes/pollRoutes.js";
 
 import { startQuizTimer } from "./controllers/quizSessionController.js";
 
@@ -83,6 +84,7 @@ app.use("/api/quiz-session", quizSessionRoutes);
 app.use("/api/quiz-answer", quizAnswerRoutes);
 app.use("/api/event", eventRoutes);
 app.use("/api/tambola", tambolaRoutes);
+app.use("/api/polls", pollRoutes);
 app.use("/api/employees", employeeRoutes);
 
 // ==========================
