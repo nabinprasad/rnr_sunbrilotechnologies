@@ -30,11 +30,11 @@ const menus = [
     path: "/admin/join-requests",
     icon: "🙋",
   },
-  {
-    name: "Activities",
-    path: "/admin/activities",
-    icon: <FaGamepad />,
-  },
+  // {
+  //   name: "Activities",
+  //   path: "/admin/activities",
+  //   icon: <FaGamepad />,
+  // },
   {
     name: "Quiz",
     path: "/admin/quiz",
@@ -70,21 +70,21 @@ const menus = [
     path: "/admin/awards",
     icon: <FaAward />,
   },
-  {
-    name: "Recognition",
-    path: "/admin/recognition",
-    icon: <FaAward />,
-  },
+  // {
+  //   name: "Recognition",
+  //   path: "/admin/recognition",
+  //   icon: <FaAward />,
+  // },
   {
     name: "Certificates",
     path: "/admin/certificates",
     icon: <FaCertificate />,
   },
-  {
-    name: "Games",
-    path: "/admin/games",
-    icon: <FaGamepad />,
-  },
+  // {
+  //   name: "Games",
+  //   path: "/admin/games",
+  //   icon: <FaGamepad />,
+  // },
   {
     name: "Reports",
     path: "/admin/reports",
@@ -97,35 +97,33 @@ const menus = [
   },
 ];
 
-export default function Sidebar({  collapsed,
+export default function Sidebar({ collapsed,
   setCollapsed,
   mobileOpen,
   setMobileOpen, }) {
   return (
-   <aside
-  className={`
-  fixed top-0 left-0 h-screen bg-white shadow-xl z-50 transition-all duration-300
+    <aside
+      className={`
+  fixed top-0 left-0 h-screen bg-white shadow-xl z-50 transition-all duration-300 flex flex-col
 
-  ${
-    mobileOpen
-      ? "translate-x-0"
-      : "-translate-x-full"
-  }
+  ${mobileOpen
+          ? "translate-x-0"
+          : "-translate-x-full"
+        }
 
   md:translate-x-0
 
-  ${
-    collapsed
-      ? "md:w-20"
-      : "md:w-64"
-  }
+  ${collapsed
+          ? "md:w-20"
+          : "md:w-64"
+        }
 
   w-64
 `}
->
+    >
       {/* Header */}
 
-      <div className="flex items-center justify-between p-4 border-b">
+      <div className="flex items-center justify-between p-4 border-b shrink-0">
 
         {!collapsed && (
           <div className="flex gap-3">
@@ -158,7 +156,7 @@ export default function Sidebar({  collapsed,
 
       {/* Menu */}
 
-      <nav className="mt-4">
+      <nav className="mt-4 flex-1 overflow-y-auto pb-4">
 
         {menus.map((menu) => (
 
@@ -167,13 +165,11 @@ export default function Sidebar({  collapsed,
             to={menu.path}
             title={collapsed ? menu.name : ""}
             className={({ isActive }) =>
-              `flex items-center ${
-                collapsed ? "justify-center" : ""
+              `flex items-center ${collapsed ? "justify-center" : ""
               } gap-4 px-5 py-3 mx-2 rounded-xl transition-all duration-200
-              ${
-                isActive
-                  ? "bg-blue-600 text-white"
-                  : "hover:bg-blue-100"
+              ${isActive
+                ? "bg-blue-600 text-white"
+                : "hover:bg-blue-100"
               }`
             }
           >
