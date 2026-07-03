@@ -156,12 +156,6 @@ export default function LiveAwards() {
             className="h-16 bg-white rounded-xl p-2"
             alt="Sunbrilo"
           />
-
-          <img
-            src="/riskonnectlogo.png"
-            className="h-16 bg-white rounded-xl p-2"
-            alt="Riskonnect"
-          />
         </div>
       </div>
     );
@@ -242,11 +236,6 @@ export default function LiveAwards() {
               src="/sunbrilologo.png"
               alt="Sunbrilo"
               className="h-12 object-contain bg-white/10 p-1.5 rounded-xl"
-            />
-            <img
-              src="/riskonnectlogo.png"
-              alt="Riskonnect"
-              className="h-12 object-contain bg-white p-1.5 rounded-xl"
             />
           </div>
           <div className="text-right">

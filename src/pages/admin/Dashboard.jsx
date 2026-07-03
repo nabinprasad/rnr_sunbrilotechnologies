@@ -82,11 +82,6 @@ export default function Dashboard() {
               alt="Sunbrilo"
               className="h-12 w-auto"
             />
-            <img
-              src="/riskonnectlogo.png"
-              alt="Riskonnect"
-              className="h-12 w-auto"
-            />
           </div>
         </div>
 

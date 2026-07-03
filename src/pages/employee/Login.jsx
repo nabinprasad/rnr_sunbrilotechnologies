@@ -45,7 +45,6 @@ export default function EmployeeLogin() {
           <div className="hidden md:flex flex-col gap-6 p-8 rounded-2xl bg-white shadow-[0_30px_80px_-45px_rgba(15,23,42,0.08)]">
             <div className="flex items-center gap-4">
               <img src="/sunbrilologo.png" alt="Sunbrilo" className="h-12 w-auto" />
-              <img src="/riskonnectlogo.png" alt="Riskonnect" className="h-12 w-auto" />
             </div>
 
             <h2 className="text-3xl font-bold text-slate-900">Welcome to Reward & Recognition</h2>

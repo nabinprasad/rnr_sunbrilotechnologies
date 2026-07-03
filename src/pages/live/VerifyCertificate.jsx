@@ -113,7 +113,6 @@ export default function VerifyCertificate() {
       <div className="w-full max-w-4xl flex justify-between items-center mb-10 z-10 animate-fadeIn">
         <div className="flex gap-4">
           <img src="/sunbrilologo.png" alt="Sunbrilo" className="h-10 object-contain bg-white/10 p-1.5 rounded-lg" />
-          <img src="/riskonnectlogo.png" alt="Riskonnect" className="h-10 object-contain bg-white p-1 rounded-lg" />
         </div>
         <Link
           to="/"
