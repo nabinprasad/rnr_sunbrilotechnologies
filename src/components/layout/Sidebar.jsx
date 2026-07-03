@@ -132,12 +132,6 @@ export default function Sidebar({ collapsed,
               alt=""
               className="w-16"
             />
-
-            <img
-              src="/riskonnectlogo.png"
-              alt=""
-              className="w-16 bg-white"
-            />
           </div>
         )}
 

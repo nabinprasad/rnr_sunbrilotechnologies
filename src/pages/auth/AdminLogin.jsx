@@ -65,12 +65,6 @@ export default function AdminLogin() {
               alt="Sunbrilo"
               className="h-14 object-contain"
             />
-
-            <img
-              src="/riskonnectlogo.png"
-              alt="Riskonnect"
-              className="h-14 object-contain"
-            />
           </div>
 
           <p className="text-gray-500">

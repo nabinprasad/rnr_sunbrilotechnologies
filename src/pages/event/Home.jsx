@@ -64,7 +64,6 @@ export default function Home() {
           <section className="space-y-10">
             <div className="flex flex-wrap items-center gap-4">
               <img src="/sunbrilologo.png" alt="Sunbrilo Logo" className="h-14 w-auto" />
-              <img src="/riskonnectlogo.png" alt="Riskonnect Logo" className="h-14 w-auto" />
             </div>
 
             <div className="rounded-[2rem] bg-white/95 p-8 shadow-[0_30px_90px_-45px_rgba(15,23,42,0.5)] backdrop-blur-sm sm:p-12">
