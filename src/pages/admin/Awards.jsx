@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "../../components/layout/AdminLayout";
-import PageHeader from "../../components/ui/PageHeader";
-import Button from "../../components/ui/Button";
 import {
   getAwards,
   createAward,
   assignWinners,
+  assignNominees,
   deleteAward,
 } from "../../api/awardApi";
 import { getEmployees } from "../../api/employeeApi";
@@ -129,9 +128,12 @@ function AddAwardModal({ onClose, onCreated }) {
   );
 }
 
-function AssignWinnerModal({ award, employees, onClose, onAssigned }) {
+function AssignEmployeeModal({ award, employees, mode, onClose, onAssigned }) {
+  const selectedField = mode === "nominees" ? "nominees" : "winners";
+  const title = mode === "nominees" ? "Assign Nominees" : "Assign Winners";
+  const saveLabel = mode === "nominees" ? "Save Nominees" : "Save Winners";
   const [selectedIds, setSelectedIds] = useState(() => {
-    return award.winners ? award.winners.map(w => w._id || w) : [];
+    return award[selectedField] ? award[selectedField].map(item => item._id || item) : [];
   });
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
@@ -146,12 +148,20 @@ function AssignWinnerModal({ award, employees, onClose, onAssigned }) {
     e.preventDefault();
     try {
       setLoading(true);
-      await assignWinners(award._id, selectedIds);
-      toast.success(selectedIds.length > 0 ? "Winners assigned!" : "Winners cleared!");
+      if (mode === "nominees") {
+        await assignNominees(award._id, selectedIds);
+      } else {
+        await assignWinners(award._id, selectedIds);
+      }
+      toast.success(
+        selectedIds.length > 0
+          ? `${mode === "nominees" ? "Nominees" : "Winners"} assigned!`
+          : `${mode === "nominees" ? "Nominees" : "Winners"} cleared!`
+      );
       onAssigned();
       onClose();
     } catch (err) {
-      toast.error("Failed to assign winners");
+      toast.error(`Failed to assign ${mode === "nominees" ? "nominees" : "winners"}`);
     } finally {
       setLoading(false);
     }
@@ -168,7 +178,7 @@ function AssignWinnerModal({ award, employees, onClose, onAssigned }) {
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 animate-fadeIn">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold text-slate-800 text-center w-full">Assign Winners</h2>
+          <h2 className="text-2xl font-bold text-slate-800 text-center w-full">{title}</h2>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-700 text-2xl">×</button>
         </div>
 
@@ -253,7 +263,7 @@ function AssignWinnerModal({ award, employees, onClose, onAssigned }) {
               disabled={loading}
               className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl py-2.5 font-semibold hover:opacity-90 transition disabled:opacity-50"
             >
-              {loading ? "Saving..." : "Save Winners"}
+              {loading ? "Saving..." : saveLabel}
             </button>
           </div>
         </form>
@@ -268,7 +278,7 @@ export default function Awards() {
   const [employees, setEmployees] = useState([]);
   const [activeCategory, setActiveCategory] = useState("All");
   const [showAddModal, setShowAddModal] = useState(false);
-  const [selectedAwardForWinner, setSelectedAwardForWinner] = useState(null);
+  const [selectionModal, setSelectionModal] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -305,7 +315,7 @@ export default function Awards() {
 
   const handleClearWinner = async (awardId) => {
     try {
-      await assignWinner(awardId, null);
+      await assignWinners(awardId, []);
       toast.success("Winner cleared");
       fetchData();
     } catch (err) {
@@ -378,6 +388,7 @@ export default function Awards() {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredAwards.map((award) => {
             const winners = award.winners || [];
+            const nominees = award.nominees || [];
             return (
               <div
                 key={award._id}
@@ -402,8 +413,31 @@ export default function Awards() {
                   </h3>
                 </div>
 
-                {/* Bottom Half winner display */}
+                {/* Bottom Half nominee and winner display */}
                 <div className="border-t border-slate-50 bg-slate-50/50 p-6 flex flex-col items-center justify-center min-h-[160px]">
+                  {nominees.length > 0 && (
+                    <div className="w-full mb-4">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-2 text-center">
+                        Nominees
+                      </p>
+                      <div className="flex justify-center -space-x-2">
+                        {nominees.slice(0, 5).map((nominee) => (
+                          <img
+                            key={nominee._id}
+                            src={nominee.photo || "https://i.pravatar.cc/150"}
+                            alt={nominee.name}
+                            title={nominee.name}
+                            className="w-9 h-9 rounded-full object-cover border-2 border-white shadow-sm"
+                          />
+                        ))}
+                        {nominees.length > 5 && (
+                          <span className="w-9 h-9 rounded-full border-2 border-white bg-slate-200 text-slate-600 text-xs font-bold flex items-center justify-center shadow-sm">
+                            +{nominees.length - 5}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
                   {winners.length > 0 ? (
                     winners.length === 1 ? (
                       // Single Winner
@@ -454,7 +488,7 @@ export default function Awards() {
                     <div className="text-center py-4">
                       <p className="text-slate-400 text-sm font-medium mb-3">No Winners Assigned Yet</p>
                       <button
-                        onClick={() => setSelectedAwardForWinner(award)}
+                        onClick={() => setSelectionModal({ award, mode: "winners" })}
                         className="bg-blue-50 text-blue-600 hover:bg-blue-100 font-bold text-xs px-4 py-2 rounded-lg transition"
                       >
                         🎯 Assign Winners
@@ -466,7 +500,13 @@ export default function Awards() {
                 {/* Footer management action */}
                 <div className="bg-slate-50 border-t border-slate-100 px-6 py-3 flex justify-between items-center text-xs">
                   <button
-                    onClick={() => setSelectedAwardForWinner(award)}
+                    onClick={() => setSelectionModal({ award, mode: "nominees" })}
+                    className="text-purple-500 hover:text-purple-800 font-semibold"
+                  >
+                    Nominees
+                  </button>
+                  <button
+                    onClick={() => setSelectionModal({ award, mode: "winners" })}
                     className="text-slate-500 hover:text-slate-800 font-semibold"
                   >
                     Change Winner
@@ -493,11 +533,12 @@ export default function Awards() {
       )}
 
       {/* Assign Winner Modal */}
-      {selectedAwardForWinner && (
-        <AssignWinnerModal
-          award={selectedAwardForWinner}
+      {selectionModal && (
+        <AssignEmployeeModal
+          award={selectionModal.award}
+          mode={selectionModal.mode}
           employees={employees}
-          onClose={() => setSelectedAwardForWinner(null)}
+          onClose={() => setSelectionModal(null)}
           onAssigned={fetchData}
         />
       )}

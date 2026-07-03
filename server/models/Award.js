@@ -28,6 +28,12 @@ const awardSchema = new mongoose.Schema(
         ref: "Employee",
       },
     ],
+    nominees: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Employee",
+      },
+    ],
   },
   {
     timestamps: true,

@@ -1,5 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { getAwards } from "../../api/awardApi";
+import { getCertificates } from "../../api/certificateApi";
+import { generateCertificate } from "../../utils/certificateGenerator";
 import {
   FaChevronLeft,
   FaChevronRight,
@@ -12,10 +14,14 @@ export default function LiveAwards() {
   const [currentIndex, setCurrentIndex] = useState(-1); // -1 is the Welcome/Intro slide
   const [revealed, setRevealed] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [certificates, setCertificates] = useState([]);
+  const [certificateUrls, setCertificateUrls] = useState({});
   const bgMusicRef = useRef(null);
   const drumRollRef = useRef(null);
   const applauseRef = useRef(null);
   const [showThankYou, setShowThankYou] = useState(false);
+  const currentAward = currentIndex >= 0 ? awards[currentIndex] : null;
+  const nominees = currentAward?.nominees || [];
 
   useEffect(() => {
     fetchAwards();
@@ -24,14 +30,46 @@ export default function LiveAwards() {
   const fetchAwards = async () => {
     try {
       setLoading(true);
-      const res = await getAwards();
-      setAwards(res.data.awards);
+      const [awardsRes, certificatesRes] = await Promise.all([
+        getAwards(),
+        getCertificates(),
+      ]);
+      setAwards(awardsRes.data.awards);
+      setCertificates(certificatesRes.data.certificates || []);
     } catch (err) {
       console.error("Failed to fetch awards for live view", err);
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!revealed || !currentAward?.winners?.length) return;
+
+    currentAward.winners.forEach(async (winner) => {
+      const winnerId = winner._id || winner;
+      const certificate = certificates.find((cert) => {
+        const certEmployeeId = cert.employeeId?._id || cert.employeeId;
+        return String(certEmployeeId) === String(winnerId);
+      });
+
+      if (!certificate || certificateUrls[winnerId]) return;
+
+      const url = await generateCertificate(
+        certificate.templateName,
+        certificate.employeeName || winner.name,
+        certificate._id,
+        false
+      );
+
+      if (url) {
+        setCertificateUrls((prev) => ({
+          ...prev,
+          [winnerId]: url,
+        }));
+      }
+    });
+  }, [revealed, currentAward, certificates, certificateUrls]);
 
   const handleReveal = () => {
     // Lower background music
@@ -129,7 +167,6 @@ export default function LiveAwards() {
     );
   }
 
-  const currentAward = currentIndex >= 0 ? awards[currentIndex] : null;
   if (showThankYou) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 flex flex-col items-center justify-center text-center text-white px-8">
@@ -289,23 +326,83 @@ export default function LiveAwards() {
               </h2>
 
               {/* Winner Section */}
-              <div className="min-h-[320px] flex items-center justify-center w-full">
+              <div className="min-h-[360px] flex items-center justify-center w-full">
                 {!revealed ? (
-                  /* Reveal button */
-                  <button
-                    onClick={handleReveal}
-                    className="bg-white/10 hover:bg-white/20 border border-white/20 px-12 py-6 rounded-3xl text-2xl font-black tracking-wide pulse-gold flex items-center gap-3 transition"
-                  >
-                    <FaStar className="text-yellow-400 animate-spin-slow" />{" "}
-                    Reveal Winner
-                  </button>
+                  <div className="w-full flex flex-col items-center animate-fadeIn">
+                    <p className="text-yellow-300 font-black uppercase tracking-[0.3em] text-sm mb-8">
+                      Nominees
+                    </p>
+
+                    {nominees.length > 0 ? (
+                      <div className="flex flex-wrap justify-center gap-8 mb-12">
+                        {nominees.map((nominee) => (
+                          <div
+                            key={nominee._id}
+                            className="flex flex-col items-center text-center max-w-[170px]"
+                          >
+                            <div className="relative mb-4">
+                              {nominee.photo ? (
+                                <img
+                                  src={nominee.photo}
+                                  alt=""
+                                  className="w-24 h-24 rounded-full object-cover border-4 border-white/20 shadow-2xl"
+                                  onError={(e) => {
+                                    e.target.style.display = "none";
+                                    const fb =
+                                      e.target.parentElement.querySelector(
+                                        ".fallback-avatar",
+                                      );
+                                    if (fb)
+                                      fb.style.setProperty(
+                                        "display",
+                                        "flex",
+                                        "important",
+                                      );
+                                  }}
+                                />
+                              ) : null}
+                              <div
+                                className="fallback-avatar w-24 h-24 rounded-full border-4 border-white/20 bg-white/10 flex items-center justify-center text-3xl font-black text-white shadow-2xl"
+                                style={{ display: nominee.photo ? "none" : "flex" }}
+                              >
+                                {nominee.name
+                                  ? nominee.name.charAt(0).toUpperCase()
+                                  : "?"}
+                              </div>
+                            </div>
+                            <h3 className="text-xl font-black text-white drop-shadow truncate w-full">
+                              {nominee.name}
+                            </h3>
+                            <p className="text-sm text-slate-300 font-semibold truncate w-full">
+                              {nominee.department}
+                            </p>
+                            <p className="text-slate-400 text-xs mt-0.5 truncate w-full">
+                              {nominee.designation}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-white/40 text-xl font-bold italic mb-12">
+                        No Nominees Assigned
+                      </div>
+                    )}
+
+                    <button
+                      onClick={handleReveal}
+                      className="bg-white/10 hover:bg-white/20 border border-white/20 px-12 py-6 rounded-3xl text-2xl font-black tracking-wide pulse-gold flex items-center gap-3 transition"
+                    >
+                      <FaStar className="text-yellow-400 animate-spin-slow" />{" "}
+                      Reveal Winner
+                    </button>
+                  </div>
                 ) : currentAward.winners && currentAward.winners.length > 0 ? (
                   /* Winner revealed details */
-                  <div className="flex flex-wrap justify-center gap-12 animate-scaleUp">
+                  <div className="flex flex-wrap justify-center gap-10 animate-scaleUp">
                     {currentAward.winners.map((winner) => (
                       <div
                         key={winner._id}
-                        className="text-center flex flex-col items-center max-w-[200px]"
+                        className="text-center flex flex-col items-center max-w-[360px]"
                       >
                         <div className="relative mb-5">
                           <div className="absolute -inset-1 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full blur opacity-75"></div>
@@ -350,6 +447,24 @@ export default function LiveAwards() {
                         <p className="text-slate-400 text-xs mt-0.5 truncate w-full">
                           {winner.designation}
                         </p>
+                        {certificateUrls[winner._id] ? (
+                          <div className="mt-6 w-[320px] max-w-[80vw]">
+                            <div className="rounded-2xl overflow-hidden border border-yellow-300/30 bg-white shadow-2xl aspect-[4/3]">
+                              <iframe
+                                src={`${certificateUrls[winner._id]}#toolbar=0&navpanes=0`}
+                                className="w-full h-full border-none pointer-events-none"
+                                title={`${winner.name} Certificate`}
+                              />
+                            </div>
+                            <p className="mt-3 text-xs font-bold uppercase tracking-[0.2em] text-yellow-300">
+                              Certificate
+                            </p>
+                          </div>
+                        ) : (
+                          <p className="mt-5 text-xs font-semibold text-white/40">
+                            Certificate not generated yet
+                          </p>
+                        )}
                       </div>
                     ))}
                   </div>
