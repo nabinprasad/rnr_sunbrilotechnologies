@@ -52,11 +52,17 @@ const DEFAULT_AWARDS = [
 // ===========================
 export const getAwards = async (req, res) => {
   try {
-    let awards = await Award.find().populate("winners").sort({ createdAt: 1 });
+    let awards = await Award.find()
+      .populate("winners")
+      .populate("nominees")
+      .sort({ createdAt: 1 });
 
     if (awards.length === 0) {
       await Award.insertMany(DEFAULT_AWARDS);
-      awards = await Award.find().populate("winners").sort({ createdAt: 1 });
+      awards = await Award.find()
+        .populate("winners")
+        .populate("nominees")
+        .sort({ createdAt: 1 });
     }
 
     res.json({ success: true, awards });
@@ -84,6 +90,7 @@ export const createAward = async (req, res) => {
       lever,
       icon: icon || "🏆",
       winners: [],
+      nominees: [],
     });
 
     res.status(201).json({ success: true, award });
@@ -98,7 +105,9 @@ export const createAward = async (req, res) => {
 export const updateAward = async (req, res) => {
   try {
     const { id } = req.params;
-    const award = await Award.findByIdAndUpdate(id, req.body, { new: true }).populate("winners");
+    const award = await Award.findByIdAndUpdate(id, req.body, { new: true })
+      .populate("winners")
+      .populate("nominees");
 
     if (!award) {
       return res.status(404).json({ success: false, message: "Award not found" });
@@ -132,7 +141,40 @@ export const assignWinner = async (req, res) => {
     }
 
     await award.save();
-    const updatedAward = await Award.findById(id).populate("winners");
+    const updatedAward = await Award.findById(id)
+      .populate("winners")
+      .populate("nominees");
+
+    res.json({ success: true, award: updatedAward });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// ===========================
+// ASSIGN NOMINEES
+// ===========================
+export const assignNominees = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { employeeIds } = req.body;
+
+    const award = await Award.findById(id);
+    if (!award) {
+      return res.status(404).json({ success: false, message: "Award not found" });
+    }
+
+    if (employeeIds && Array.isArray(employeeIds)) {
+      const employees = await Employee.find({ _id: { $in: employeeIds } });
+      award.nominees = employees.map(emp => emp._id);
+    } else {
+      award.nominees = [];
+    }
+
+    await award.save();
+    const updatedAward = await Award.findById(id)
+      .populate("winners")
+      .populate("nominees");
 
     res.json({ success: true, award: updatedAward });
   } catch (err) {
