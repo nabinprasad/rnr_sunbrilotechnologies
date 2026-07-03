@@ -197,11 +197,62 @@ code {
 }
 
 .landing-page-bg {
-  background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), transparent 18%),
-    radial-gradient(circle at bottom right, rgba(236, 72, 153, 0.12), transparent 18%),
-    linear-gradient(135deg, #f8fafc 0%, #e2e8f0 35%, #ffffff 100%);
-  background-size: 200% 200%, 180% 180%, 100% 100%;
-  animation: gradientShift 14s ease infinite;
+  background:
+    linear-gradient(120deg, rgba(20, 184, 166, 0.16), transparent 28%),
+    linear-gradient(310deg, rgba(245, 158, 11, 0.14), transparent 30%),
+    linear-gradient(135deg, #f8fafc 0%, #eef6f5 42%, #fff7ed 100%);
+  background-size: 140% 140%, 150% 150%, 100% 100%;
+  animation: gradientShift 18s ease infinite;
+}
+
+.landing-grid {
+  background-image:
+    linear-gradient(rgba(15, 23, 42, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 42, 0.055) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), transparent 82%);
+}
+
+.landing-rise {
+  animation: landingRise 0.75s ease both;
+}
+
+.landing-panel {
+  animation-delay: 120ms;
+}
+
+.landing-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.landing-button::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 20%, rgba(255, 255, 255, 0.28), transparent 80%);
+  transform: translateX(-120%);
+  transition: transform 0.7s ease;
+}
+
+.landing-button:hover::after {
+  transform: translateX(120%);
+}
+
+.landing-feature {
+  animation: landingRise 0.75s ease both;
+}
+
+@keyframes landingRise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes gradientShift {
