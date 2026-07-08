@@ -198,10 +198,148 @@ function CreatePollModal({ onClose, onCreated }) {
   );
 }
 
+// ── Edit Poll Modal ───────────────────────────────────
+function EditPollModal({ poll, onClose, onUpdated }) {
+  const [question, setQuestion] = useState(poll.question);
+  const [options, setOptions] = useState(poll.options.map(opt => opt.text));
+  const [allowMultiple, setAllowMultiple] = useState(poll.allowMultiple);
+  const [loading, setLoading] = useState(false);
+
+  const addOption = () => {
+    if (options.length < 6) setOptions([...options, ""]);
+  };
+
+  const removeOption = (i) => {
+    if (options.length > 2) setOptions(options.filter((_, idx) => idx !== i));
+  };
+
+  const setOption = (i, val) => {
+    const copy = [...options];
+    copy[i] = val;
+    setOptions(copy);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const filled = options.filter((o) => o.trim());
+    if (!question.trim()) return toast.error("Question is required");
+    if (filled.length < 2) return toast.error("At least 2 options required");
+
+    try {
+      setLoading(true);
+      await updatePoll(poll._id, { question: question.trim(), options: filled, allowMultiple });
+      toast.success("Poll updated!");
+      onUpdated();
+      onClose();
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to update poll");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-xl p-8 animate-fadeIn">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-slate-800">Edit Poll</h2>
+          <button
+            onClick={onClose}
+            className="text-slate-400 hover:text-slate-700 text-2xl leading-none"
+          >
+            ×
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="block text-sm font-semibold text-slate-600 mb-1">
+              Poll Question
+            </label>
+            <input
+              type="text"
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              placeholder="e.g. Which department had the best performance this quarter?"
+              className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-400 text-slate-800"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-slate-600 mb-2">
+              Options
+            </label>
+            {options.map((opt, i) => (
+              <div key={i} className="flex gap-2 mb-2">
+                <input
+                  type="text"
+                  value={opt}
+                  onChange={(e) => setOption(i, e.target.value)}
+                  placeholder={`Option ${i + 1}`}
+                  className="flex-1 border border-slate-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 text-slate-800"
+                />
+                {options.length > 2 && (
+                  <button
+                    type="button"
+                    onClick={() => removeOption(i)}
+                    className="text-red-400 hover:text-red-600 font-bold text-xl px-2"
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+            ))}
+            {options.length < 6 && (
+              <button
+                type="button"
+                onClick={addOption}
+                className="text-purple-600 text-sm font-semibold hover:underline mt-1"
+              >
+                + Add Option
+              </button>
+            )}
+          </div>
+
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={allowMultiple}
+              onChange={(e) => setAllowMultiple(e.target.checked)}
+              className="w-4 h-4 accent-purple-600"
+            />
+            <span className="text-sm text-slate-600 font-medium">
+              Allow multiple selections
+            </span>
+          </label>
+
+          <div className="flex gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 border border-slate-200 rounded-xl py-3 font-semibold text-slate-600 hover:bg-slate-50 transition"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl py-3 font-semibold hover:opacity-90 transition disabled:opacity-60"
+            >
+              {loading ? "Updating..." : "Update Poll"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 // ── Main Page ─────────────────────────────────────────
 export default function Polls() {
   const [polls, setPolls] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [editingPoll, setEditingPoll] = useState(null);
   const [expandedPoll, setExpandedPoll] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -277,6 +415,14 @@ export default function Polls() {
         <CreatePollModal
           onClose={() => setShowModal(false)}
           onCreated={load}
+        />
+      )}
+
+      {editingPoll && (
+        <EditPollModal
+          poll={editingPoll}
+          onClose={() => setEditingPoll(null)}
+          onUpdated={load}
         />
       )}
 
@@ -397,6 +543,13 @@ export default function Polls() {
                       className="text-xs border border-slate-200 text-slate-600 px-3 py-1.5 rounded-lg hover:bg-slate-50 transition font-medium"
                     >
                       {isExpanded ? "Hide Results" : "View Results"}
+                    </button>
+
+                    <button
+                      onClick={() => setEditingPoll(poll)}
+                      className="text-xs border border-purple-200 text-purple-600 px-3 py-1.5 rounded-lg hover:bg-purple-50 transition font-medium"
+                    >
+                      ✏️ Edit
                     </button>
 
                     {poll.status === "Draft" && (

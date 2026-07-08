@@ -18,7 +18,7 @@ import { getEvent } from "../../api/eventApi";
 import { getQuizSession } from "../../api/quizSessionApi";
 import { getTambolaSession } from "../../api/tambolaApi";
 import { getEmployee, setEmployee as setStoredEmployee } from "../../utils/employeeStorage";
-import { getEmployeePhotoUrl } from "../../utils/employeePhoto.js";
+import { getEmployeePhotoUrl, DEFAULT_EMPLOYEE_PHOTO } from "../../utils/employeePhoto.js";
 
 export default function Lobby() {
   const [employee, setEmployee] = useState(getEmployee());
@@ -156,6 +156,10 @@ export default function Lobby() {
                   src={getEmployeePhotoUrl(employee?.photo)}
                   alt={employee?.name || "Employee"}
                   className="h-28 w-28 rounded-2xl border-4 border-white object-cover shadow-lg ring-2 ring-blue-100 sm:h-32 sm:w-32"
+                  onError={(event) => {
+                    event.currentTarget.onerror = null;
+                    event.currentTarget.src = DEFAULT_EMPLOYEE_PHOTO;
+                  }}
                 />
 
                 <div className="mt-4 sm:ml-5 sm:mt-0 lg:ml-0 lg:mt-5">

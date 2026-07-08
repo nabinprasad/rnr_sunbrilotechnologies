@@ -3,7 +3,7 @@ import AdminLayout from "../../components/layout/AdminLayout";
 import PageHeader from "../../components/ui/PageHeader";
 import { getLeaderboard } from "../../api/employeeApi";
 import { resetEmployeeAnswers } from "../../api/quizAnswerApi";
-import { getEmployeePhotoUrl } from "../../utils/employeePhoto.js";
+import { getEmployeePhotoUrl, DEFAULT_EMPLOYEE_PHOTO } from "../../utils/employeePhoto.js";
 
 export default function Leaderboard() {
   const [leaders, setLeaders] = useState([]);
@@ -67,6 +67,10 @@ export default function Leaderboard() {
                 src={getEmployeePhotoUrl(winner.photo)} 
                 alt={winner.name}
                 className="h-20 w-20 rounded-full border-4 border-white object-cover"
+                onError={(event) => {
+                  event.currentTarget.onerror = null;
+                  event.currentTarget.src = DEFAULT_EMPLOYEE_PHOTO;
+                }}
               />
               <div>
                 <h2 className="text-4xl font-black">{winner.name}</h2>

@@ -9,7 +9,7 @@ import {
 } from "../../api/awardApi";
 import { getEmployees } from "../../api/employeeApi";
 import toast from "react-hot-toast";
-import { getEmployeePhotoUrl } from "../../utils/employeePhoto.js";
+import { getEmployeePhotoUrl, DEFAULT_EMPLOYEE_PHOTO } from "../../utils/employeePhoto.js";
 
 // ── Categories metadata ────────────────────────────────
 const CATEGORY_COLORS = {
@@ -225,6 +225,10 @@ function AssignEmployeeModal({ award, employees, mode, onClose, onAssigned }) {
                       src={getEmployeePhotoUrl(emp.photo)}
                       alt={emp.name}
                       className="w-8 h-8 rounded-full object-cover shadow-sm"
+                      onError={(event) => {
+                        event.currentTarget.onerror = null;
+                        event.currentTarget.src = DEFAULT_EMPLOYEE_PHOTO;
+                      }}
                     />
                     <div className="flex-1 text-left">
                       <p className="text-sm font-bold text-slate-800 leading-none">{emp.name}</p>
@@ -429,6 +433,10 @@ export default function Awards() {
                             alt={nominee.name}
                             title={nominee.name}
                             className="w-9 h-9 rounded-full object-cover border-2 border-white shadow-sm"
+                            onError={(event) => {
+                              event.currentTarget.onerror = null;
+                              event.currentTarget.src = DEFAULT_EMPLOYEE_PHOTO;
+                            }}
                           />
                         ))}
                         {nominees.length > 5 && (
@@ -447,6 +455,10 @@ export default function Awards() {
                           src={getEmployeePhotoUrl(winners[0].photo)}
                           alt={winners[0].name}
                           className="w-16 h-16 rounded-full object-cover border-2 border-purple-400 shadow-md mb-2"
+                          onError={(event) => {
+                            event.currentTarget.onerror = null;
+                            event.currentTarget.src = DEFAULT_EMPLOYEE_PHOTO;
+                          }}
                         />
                         <h4 className="font-bold text-slate-800 text-base">{winners[0].name}</h4>
                         <p className="text-xs text-slate-500 font-medium">{winners[0].department} · {winners[0].designation}</p>
@@ -468,6 +480,10 @@ export default function Awards() {
                                 src={getEmployeePhotoUrl(winner.photo)}
                                 alt={winner.name}
                                 className="w-8 h-8 rounded-full object-cover shadow-sm border border-purple-200"
+                                onError={(event) => {
+                                  event.currentTarget.onerror = null;
+                                  event.currentTarget.src = DEFAULT_EMPLOYEE_PHOTO;
+                                }}
                               />
                               <div className="text-left leading-tight truncate">
                                 <p className="text-xs font-bold text-slate-800 truncate" title={winner.name}>{winner.name}</p>
