@@ -14,9 +14,7 @@ import {
 
 const CLAIM_LABELS = {
   earlyFive: "Early Five",
-  topLine: "Top Line",
   middleLine: "Middle Line",
-  bottomLine: "Bottom Line",
   fullHouse: "Full House",
 };
 

@@ -7,7 +7,7 @@ import { getActivePoll } from "../../api/pollApi";
 import { getEvent } from "../../api/eventApi";
 import { getEmployeeStatus } from "../../api/employeeApi";
 import { getEmployee, setEmployee } from "../../utils/employeeStorage";
-import { getEmployeePhotoUrl } from "../../utils/employeePhoto.js";
+import { getEmployeePhotoUrl, DEFAULT_EMPLOYEE_PHOTO } from "../../utils/employeePhoto.js";
 
 function resolveLiveActivity(event, quizSession, tambolaSession) {
   const quizLive = quizSession?.status === "Live";
@@ -166,6 +166,10 @@ export default function EmployeeHome() {
                 src={getEmployeePhotoUrl(employeeData.photo)}
                 alt={employeeData.name}
                 className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-full object-cover border-4 border-white/20 shadow-2xl"
+                onError={(event) => {
+                  event.currentTarget.onerror = null;
+                  event.currentTarget.src = DEFAULT_EMPLOYEE_PHOTO;
+                }}
               />
             </div>
 

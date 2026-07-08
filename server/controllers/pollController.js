@@ -77,7 +77,25 @@ export const updatePoll = async (req, res) => {
       );
     }
 
-    Object.assign(poll, req.body);
+    // Update basic fields
+    if (req.body.question) poll.question = req.body.question;
+    if (req.body.allowMultiple !== undefined) poll.allowMultiple = req.body.allowMultiple;
+    if (req.body.status) poll.status = req.body.status;
+
+    // Update options while preserving votes if possible
+    if (req.body.options && Array.isArray(req.body.options)) {
+      const newOptions = req.body.options.map((text, index) => {
+        // Try to find an existing option at the same index to preserve votes
+        if (poll.options[index]) {
+          return { text: text, votes: poll.options[index].votes };
+        }
+        // If no existing option at this index, create a new one with 0 votes
+        return { text: text, votes: 0 };
+      });
+
+      poll.options = newOptions;
+    }
+
     await poll.save();
 
     // Broadcast to all clients

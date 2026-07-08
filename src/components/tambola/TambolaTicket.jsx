@@ -1,8 +1,6 @@
 const CLAIM_OPTIONS = [
   { id: "earlyFive", label: "Early Five" },
-  { id: "topLine", label: "Top Line" },
   { id: "middleLine", label: "Middle Line" },
-  { id: "bottomLine", label: "Bottom Line" },
   { id: "fullHouse", label: "Full House" },
 ];
 

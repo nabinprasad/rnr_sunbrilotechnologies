@@ -20,9 +20,7 @@ const tambolaSessionSchema = new mongoose.Schema(
 
     winners: {
       earlyFive: { type: String, default: null },
-      topLine: { type: String, default: null },
       middleLine: { type: String, default: null },
-      bottomLine: { type: String, default: null },
       fullHouse: { type: String, default: null },
     },
   },

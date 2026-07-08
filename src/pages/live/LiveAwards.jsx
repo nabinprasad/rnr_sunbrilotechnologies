@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { getAwards } from "../../api/awardApi";
 import { getCertificates } from "../../api/certificateApi";
 import { generateCertificate } from "../../utils/certificateGenerator";
-import { getEmployeePhotoUrl } from "../../utils/employeePhoto.js";
+import { getEmployeePhotoUrl, DEFAULT_EMPLOYEE_PHOTO } from "../../utils/employeePhoto.js";
 import {
   FaChevronLeft,
   FaChevronRight,
@@ -375,13 +375,17 @@ export default function LiveAwards() {
               </h2>
 
               <div className="relative mb-8 inline-block">
-                <div className="absolute -inset-2 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full blur-lg opacity-75"></div>
-                <img
-                  src={getEmployeePhotoUrl(selectedWinner.photo)}
-                  alt={selectedWinner.name}
-                  className="relative w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-yellow-400 shadow-2xl"
-                />
-              </div>
+                        <div className="absolute -inset-2 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full blur-lg opacity-75"></div>
+                        <img
+                          src={getEmployeePhotoUrl(selectedWinner.photo)}
+                          alt={selectedWinner.name}
+                          className="relative w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-yellow-400 shadow-2xl"
+                          onError={(event) => {
+                            event.currentTarget.onerror = null;
+                            event.currentTarget.src = DEFAULT_EMPLOYEE_PHOTO;
+                          }}
+                        />
+                      </div>
 
               <h3 className="text-4xl md:text-5xl font-black text-white mb-2">
                 {selectedWinner.name}
@@ -689,39 +693,15 @@ shadow-[0_0_60px_rgba(250,204,21,0.12)]"
                             className="flex flex-col items-center text-center max-w-[170px]"
                           >
                             <div className="relative mb-4">
-                              {(() => {
-                                const photoUrl = getEmployeePhotoUrl(nominee.photo);
-                                return (
-                                  <img
-                                    src={photoUrl}
-                                    alt=""
-                                    className="w-24 h-24 rounded-full object-cover border-4 border-white/20 shadow-2xl"
-                                    onError={(e) => {
-                                      e.target.style.display = "none";
-                                      const fb =
-                                        e.target.parentElement.querySelector(
-                                          ".fallback-avatar",
-                                        );
-                                      if (fb)
-                                        fb.style.setProperty(
-                                          "display",
-                                          "flex",
-                                          "important",
-                                        );
-                                    }}
-                                  />
-                                );
-                              })()}
-                              <div
-                                className="fallback-avatar w-24 h-24 rounded-full border-4 border-white/20 bg-white/10 flex items-center justify-center text-3xl font-black text-white shadow-2xl"
-                                style={{
-                                  display: "none",
+                              <img
+                                src={getEmployeePhotoUrl(nominee.photo)}
+                                alt={nominee.name}
+                                className="w-24 h-24 rounded-full object-cover border-4 border-white/20 shadow-2xl"
+                                onError={(event) => {
+                                  event.currentTarget.onerror = null;
+                                  event.currentTarget.src = DEFAULT_EMPLOYEE_PHOTO;
                                 }}
-                              >
-                                {nominee.name
-                                  ? nominee.name.charAt(0).toUpperCase()
-                                  : "?"}
-                              </div>
+                              />
                             </div>
                             <h3 className="text-xl font-black text-white drop-shadow truncate w-full">
                               {nominee.name}
@@ -752,78 +732,56 @@ shadow-[0_0_60px_rgba(250,204,21,0.12)]"
                 ) : currentAward.winners && currentAward.winners.length > 0 ? (
                   /* Winner revealed details */
                   <div className="flex flex-wrap justify-center gap-10 animate-scaleUp">
-                    {currentAward.winners.map((winner) => (
-                      <div
-                        key={winner._id}
-                        className="text-center flex flex-col items-center max-w-[360px]"
-                      >
-                        <div className="relative mb-5">
-                          <div className="absolute -inset-1 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full blur opacity-75"></div>
-                          {(() => {
-                            const photoUrl = getEmployeePhotoUrl(winner.photo);
-                            return (
+                        {currentAward.winners.map((winner) => (
+                          <div
+                            key={winner._id}
+                            className="text-center flex flex-col items-center max-w-[360px]"
+                          >
+                            <div className="relative mb-5">
+                              <div className="absolute -inset-1 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full blur opacity-75"></div>
                               <img
-                                src={photoUrl}
-                                alt=""
+                                src={getEmployeePhotoUrl(winner.photo)}
+                                alt={winner.name}
                                 className="relative w-28 h-28 rounded-full object-cover border-4 border-yellow-400 shadow-2xl reveal-glow z-10"
-                                onError={(e) => {
-                                  e.target.style.display = "none";
-                                  const fb =
-                                    e.target.parentElement.querySelector(
-                                      ".fallback-avatar",
-                                    );
-                                  if (fb)
-                                    fb.style.setProperty(
-                                      "display",
-                                      "flex",
-                                      "important",
-                                    );
+                                onError={(event) => {
+                                  event.currentTarget.onerror = null;
+                                  event.currentTarget.src = DEFAULT_EMPLOYEE_PHOTO;
                                 }}
                               />
-                            );
-                          })()}
-                          <div
-                            className="fallback-avatar relative w-28 h-28 rounded-full border-4 border-yellow-400 shadow-2xl reveal-glow bg-gradient-to-br from-yellow-500 to-amber-600 flex items-center justify-center text-4xl font-black text-slate-950 z-10"
-                            style={{ display: "none" }}
-                          >
-                            {winner.name
-                              ? winner.name.charAt(0).toUpperCase()
-                              : "?"}
-                          </div>
-                          <span className="absolute bottom-1 right-1 bg-yellow-400 text-slate-900 rounded-full p-1.5 text-base font-bold shadow-lg z-20">
-                            👑
-                          </span>
-                        </div>
-                        <h3 className="text-2xl sm:text-3xl font-black tracking-tight text-yellow-300 drop-shadow mb-1 whitespace-nowrap">
-                          {winner.name}
-                        </h3>
-                        <p className="text-base text-slate-300 font-semibold truncate w-full">
-                          {winner.department}
-                        </p>
-                        <p className="text-slate-400 text-xs mt-0.5 truncate w-full">
-                          {winner.designation}
-                        </p>
-                        {certificateUrls[winner._id] ? (
-                          <div className="mt-6 w-[320px] max-w-[80vw]">
-                            <div className="rounded-2xl overflow-hidden border border-yellow-300/30 bg-white shadow-2xl aspect-[4/3]">
-                              <iframe
-                                src={`${certificateUrls[winner._id]}#toolbar=0&navpanes=0`}
-                                className="w-full h-full border-none pointer-events-none"
-                                title={`${winner.name} Certificate`}
-                              />
+                              <span className="absolute bottom-1 right-1 bg-yellow-400 text-slate-900 rounded-full p-1.5 text-base font-bold shadow-lg z-20">
+                                👑
+                              </span>
                             </div>
-                            <p className="mt-3 text-xs font-bold uppercase tracking-[0.2em] text-yellow-300">
-                              Certificate
+                            <h3 className="text-2xl sm:text-3xl font-black tracking-tight text-yellow-300 drop-shadow mb-1 whitespace-nowrap">
+                              {winner.name}
+                            </h3>
+                            <p className="text-base text-slate-300 font-semibold truncate w-full">
+                              {winner.department}
                             </p>
+                            <p className="text-slate-400 text-xs mt-0.5 truncate w-full">
+                              {winner.designation}
+                            </p>
+                            {certificateUrls[winner._id] ? (
+                              <div className="mt-6 w-[320px] max-w-[80vw]">
+                                <div className="rounded-2xl overflow-hidden border border-yellow-300/30 bg-white shadow-2xl aspect-[4/3]">
+                                  <iframe
+                                    src={`${certificateUrls[winner._id]}#toolbar=0&navpanes=0`}
+                                    className="w-full h-full border-none pointer-events-none"
+                                    title={`${winner.name} Certificate`}
+                                  />
+                                </div>
+                                <p className="mt-3 text-xs font-bold uppercase tracking-[0.2em] text-yellow-300">
+                                  Certificate
+                                </p>
+                              </div>
+                            ) : (
+                              <p className="mt-5 text-xs font-semibold text-white/40">
+                                Certificate not generated yet
+                              </p>
+                            )}
                           </div>
-                        ) : (
-                          <p className="mt-5 text-xs font-semibold text-white/40">
-                            Certificate not generated yet
-                          </p>
-                        )}
+                        ))}
                       </div>
-                    ))}
-                  </div>
                 ) : (
                   /* No winner assigned */
                   <div className="text-white/40 text-xl font-bold italic animate-fadeIn">

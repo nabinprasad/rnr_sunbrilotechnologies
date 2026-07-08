@@ -15,7 +15,7 @@ const tambolaClaimSchema = new mongoose.Schema(
 
     claimType: {
       type: String,
-      enum: ["earlyFive", "topLine", "middleLine", "bottomLine", "fullHouse"],
+      enum: ["earlyFive", "middleLine", "fullHouse"],
       required: true,
     },
 

@@ -11,9 +11,7 @@ import {
 
 const CLAIM_LABELS = {
   earlyFive: "Early Five",
-  topLine: "Top Line",
   middleLine: "Middle Line",
-  bottomLine: "Bottom Line",
   fullHouse: "Full House",
 };
 
@@ -82,9 +80,7 @@ export const startSession = async (req, res) => {
     session.currentNumber = null;
     session.winners = {
       earlyFive: null,
-      topLine: null,
       middleLine: null,
-      bottomLine: null,
       fullHouse: null,
     };
 
@@ -207,9 +203,7 @@ export const resetSession = async (req, res) => {
     session.currentNumber = null;
     session.winners = {
       earlyFive: null,
-      topLine: null,
       middleLine: null,
-      bottomLine: null,
       fullHouse: null,
     };
 
