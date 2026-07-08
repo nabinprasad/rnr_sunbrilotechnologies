@@ -1,24 +1,41 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 
-export default function PhotoUpload({ image, setImage }) {
+export default function PhotoUpload({
+  image,
+  setImage,
+  setPhotoFile,
+}) {
   const inputRef = useRef(null);
+  const previewUrlRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (previewUrlRef.current) {
+        URL.revokeObjectURL(previewUrlRef.current);
+        previewUrlRef.current = null;
+      }
+    };
+  }, []);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-
     if (!file) return;
 
-    const imageUrl = URL.createObjectURL(file);
+    if (previewUrlRef.current) {
+      URL.revokeObjectURL(previewUrlRef.current);
+    }
 
-    setImage(imageUrl);
+    const previewUrl = URL.createObjectURL(file);
+    previewUrlRef.current = previewUrl;
+
+    setPhotoFile(file);
+    setImage(previewUrl);
   };
 
   return (
     <div>
       <div className="flex items-center gap-6">
-
-        <div className="w-28 h-28 rounded-full overflow-hidden border-2 border-gray-300">
-
+        <div className="w-28 h-28 rounded-full overflow-hidden border-2 border-gray-300 bg-slate-100">
           {image ? (
             <img
               src={image}
@@ -30,11 +47,9 @@ export default function PhotoUpload({ image, setImage }) {
               No Photo
             </div>
           )}
-
         </div>
 
         <div>
-
           <button
             type="button"
             onClick={() => inputRef.current.click()}
@@ -43,6 +58,10 @@ export default function PhotoUpload({ image, setImage }) {
             Upload Photo
           </button>
 
+          <p className="mt-2 text-xs text-slate-500">
+            Preview only. Photo is saved after you submit the form.
+          </p>
+
           <input
             ref={inputRef}
             type="file"
@@ -50,9 +69,7 @@ export default function PhotoUpload({ image, setImage }) {
             hidden
             onChange={handleImageChange}
           />
-
         </div>
-
       </div>
     </div>
   );

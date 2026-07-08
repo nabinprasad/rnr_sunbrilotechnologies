@@ -11,6 +11,7 @@ const initialForm = {
 };
 import PhotoUpload from "./PhotoUpload";
 import Modal from "../ui/Modal";
+import { getEmployeePhotoUrl } from "../../utils/employeePhoto";
 export default function EmployeeForm({
   isOpen,
   onClose,
@@ -20,15 +21,26 @@ export default function EmployeeForm({
 }) {
   const [formData, setFormData] = useState(initialForm);
 
+  const [photoFile, setPhotoFile] = useState(null);
+
   useEffect(() => {
     if (employee) {
-      setFormData(employee);
-      setImage(employee.photo || "");
+      setFormData({
+        employeeId: employee.employeeId || "",
+        name: employee.name || "",
+        department: employee.department || "",
+        designation: employee.designation || "",
+        email: employee.email || "",
+        mobile: employee.mobile || "",
+        status: employee.status || "Active",
+      });
+      setPhotoFile(null);
+      setImage(employee.photo ? getEmployeePhotoUrl(employee.photo) : "");
     } else {
       setFormData({
         ...initialForm,
-        employeeId: `EMP${Date.now().toString().slice(-4)}`,
       });
+      setPhotoFile(null);
       setImage("");
     }
   }, [employee]);
@@ -44,21 +56,19 @@ export default function EmployeeForm({
     }));
   };
   const handleSubmit = (e) => {
-  e.preventDefault();
+    e.preventDefault();
+      console.log("photoFile at submit:", photoFile);
 
-  const employeeData = {
-    ...formData,
-    _id: employee?._id,
-    employeeId:
-      formData.employeeId ||
-      `EMP${Date.now().toString().slice(-4)}`,
-    photo: image || "https://i.pravatar.cc/100",
+    const employeeData = {
+      ...formData,
+      _id: employee?._id,
+      photoFile,
+    };
+
+    console.log("Employee Data:", employeeData);
+
+    onSave(employeeData);
   };
-
-  console.log("Employee Data:", employeeData);
-
-  onSave(employeeData);
-};
 
   return (
     <Modal
@@ -77,7 +87,11 @@ export default function EmployeeForm({
       </div>
 
       <form onSubmit={handleSubmit}>
-        <PhotoUpload image={image} setImage={setImage} />
+        <PhotoUpload
+          image={image}
+          setImage={setImage}
+          setPhotoFile={setPhotoFile}
+        />
 
         <hr className="my-6" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -90,7 +104,8 @@ export default function EmployeeForm({
               value={formData.employeeId}
               onChange={handleChange}
               className="border w-full p-3 rounded-lg mt-1"
-              readOnly
+              placeholder="Enter Employee ID"
+              required
             />
           </div>
 

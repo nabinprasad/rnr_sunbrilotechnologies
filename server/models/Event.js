@@ -38,8 +38,8 @@ const eventSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["Upcoming", "Live", "Completed"],
-      default: "Upcoming",
+      enum: ["Waiting", "Live", "Finished"],
+      default: "Waiting",
     },
 
     currentActivity: {

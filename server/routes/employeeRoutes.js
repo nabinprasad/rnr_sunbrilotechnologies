@@ -13,6 +13,7 @@ import {
 } from "../controllers/employeeController.js";
 
 import { protect } from "../middleware/authMiddleware.js";
+import upload from "../middleware/upload.js";
 
 const router = express.Router();
 
@@ -24,14 +25,23 @@ router.get("/", protect, getEmployees);
 router.get("/leaderboard", getLeaderboard);
 router.get("/:id", protect, getEmployee);
 
-router.post("/", protect, createEmployee);
+router.post(
+  "/",
+  protect,
+  upload.single("photoFile"),
+  createEmployee
+);
 
 router.put("/approve/:id", protect, approveEmployee);
 router.get("/status/:id", getEmployeeStatus);
 router.put("/reset-points", protect, resetEmployeePoints);
 
-router.put("/:id", protect, updateEmployee);
-
+router.put(
+  "/:id",
+  protect,
+  upload.single("photoFile"),
+  updateEmployee
+);
 router.delete("/:id", protect, deleteEmployee);
 
 export default router;

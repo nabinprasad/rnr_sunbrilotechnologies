@@ -7,12 +7,14 @@ import {
   deletePoll,
   votePoll,
   checkVote,
+  getPollVotes,
 } from "../controllers/pollController.js";
 
 const router = express.Router();
 
 router.get("/", getPolls);
 router.get("/active", getActivePoll);
+router.get("/votes", getPollVotes);
 router.post("/", createPoll);
 router.put("/:id", updatePoll);
 router.delete("/:id", deletePoll);

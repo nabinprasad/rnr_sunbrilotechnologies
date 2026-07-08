@@ -3,6 +3,7 @@ import AdminLayout from "../../components/layout/AdminLayout";
 import PageHeader from "../../components/ui/PageHeader";
 import { getLeaderboard } from "../../api/employeeApi";
 import { resetEmployeeAnswers } from "../../api/quizAnswerApi";
+import { getEmployeePhotoUrl } from "../../utils/employeePhoto.js";
 
 export default function Leaderboard() {
   const [leaders, setLeaders] = useState([]);
@@ -63,7 +64,7 @@ export default function Leaderboard() {
             <p className="text-sm uppercase tracking-widest opacity-90">Champion</p>
             <div className="mt-4 flex items-center justify-center gap-4">
               <img 
-                src={winner.photo || "https://i.pravatar.cc/150"} 
+                src={getEmployeePhotoUrl(winner.photo)} 
                 alt={winner.name}
                 className="h-20 w-20 rounded-full border-4 border-white object-cover"
               />

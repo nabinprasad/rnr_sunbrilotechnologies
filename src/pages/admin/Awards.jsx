@@ -9,6 +9,7 @@ import {
 } from "../../api/awardApi";
 import { getEmployees } from "../../api/employeeApi";
 import toast from "react-hot-toast";
+import { getEmployeePhotoUrl } from "../../utils/employeePhoto.js";
 
 // ── Categories metadata ────────────────────────────────
 const CATEGORY_COLORS = {
@@ -221,7 +222,7 @@ function AssignEmployeeModal({ award, employees, mode, onClose, onAssigned }) {
                       className="w-4 h-4 accent-purple-600 rounded cursor-pointer"
                     />
                     <img
-                      src={emp.photo || "https://i.pravatar.cc/150"}
+                      src={getEmployeePhotoUrl(emp.photo)}
                       alt={emp.name}
                       className="w-8 h-8 rounded-full object-cover shadow-sm"
                     />
@@ -424,7 +425,7 @@ export default function Awards() {
                         {nominees.slice(0, 5).map((nominee) => (
                           <img
                             key={nominee._id}
-                            src={nominee.photo || "https://i.pravatar.cc/150"}
+                            src={getEmployeePhotoUrl(nominee.photo)}
                             alt={nominee.name}
                             title={nominee.name}
                             className="w-9 h-9 rounded-full object-cover border-2 border-white shadow-sm"
@@ -443,7 +444,7 @@ export default function Awards() {
                       // Single Winner
                       <div className="text-center w-full flex flex-col items-center">
                         <img
-                          src={winners[0].photo || "https://i.pravatar.cc/150"}
+                          src={getEmployeePhotoUrl(winners[0].photo)}
                           alt={winners[0].name}
                           className="w-16 h-16 rounded-full object-cover border-2 border-purple-400 shadow-md mb-2"
                         />
@@ -464,7 +465,7 @@ export default function Awards() {
                           {winners.map((winner) => (
                             <div key={winner._id} className="flex items-center gap-2 p-1.5 bg-white border border-slate-100 rounded-xl">
                               <img
-                                src={winner.photo || "https://i.pravatar.cc/150"}
+                                src={getEmployeePhotoUrl(winner.photo)}
                                 alt={winner.name}
                                 className="w-8 h-8 rounded-full object-cover shadow-sm border border-purple-200"
                               />

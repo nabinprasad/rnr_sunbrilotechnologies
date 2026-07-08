@@ -3,12 +3,14 @@ import {
   submitAnswer,
   resetQuizAnswers,
   resetEmployeeAnswers,
+  getQuizAnswers,
 } from "../controllers/quizAnswerController.js";
 
 import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
+router.get("/", getQuizAnswers);
 router.post("/submit", submitAnswer);
 
 // Admin only

@@ -4,6 +4,7 @@ import {
     addCertificate,
     updateCertificate,
 } from "../../api/certificateApi";
+import { getAwards } from "../../api/awardApi";
 
 export default function CertificateModal({
     isOpen,
@@ -14,6 +15,21 @@ export default function CertificateModal({
 }) {
     const [selectedTemplate, setSelectedTemplate] = useState("");
     const [selectedEmployee, setSelectedEmployee] = useState(null);
+    const [awards, setAwards] = useState([]);
+    const [selectedAward, setSelectedAward] = useState(null);
+
+    useEffect(() => {
+        fetchAwards();
+    }, []);
+
+    const fetchAwards = async () => {
+        try {
+            const res = await getAwards();
+            setAwards(res.data.awards || []);
+        } catch (err) {
+            console.log(err);
+        }
+    };
 
     useEffect(() => {
         if (editData) {
@@ -24,11 +40,13 @@ export default function CertificateModal({
             );
 
             setSelectedEmployee(emp);
+            setSelectedAward(awards.find(a => a._id === editData.awardId) || null);
         } else {
             setSelectedTemplate("");
             setSelectedEmployee(null);
+            setSelectedAward(null);
         }
-    }, [editData, employees]);
+    }, [editData, employees, awards]);
 
     if (!isOpen) return null;
 
@@ -43,6 +61,8 @@ export default function CertificateModal({
                 employeeId: selectedEmployee._id,
                 employeeName: selectedEmployee.name,
                 templateName: selectedTemplate,
+                awardId: selectedAward?._id || null,
+                awardTitle: selectedAward?.title || "Quality Champion",
             };
 
             let savedCertId = null;
@@ -113,6 +133,26 @@ export default function CertificateModal({
                     {employees.map((emp) => (
                         <option key={emp._id} value={emp._id}>
                             {emp.name}
+                        </option>
+                    ))}
+                </select>
+
+                <label className="block mb-2">Select Award (Optional)</label>
+                <select
+                    className="border p-3 w-full rounded mb-4"
+                    value={selectedAward?._id || ""}
+                    onChange={(e) => {
+                        const award = awards.find(
+                            (item) => item._id === e.target.value
+                        );
+                        setSelectedAward(award);
+                    }}
+                >
+                    <option value="">None (Default: Quality Champion)</option>
+
+                    {awards.map((award) => (
+                        <option key={award._id} value={award._id}>
+                            {award.title}
                         </option>
                     ))}
                 </select>
