@@ -98,9 +98,10 @@ export const updatePoll = async (req, res) => {
 
     await poll.save();
 
-    // Broadcast to all clients
+    // Broadcast to all clients (convert to plain object for better client-side handling)
     try {
-      io.emit("pollUpdated", poll);
+      console.log("📡 Emitting pollUpdated event (update):", poll.toObject());
+      io.emit("pollUpdated", poll.toObject());
     } catch (e) {
       console.log("Socket emit failed:", e.message);
     }
@@ -187,9 +188,10 @@ export const votePoll = async (req, res) => {
     // Record the vote
     await PollVote.create({ pollId: id, employeeId, selectedOptions: validOptions });
 
-    // Broadcast updated poll
+    // Broadcast updated poll (convert to plain object for better client-side handling)
     try {
-      io.emit("pollUpdated", poll);
+      console.log("📡 Emitting pollUpdated event:", poll.toObject());
+      io.emit("pollUpdated", poll.toObject());
     } catch (e) {
       console.log("Socket emit failed:", e.message);
     }

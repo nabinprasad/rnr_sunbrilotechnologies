@@ -1,7 +1,13 @@
 import { io } from "socket.io-client";
 
-const socket = io("https://rnrapi-test.sunbrilotechnologies.com", {
-  transports: ["websocket"],
+const socketUrl = import.meta.env.DEV
+  ? "http://localhost:5000"
+  : "https://rnrapi-test.sunbrilotechnologies.com";
+
+console.log("🔌 Connecting to socket at:", socketUrl);
+
+const socket = io(socketUrl, {
+  transports: ["websocket", "polling"],
 });
 
 export default socket;

@@ -31,14 +31,24 @@ export default function EmployeeLivePoll() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log("🔗 Employee Socket ID:", socket.id);
     loadActivePoll();
 
     const handlePollUpdated = (updatedPoll) => {
+      console.log("📥 Employee pollUpdated event received:", updatedPoll);
       setPoll(updatedPoll);
       if (updatedPoll.status !== "Active") {
         toast("Poll has been closed by the admin", { icon: "📊" });
       }
     };
+
+    socket.on("connect", () => {
+      console.log("✅ Employee socket connected!");
+    });
+
+    socket.on("disconnect", () => {
+      console.log("❌ Employee socket disconnected!");
+    });
 
     socket.on("pollUpdated", handlePollUpdated);
 
