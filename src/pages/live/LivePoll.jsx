@@ -64,14 +64,24 @@ export default function LivePollScreen() {
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
+    console.log("🔗 Socket ID:", socket.id);
     loadActivePoll();
 
     // Tick every second for live display feel
-    const tickInterval = setInterval(() => setTick((t) => t + 1), 1000);
+    const tickInterval = setInterval(() => setTick((t) => t + 1, 1000))
 
     const handlePollUpdated = (updatedPoll) => {
+      console.log("📥 pollUpdated event received:", updatedPoll);
       setPoll(updatedPoll);
     };
+
+    socket.on("connect", () => {
+      console.log("✅ Socket connected to server!");
+    });
+
+    socket.on("disconnect", () => {
+      console.log("❌ Socket disconnected!");
+    });
 
     socket.on("pollUpdated", handlePollUpdated);
 
