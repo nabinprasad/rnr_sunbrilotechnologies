@@ -1,6 +1,6 @@
-const API_ORIGIN =
-  import.meta.env.VITE_API_URL?.replace(/\/api\/?$/, "") ||
-  "https://rnrapi-test.sunbrilotechnologies.com";
+const API_ORIGIN = import.meta.env.DEV
+  ? "http://localhost:5000"
+  : "https://rnrapi-test.sunbrilotechnologies.com";
 
 export const DEFAULT_EMPLOYEE_PHOTO = "https://i.pravatar.cc/150";
 
