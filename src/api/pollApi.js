@@ -4,6 +4,8 @@ export const getPolls = () => api.get("/polls");
 
 export const getActivePoll = () => api.get("/polls/active");
 
+export const getPollVotes = () => api.get("/polls/votes");
+
 export const createPoll = (data) => api.post("/polls", data);
 
 export const updatePoll = (id, data) => api.put(`/polls/${id}`, data);

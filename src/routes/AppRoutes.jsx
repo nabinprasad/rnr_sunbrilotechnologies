@@ -14,6 +14,7 @@ import Leaderboard from "../pages/admin/Leaderboard";
 import Awards from "../pages/admin/Awards";
 import Certificates from "../pages/admin/Certificates";
 import Reports from "../pages/admin/Reports";
+import Settings from "../pages/admin/Settings";
 
 import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute";
@@ -157,6 +158,14 @@ export default function AppRoutes() {
         element={
           <ProtectedRoute>
             <Reports />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/settings"
+        element={
+          <ProtectedRoute>
+            <Settings />
           </ProtectedRoute>
         }
       />

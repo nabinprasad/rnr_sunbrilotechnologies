@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { getQuiz } from "../../api/quizApi";
 import { getQuizSession } from "../../api/quizSessionApi";
 import { submitAnswer } from "../../api/quizAnswerApi";
@@ -7,6 +8,7 @@ import { getEmployee } from "../../utils/employeeStorage";
 import socket from "../../socket";
 
 export default function EmployeeLiveQuiz() {
+  const navigate = useNavigate();
   const [session, setSession] = useState(null);
   const [currentQuestion, setCurrentQuestion] = useState(null);
 
@@ -229,15 +231,32 @@ export default function EmployeeLiveQuiz() {
 
   if (session.status === "Waiting")
     return (
-      <div className="min-h-screen flex items-center justify-center text-4xl font-bold">
-        Waiting for Quiz...
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 flex items-center justify-center p-8">
+        <div className="text-center">
+          <div className="text-8xl mb-8">⏳</div>
+          <h2 className="text-4xl font-bold text-white mb-8">Waiting for Quiz...</h2>
+          <p className="text-xl text-slate-300">
+            The quiz will start soon!
+          </p>
+        </div>
       </div>
     );
 
   if (session.status === "Finished")
     return (
-      <div className="min-h-screen flex items-center justify-center text-4xl font-bold">
-        🎉 Quiz Finished
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 flex items-center justify-center p-8">
+        <div className="text-center">
+        <div className="text-8xl mb-8">🎉</div>
+        <h2 className="text-4xl font-bold text-white mb-8">Quiz Finished!</h2>
+        <p className="text-xl text-slate-300 mb-10">
+          Thank you for participating!</p>
+        <button
+          onClick={() => navigate("/employee/lobby")}
+          className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-4 px-10 rounded-xl text-xl shadow-lg transition-all hover:scale-105"
+        >
+          Back to Lobby
+        </button>
+        </div>
       </div>
     );
 

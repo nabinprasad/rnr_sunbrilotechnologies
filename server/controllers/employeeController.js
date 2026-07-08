@@ -1,6 +1,38 @@
 import Employee from "../models/Employee.js";
 import { io } from "../server.js";
 
+const ALLOWED_EMPLOYEE_FIELDS = [
+  "employeeId",
+  "name",
+  "department",
+  "designation",
+  "email",
+  "mobile",
+  "status",
+];
+
+function sanitizeEmployeeData(body = {}, file) {
+  const employeeData = {};
+
+  ALLOWED_EMPLOYEE_FIELDS.forEach((field) => {
+    if (body[field] !== undefined && body[field] !== "") {
+      employeeData[field] = body[field];
+    }
+  });
+
+  if (file) {
+    employeeData.photo = file.path.replace(/\\/g, "/");
+  } else if (
+    body.photo &&
+    !String(body.photo).startsWith("blob:") &&
+    !String(body.photo).startsWith("data:")
+  ) {
+    employeeData.photo = body.photo;
+  }
+
+  return employeeData;
+}
+
 // ==========================
 // Get All Employees
 // ==========================
@@ -93,9 +125,14 @@ export const approveEmployee = async (req, res) => {
 // ==========================
 export const createEmployee = async (req, res) => {
   try {
-    console.log("Incoming Data:", req.body);
+    console.log("========== CREATE ==========");
+    console.log("Content-Type:", req.headers["content-type"]);
+    console.log("Body:", req.body);
+    console.log("File:", req.file);
 
-    const employee = await Employee.create(req.body);
+    const employeeData = sanitizeEmployeeData(req.body, req.file);
+
+    const employee = await Employee.create(employeeData);
 
     res.status(201).json({
       success: true,
@@ -103,8 +140,7 @@ export const createEmployee = async (req, res) => {
       employee,
     });
   } catch (error) {
-    console.error("Create Employee Error:", error);
-
+    console.error(error);
     res.status(400).json({
       success: false,
       message: error.message,
@@ -117,14 +153,16 @@ export const createEmployee = async (req, res) => {
 // ==========================
 export const updateEmployee = async (req, res) => {
   try {
-    const employee = await Employee.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
+    const employeeData = sanitizeEmployeeData(req.body, req.file);
+
+const employee = await Employee.findByIdAndUpdate(
+  req.params.id,
+  employeeData,
+  {
+    new: true,
+    runValidators: true,
+  }
+);
 
     if (!employee) {
       return res.status(404).json({

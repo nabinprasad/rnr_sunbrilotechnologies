@@ -19,6 +19,15 @@ const certificateSchema = new mongoose.Schema(
             type: String,
             default: "",
         },
+        awardId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Award",
+            default: null,
+        },
+        awardTitle: {
+            type: String,
+            default: "Quality Champion",
+        },
     },
     { timestamps: true }
 );

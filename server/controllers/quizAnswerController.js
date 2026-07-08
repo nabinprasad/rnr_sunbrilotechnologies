@@ -165,3 +165,13 @@ export const resetEmployeeAnswers = async (req, res) => {
     });
   }
 };
+
+// Get all quiz answers
+export const getQuizAnswers = async (req, res) => {
+  try {
+    const answers = await QuizAnswer.find();
+    res.json({ success: true, answers });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};

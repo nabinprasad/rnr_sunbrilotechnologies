@@ -1,5 +1,7 @@
 import api from "./api";
 
+export const getQuizAnswers = () => api.get("/quiz-answer");
+
 export const submitAnswer = (data) =>
   api.post("/quiz-answer/submit", data);
 

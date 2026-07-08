@@ -2,16 +2,19 @@ import { useEffect, useState, useRef } from "react";
 import { getAwards } from "../../api/awardApi";
 import { getCertificates } from "../../api/certificateApi";
 import { generateCertificate } from "../../utils/certificateGenerator";
+import { getEmployeePhotoUrl } from "../../utils/employeePhoto.js";
 import {
   FaChevronLeft,
   FaChevronRight,
   FaTrophy,
   FaStar,
+  FaPlay,
+  FaMicrophone,
 } from "react-icons/fa";
 
 export default function LiveAwards() {
   const [awards, setAwards] = useState([]);
-  const [currentIndex, setCurrentIndex] = useState(-1); // -1 is the Welcome/Intro slide
+  const [currentIndex, setCurrentIndex] = useState(-1); // -1 is Welcome, -2 is Spin Wheel
   const [revealed, setRevealed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [certificates, setCertificates] = useState([]);
@@ -20,8 +23,27 @@ export default function LiveAwards() {
   const drumRollRef = useRef(null);
   const applauseRef = useRef(null);
   const [showThankYou, setShowThankYou] = useState(false);
+  const [showSpinWheel, setShowSpinWheel] = useState(false);
+  const [isSpinning, setIsSpinning] = useState(false);
+  const [rotation, setRotation] = useState(0);
+  const [selectedWinner, setSelectedWinner] = useState(null);
+  const [timer, setTimer] = useState(120); // 2 minutes in seconds
+  const [timerActive, setTimerActive] = useState(false);
   const currentAward = currentIndex >= 0 ? awards[currentIndex] : null;
   const nominees = currentAward?.nominees || [];
+
+  // Collect all unique winners from all awards
+  const allWinners = Array.from(
+    new Map(
+      awards.flatMap((award) => award.winners || []).map((w) => [w._id, w])
+    ).values()
+  );
+
+  const colors = [
+    "#FF6B6B", "#4ECDC4", "#FFE66D", "#95E1D3", "#F38181",
+    "#AA96DA", "#FCBAD3", "#A8D8EA", "#FFD93D", "#6BCB77",
+    "#4D96FF", "#FF6B6B"
+  ];
 
   useEffect(() => {
     fetchAwards();
@@ -59,7 +81,7 @@ export default function LiveAwards() {
         certificate.templateName,
         certificate.employeeName || winner.name,
         certificate._id,
-        false
+        false,
       );
 
       if (url) {
@@ -97,6 +119,63 @@ export default function LiveAwards() {
       }
     }, 3500);
   };
+  // Spin wheel logic
+  const spinWheel = () => {
+    if (allWinners.length === 0) return;
+    
+    setIsSpinning(true);
+    setSelectedWinner(null);
+    setTimerActive(false);
+    setTimer(120);
+
+    // Play drum roll
+    if (drumRollRef.current) {
+      drumRollRef.current.currentTime = 0;
+      drumRollRef.current.play();
+    }
+
+    const randomIndex = Math.floor(Math.random() * allWinners.length);
+    const randomWinner = allWinners[randomIndex];
+    const segmentAngle = 360 / allWinners.length;
+    const randomRotation = 360 * 5 + (360 - (randomIndex * segmentAngle + segmentAngle / 2));
+    
+    setRotation(randomRotation);
+
+    setTimeout(() => {
+      setIsSpinning(false);
+      setSelectedWinner(randomWinner);
+
+      if (drumRollRef.current) {
+        drumRollRef.current.pause();
+        drumRollRef.current.currentTime = 0;
+      }
+
+      if (applauseRef.current) {
+        applauseRef.current.currentTime = 0;
+        applauseRef.current.play();
+      }
+    }, 4000);
+  };
+
+  // Timer countdown
+  useEffect(() => {
+    let interval;
+    if (timerActive && timer > 0) {
+      interval = setInterval(() => {
+        setTimer(prev => prev - 1);
+      }, 1000);
+    } else if (timer === 0 && timerActive) {
+      setTimerActive(false);
+    }
+    return () => clearInterval(interval);
+  }, [timerActive, timer]);
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60).toString().padStart(2, "0");
+    const secs = (seconds % 60).toString().padStart(2, "0");
+    return `${mins}:${secs}`;
+  };
+
   const handleNext = () => {
     // Start music only when Start Presentation is clicked
     if (currentIndex === -1 && bgMusicRef.current) {
@@ -119,23 +198,15 @@ export default function LiveAwards() {
       drumRollRef.current.currentTime = 0;
     }
 
-    if (currentIndex < awards.length - 1) {
+    if (showSpinWheel) {
+      setShowSpinWheel(false);
+      setShowThankYou(true);
+    } else if (currentIndex < awards.length - 1) {
       setCurrentIndex((prev) => prev + 1);
       setRevealed(false);
     } else {
-      // Last award completed
-      setShowThankYou(true);
-
-      // Stop all audio except background music
-      if (applauseRef.current) {
-        applauseRef.current.pause();
-        applauseRef.current.currentTime = 0;
-      }
-
-      if (drumRollRef.current) {
-        drumRollRef.current.pause();
-        drumRollRef.current.currentTime = 0;
-      }
+      // Last award completed - show spin wheel
+      setShowSpinWheel(true);
     }
   };
 
@@ -152,7 +223,12 @@ export default function LiveAwards() {
 
     setRevealed(false);
 
-    if (currentIndex >= 0) {
+    if (showSpinWheel) {
+      setShowSpinWheel(false);
+      setSelectedWinner(null);
+      setTimer(120);
+      setTimerActive(false);
+    } else if (currentIndex >= 0) {
       setCurrentIndex((prev) => prev - 1);
     }
   };
@@ -167,32 +243,304 @@ export default function LiveAwards() {
     );
   }
 
+  // Spin Wheel Slide
+  if (showSpinWheel) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 flex flex-col justify-between p-10 relative overflow-hidden text-white">
+        {/* Background Particles */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {Array.from({ length: 30 }).map((_, i) => (
+            <div
+              key={i}
+              className="absolute w-2 h-2 rounded-full"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                background: i % 2 === 0 ? "#FFD93D" : "#A855F7",
+                animation: `float-particle ${8 + Math.random() * 8}s infinite linear`,
+                animationDelay: `${Math.random() * 5}s`,
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Header */}
+        <div className="flex justify-between items-center z-10">
+          <div className="flex gap-4">
+            <img
+              src="/sunbrilologo.png"
+              alt="Sunbrilo"
+              className="h-12 object-contain bg-white/10 p-1.5 rounded-xl"
+            />
+          </div>
+          <div className="text-right">
+            <span className="text-yellow-400 font-extrabold text-sm uppercase tracking-widest flex items-center gap-1.5 justify-end">
+              <FaTrophy /> Winner's Lucky Spin
+            </span>
+            <p className="text-white/40 text-xs mt-0.5">
+              Live Projection Screen
+            </p>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col items-center justify-center z-10 py-10">
+          {!selectedWinner ? (
+            <div className="text-center animate-scaleUp w-full max-w-4xl">
+              <h2 className="text-3xl md:text-4xl font-black text-yellow-400 mb-8">
+                🎯 Who Will Speak First? 🎯
+              </h2>
+
+              {allWinners.length > 0 ? (
+                <div className="flex flex-col items-center gap-8">
+                  {/* Spin Wheel */}
+                  <div className="relative w-72 h-72 md:w-96 md:h-96">
+                    <svg
+                      viewBox="0 0 100 100"
+                      className="w-full h-full"
+                      style={{
+                        transform: `rotate(${rotation}deg)`,
+                        transition: isSpinning
+                          ? "transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)"
+                          : "none",
+                      }}
+                    >
+                      {allWinners.map((winner, index) => {
+                        const angle = 360 / allWinners.length;
+                        const startAngle = index * angle;
+                        const endAngle = (index + 1) * angle;
+                        const x1 = 50 + 48 * Math.cos(((startAngle - 90) * Math.PI) / 180);
+                        const y1 = 50 + 48 * Math.sin(((startAngle - 90) * Math.PI) / 180);
+                        const x2 = 50 + 48 * Math.cos(((endAngle - 90) * Math.PI) / 180);
+                        const y2 = 50 + 48 * Math.sin(((endAngle - 90) * Math.PI) / 180);
+                        const largeArc = angle > 180 ? 1 : 0;
+
+                        return (
+                          <g key={winner._id}>
+                            <path
+                              d={`M 50 50 L ${x1} ${y1} A 48 48 0 ${largeArc} 1 ${x2} ${y2} Z`}
+                              fill={colors[index % colors.length]}
+                              stroke="#ffffff"
+                              strokeWidth="0.5"
+                            />
+                            <text
+                              x="50"
+                              y="50"
+                              textAnchor="middle"
+                              dominantBaseline="middle"
+                              fontSize="2.5"
+                              fill="#000"
+                              fontWeight="bold"
+                              transform={`rotate(${(startAngle + endAngle) / 2} 50 50) translate(0 -25)`}
+                            >
+                              {winner.name.split(" ")[0]}
+                            </text>
+                          </g>
+                        );
+                      })}
+                      <circle cx="50" cy="50" r="5" fill="#fff" />
+                    </svg>
+
+                    {/* Pointer */}
+                    <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-2 z-20">
+                      <div className="w-0 h-0 border-l-[20px] border-l-transparent border-r-[20px] border-r-transparent border-t-[35px] border-t-yellow-400 drop-shadow-lg"></div>
+                    </div>
+
+                    {/* Spin Button */}
+                    <button
+                      onClick={spinWheel}
+                      disabled={isSpinning}
+                      className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-yellow-400 to-amber-600 flex items-center justify-center text-2xl md:text-3xl shadow-2xl z-30 transition-all duration-300 ${
+                        isSpinning ? "opacity-50 cursor-not-allowed" : "hover:scale-110"
+                      }`}
+                    >
+                      <FaPlay />
+                    </button>
+                  </div>
+
+                  <p className="text-lg text-slate-300 font-semibold">
+                    {allWinners.length} lucky winners in the draw!
+                  </p>
+                </div>
+              ) : (
+                <div className="text-2xl text-slate-400 font-bold">
+                  No winners to spin yet!
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="text-center animate-scaleUp w-full max-w-4xl">
+              <h2 className="text-3xl md:text-4xl font-black text-yellow-400 mb-8">
+                🎉 Congratulations! 🎉
+              </h2>
+
+              <div className="relative mb-8 inline-block">
+                <div className="absolute -inset-2 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full blur-lg opacity-75"></div>
+                <img
+                  src={getEmployeePhotoUrl(selectedWinner.photo)}
+                  alt={selectedWinner.name}
+                  className="relative w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-yellow-400 shadow-2xl"
+                />
+              </div>
+
+              <h3 className="text-4xl md:text-5xl font-black text-white mb-2">
+                {selectedWinner.name}
+              </h3>
+              <p className="text-xl md:text-2xl text-slate-300 font-semibold mb-8">
+                {selectedWinner.department} • {selectedWinner.designation}
+              </p>
+
+              <div className="bg-white/5 backdrop-blur-xl border border-yellow-400/30 rounded-3xl p-6 md:p-8 w-full max-w-lg mx-auto mb-8">
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <FaMicrophone className="text-yellow-400 text-3xl" />
+                  <h4 className="text-2xl md:text-3xl font-black text-yellow-400">
+                    Time to Speak!
+                  </h4>
+                </div>
+                <div className="text-6xl md:text-7xl font-black text-white font-mono">
+                  {formatTime(timer)}
+                </div>
+              </div>
+
+              <div className="flex gap-4 justify-center">
+                <button
+                  onClick={() => setTimerActive(!timerActive)}
+                  className={`px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-200 ${
+                    timerActive
+                      ? "bg-red-500 hover:bg-red-600"
+                      : "bg-green-500 hover:bg-green-600"
+                  } text-white shadow-lg`}
+                >
+                  {timerActive ? "⏸️ Pause" : "▶️ Start"}
+                </button>
+                <button
+                  onClick={() => {
+                    setTimer(120);
+                    setTimerActive(false);
+                  }}
+                  className="px-8 py-4 rounded-2xl font-bold text-lg bg-slate-600 hover:bg-slate-700 text-white shadow-lg transition-all duration-200"
+                >
+                  🔄 Reset
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Navigation Controls */}
+        <div className="flex justify-between items-center z-10 border-t border-white/10 pt-6">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handlePrev}
+              className="bg-white/10 hover:bg-white/20 border border-white/10 p-3.5 rounded-xl transition text-white"
+            >
+              <FaChevronLeft />
+            </button>
+            <span className="text-sm text-white/50 font-bold ml-2">
+              Lucky Spin
+            </span>
+          </div>
+
+          <div className="flex gap-4">
+            <button
+              onClick={handleNext}
+              className="bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-500 hover:to-amber-600 text-slate-950 font-extrabold px-6 py-3.5 rounded-xl flex items-center gap-2 text-sm shadow transition duration-200"
+            >
+              Finish Ceremony
+              <FaChevronRight />
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (showThankYou) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 flex flex-col items-center justify-center text-center text-white px-8">
-        <div className="text-9xl mb-8 animate-bounce">🏆</div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 overflow-hidden flex items-center justify-center px-4 md:px-8">
+        {/* Animated Background */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -left-32 w-96 h-96 bg-yellow-500/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-3xl animate-pulse"></div>
 
-        <h1 className="text-7xl font-black text-yellow-400 mb-6">THANK YOU</h1>
+          {Array.from({ length: 30 }).map((_, i) => (
+            <div
+              key={i}
+              className="absolute w-1.5 h-1.5 bg-yellow-300 rounded-full animate-ping"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 5}s`,
+                animationDuration: `${3 + Math.random() * 4}s`,
+              }}
+            />
+          ))}
+        </div>
 
-        <p className="text-3xl text-slate-200 font-semibold">
-          Congratulations to all our Winners & Nominees!
-        </p>
+        <div className="relative z-10 w-full max-w-6xl ">
+           <div className="mt-5 flex">
+            <img
+              src="/sunbrilologo.png"
+              className="h-17 md:h-17 bg-white rounded-2xl p-3 shadow-xl"
+              alt="Sunbrilo"
+            />
+            <div className="text-5xl md:text-5xl animate-bounce flex flex-center">🏆</div>
+          </div>
+          
 
-        <p className="mt-6 text-xl text-slate-400 max-w-3xl leading-relaxed">
-          Thank you for being part of our Annual Rewards & Recognition Ceremony.
-          Your dedication, teamwork and excellence inspire us every day.
-        </p>
+          <h1 className="text-4xl md:text-6xl font-black bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-300 bg-clip-text text-transparent">
+            THANK YOU
+          </h1>
 
-        <p className="mt-10 text-3xl font-bold text-yellow-300">
-          🌟 See You Next Year! 🌟
-        </p>
+          <p className="text-lg md:text-2xl text-slate-200 font-semibold">
+            Congratulations to all our Winners & Nominees!
+          </p>
 
-        <div className="flex gap-10 mt-16">
-          <img
-            src="/sunbrilologo.png"
-            className="h-16 bg-white rounded-xl p-2"
-            alt="Sunbrilo"
-          />
+          <div
+            className="mx-auto w-full max-w-5xl
+bg-white/5 backdrop-blur-xl
+border border-yellow-400/20
+rounded-3xl
+px-8 md:px-14
+py-8
+shadow-[0_0_60px_rgba(250,204,21,0.12)]"
+          >
+            <p className="text-xl md:text-2xl font-bold">
+              People might forget
+              <span className="text-yellow-400"> what you SAID</span>
+            </p>
+
+            <p className="mt-4 text-xl md:text-2xl font-bold">
+              People might forget
+              <span className="text-yellow-400"> what you DID</span>
+            </p>
+
+            <div className="w-28 h-[3px] bg-gradient-to-r from-transparent via-yellow-400 to-transparent mx-auto my-6"></div>
+
+            <p className="text-3xl md:text-3xl font-black leading-snug">
+              <span className="text-yellow-300">But people will</span>
+
+              <span className="text-white"> NEVER </span>
+
+              <span className="text-yellow-300">forget</span>
+
+              <br />
+
+              <span className="text-white">how you made them</span>
+
+              <span className="text-yellow-400"> FEEL.</span>
+            </p>
+          </div>
+
+          <p className="mt-10 text-lg md:text-2xl text-slate-300">
+            Thank you for making this celebration memorable.
+          </p>
+
+          <p className="mt-6 text-3xl md:text-5xl font-black text-yellow-400 animate-pulse">
+            ✨ See You Next Year! ✨
+          </p>
+
+         
         </div>
       </div>
     );
@@ -341,29 +689,34 @@ export default function LiveAwards() {
                             className="flex flex-col items-center text-center max-w-[170px]"
                           >
                             <div className="relative mb-4">
-                              {nominee.photo ? (
-                                <img
-                                  src={nominee.photo}
-                                  alt=""
-                                  className="w-24 h-24 rounded-full object-cover border-4 border-white/20 shadow-2xl"
-                                  onError={(e) => {
-                                    e.target.style.display = "none";
-                                    const fb =
-                                      e.target.parentElement.querySelector(
-                                        ".fallback-avatar",
-                                      );
-                                    if (fb)
-                                      fb.style.setProperty(
-                                        "display",
-                                        "flex",
-                                        "important",
-                                      );
-                                  }}
-                                />
-                              ) : null}
+                              {(() => {
+                                const photoUrl = getEmployeePhotoUrl(nominee.photo);
+                                return (
+                                  <img
+                                    src={photoUrl}
+                                    alt=""
+                                    className="w-24 h-24 rounded-full object-cover border-4 border-white/20 shadow-2xl"
+                                    onError={(e) => {
+                                      e.target.style.display = "none";
+                                      const fb =
+                                        e.target.parentElement.querySelector(
+                                          ".fallback-avatar",
+                                        );
+                                      if (fb)
+                                        fb.style.setProperty(
+                                          "display",
+                                          "flex",
+                                          "important",
+                                        );
+                                    }}
+                                  />
+                                );
+                              })()}
                               <div
                                 className="fallback-avatar w-24 h-24 rounded-full border-4 border-white/20 bg-white/10 flex items-center justify-center text-3xl font-black text-white shadow-2xl"
-                                style={{ display: nominee.photo ? "none" : "flex" }}
+                                style={{
+                                  display: "none",
+                                }}
                               >
                                 {nominee.name
                                   ? nominee.name.charAt(0).toUpperCase()
@@ -406,29 +759,32 @@ export default function LiveAwards() {
                       >
                         <div className="relative mb-5">
                           <div className="absolute -inset-1 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full blur opacity-75"></div>
-                          {winner.photo ? (
-                            <img
-                              src={winner.photo}
-                              alt=""
-                              className="relative w-28 h-28 rounded-full object-cover border-4 border-yellow-400 shadow-2xl reveal-glow z-10"
-                              onError={(e) => {
-                                e.target.style.display = "none";
-                                const fb =
-                                  e.target.parentElement.querySelector(
-                                    ".fallback-avatar",
-                                  );
-                                if (fb)
-                                  fb.style.setProperty(
-                                    "display",
-                                    "flex",
-                                    "important",
-                                  );
-                              }}
-                            />
-                          ) : null}
+                          {(() => {
+                            const photoUrl = getEmployeePhotoUrl(winner.photo);
+                            return (
+                              <img
+                                src={photoUrl}
+                                alt=""
+                                className="relative w-28 h-28 rounded-full object-cover border-4 border-yellow-400 shadow-2xl reveal-glow z-10"
+                                onError={(e) => {
+                                  e.target.style.display = "none";
+                                  const fb =
+                                    e.target.parentElement.querySelector(
+                                      ".fallback-avatar",
+                                    );
+                                  if (fb)
+                                    fb.style.setProperty(
+                                      "display",
+                                      "flex",
+                                      "important",
+                                    );
+                                }}
+                              />
+                            );
+                          })()}
                           <div
                             className="fallback-avatar relative w-28 h-28 rounded-full border-4 border-yellow-400 shadow-2xl reveal-glow bg-gradient-to-br from-yellow-500 to-amber-600 flex items-center justify-center text-4xl font-black text-slate-950 z-10"
-                            style={{ display: winner.photo ? "none" : "flex" }}
+                            style={{ display: "none" }}
                           >
                             {winner.name
                               ? winner.name.charAt(0).toUpperCase()

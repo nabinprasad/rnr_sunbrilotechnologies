@@ -183,6 +183,18 @@ export const votePoll = async (req, res) => {
 };
 
 // ===========================
+// GET ALL POLL VOTES
+// ===========================
+export const getPollVotes = async (req, res) => {
+  try {
+    const votes = await PollVote.find();
+    res.json({ success: true, votes });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// ===========================
 // CHECK IF EMPLOYEE VOTED
 // ===========================
 export const checkVote = async (req, res) => {

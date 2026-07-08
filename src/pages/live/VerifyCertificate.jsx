@@ -65,10 +65,30 @@ export default function VerifyCertificate() {
     verificationUrl
   )}`;
 
-  // 2. Share to LinkedIn Feed
-  const shareToFeedUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
-    verificationUrl
-  )}`;
+  // 2. Share to LinkedIn Feed with pre-filled content
+  const employeeName = certificate?.employeeName || "";
+  const awardTitle = certificate?.awardTitle || "Quality Champion";
+  const linkedInPostContent = `${awardTitle} 
+
+Celebrating Excellence. Recognizing Dedication. 
+
+Quality isn't just about delivering great work, it's about creating confidence in every outcome. 
+${employeeName} consistently brings accuracy, focus, and an unwavering commitment to excellence, making quality a standard rather than a goal. 
+
+With a mindset built on responsibility and continuous improvement, ${employeeName} approaches every opportunity with confidence and professionalism. 
+Their dedication, adaptability, and eye for detail have earned the trust and respect of everyone they work with. 
+
+Some people complete tasks. 
+Others raise the standard for everyone around them. 
+Through consistency, ownership, and a passion for doing things the right way, ${employeeName} truly embodies what it means to be a ${awardTitle}. 
+
+Closing Screen 
+"${employeeName}'s dedication to delivering quality with consistency has made a lasting impact. Their professionalism, attention to detail, and commitment to excellence continue to inspire confidence and set a benchmark for the entire team."
+
+${verificationUrl}`;
+  
+  // LinkedIn share URL with content (using official LinkedIn share endpoint)
+  const shareToFeedUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(verificationUrl)}&text=${encodeURIComponent(linkedInPostContent)}`;
 
   if (loading) {
     return (
