@@ -1,16 +1,18 @@
 import axios from "axios";
 
 const apiBaseUrl = import.meta.env.DEV
+
   ? "https://rnrapi-test.sunbrilotechnologies.com/api"
   : "http://localhost:5000/api";
 
 console.log("🔌 API Base URL:", apiBaseUrl);
 
+// Admin API instance (with auth and 401 redirect)
 const api = axios.create({
   baseURL: apiBaseUrl,
 });
 
-// Automatically attach JWT Token
+// Automatically attach JWT Token to admin requests
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -24,7 +26,7 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Handle Unauthorized Response
+// Handle Unauthorized Response for admin requests
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -39,4 +41,10 @@ api.interceptors.response.use(
   }
 );
 
+// Public/Employee API instance (no auth, no redirect)
+const publicApi = axios.create({
+  baseURL: apiBaseUrl,
+});
+
 export default api;
+export { publicApi };
