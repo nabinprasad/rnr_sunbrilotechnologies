@@ -17,7 +17,9 @@ const CLAIM_LABELS = {
 
 function emitSessionUpdate(session) {
   try {
-    io.emit("tambolaSessionUpdated", session);
+    const sessionObj = session.toObject();
+    console.log("📡 Emitting tambolaSessionUpdated event:", sessionObj);
+    io.emit("tambolaSessionUpdated", sessionObj);
   } catch (err) {
     console.log("Socket emit failed:", err.message);
   }
@@ -25,7 +27,9 @@ function emitSessionUpdate(session) {
 
 function emitClaimUpdate(claim) {
   try {
-    io.emit("tambolaClaimUpdated", claim);
+    const claimObj = claim.toObject();
+    console.log("📡 Emitting tambolaClaimUpdated event:", claimObj);
+    io.emit("tambolaClaimUpdated", claimObj);
   } catch (err) {
     console.log("Socket emit failed:", err.message);
   }

@@ -9,15 +9,16 @@ import {
   checkVote,
   getPollVotes,
 } from "../controllers/pollController.js";
+import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
 router.get("/", getPolls);
 router.get("/active", getActivePoll);
 router.get("/votes", getPollVotes);
-router.post("/", createPoll);
-router.put("/:id", updatePoll);
-router.delete("/:id", deletePoll);
+router.post("/", protect, createPoll);
+router.put("/:id", protect, updatePoll);
+router.delete("/:id", protect, deletePoll);
 router.post("/:id/vote", votePoll);
 router.get("/:id/check-vote", checkVote);
 
