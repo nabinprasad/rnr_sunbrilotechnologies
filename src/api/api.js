@@ -1,9 +1,8 @@
 import axios from "axios";
 
 const apiBaseUrl = import.meta.env.DEV
-
-  ? "https://rnrapi-test.sunbrilotechnologies.com/api"
-  : "http://localhost:5000/api";
+  ? "http://localhost:5000/api"
+  : "https://rnrapi-test.sunbrilotechnologies.com/api";
 
 console.log("🔌 API Base URL:", apiBaseUrl);
 
