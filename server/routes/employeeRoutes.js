@@ -10,6 +10,8 @@ import {
   resetEmployeePoints,
   getEmployeeStatus,
   getLeaderboard,
+  importEmployees,
+  exportEmployees,
 } from "../controllers/employeeController.js";
 
 import { protect } from "../middleware/authMiddleware.js";
@@ -23,6 +25,7 @@ router.post("/join", joinEmployee);
 // Protected routes
 router.get("/", protect, getEmployees);
 router.get("/leaderboard", getLeaderboard);
+router.get("/export", protect, exportEmployees);
 router.get("/:id", protect, getEmployee);
 
 router.post(
@@ -30,6 +33,13 @@ router.post(
   protect,
   upload.single("photoFile"),
   createEmployee
+);
+
+router.post(
+  "/import",
+  protect,
+  upload.single("file"),
+  importEmployees
 );
 
 router.put("/approve/:id", protect, approveEmployee);

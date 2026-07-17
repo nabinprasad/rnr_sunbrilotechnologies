@@ -1,5 +1,6 @@
 import Employee from "../models/Employee.js";
 import { getIO } from "../server.js";
+import XLSX from "xlsx";
 
 const ALLOWED_EMPLOYEE_FIELDS = [
   "employeeId",
@@ -9,6 +10,8 @@ const ALLOWED_EMPLOYEE_FIELDS = [
   "email",
   "mobile",
   "status",
+  "rkOrg",
+  "project",
 ];
 
 function sanitizeEmployeeData(body = {}, file) {
@@ -307,6 +310,116 @@ export const getLeaderboard = async (req, res) => {
     res.status(500).json({
       success: false,
       message: err.message,
+    });
+  }
+};
+
+// Import Employees from Excel
+export const importEmployees = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "No file uploaded",
+      });
+    }
+
+    const workbook = XLSX.readFile(req.file.path);
+    const sheetName = workbook.SheetNames[0];
+    const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+    const importedEmployees = [];
+    const errors = [];
+
+    for (let i = 0; i < jsonData.length; i++) {
+      const row = jsonData[i];
+      
+      const employeeData = {
+        employeeId: String(row["Employee ID"] || row["employeeId"] || "").trim(),
+        name: String(row["Name"] || row["name"] || "").trim(),
+        department: String(row["Department"] || row["department"] || "").trim(),
+        designation: String(row["Designation"] || row["designation"] || "").trim(),
+        email: String(row["Email"] || row["email"] || "").trim(),
+        mobile: String(row["Mobile"] || row["mobile"] || "").trim(),
+        status: row["Status"] || row["status"] || "Active",
+        approvalStatus: row["Approval Status"] || row["approvalStatus"] || "Approved",
+        rkOrg: String(row["RK ORG"] || row["rkOrg"] || "").trim(),
+        project: String(row["Project"] || row["project"] || "").trim(),
+      };
+
+      if (!employeeData.employeeId || !employeeData.name) {
+        errors.push({
+          row: i + 2,
+          message: "Employee ID and Name are required",
+        });
+        continue;
+      }
+
+      try {
+        const existingEmployee = await Employee.findOne({ employeeId: employeeData.employeeId });
+        
+        if (existingEmployee) {
+          await Employee.findByIdAndUpdate(existingEmployee._id, employeeData, { new: true });
+        } else {
+          const employee = await Employee.create(employeeData);
+          importedEmployees.push(employee);
+        }
+      } catch (err) {
+        errors.push({
+          row: i + 2,
+          message: err.message,
+        });
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Successfully imported ${importedEmployees.length} employees`,
+      importedCount: importedEmployees.length,
+      errors,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Export Employees to Excel
+export const exportEmployees = async (req, res) => {
+  try {
+    const employees = await Employee.find().sort({ createdAt: -1 });
+    
+    const worksheetData = employees.map(emp => ({
+      "Employee ID": emp.employeeId,
+      "Name": emp.name,
+      "Department": emp.department,
+      "Designation": emp.designation,
+      "Email": emp.email,
+      "Mobile": emp.mobile,
+      "Status": emp.status,
+      "RK ORG": emp.rkOrg,
+      "Project": emp.project,
+      "Points": emp.points,
+      "Approval Status": emp.approvalStatus,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(worksheetData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Employees");
+    
+    const buffer = XLSX.write(workbook, { bookType: "xlsx", type: "buffer" });
+    
+    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    res.setHeader("Content-Disposition", "attachment; filename=employees.xlsx");
+    res.send(buffer);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
     });
   }
 };

@@ -56,6 +56,16 @@ const employeeSchema = new mongoose.Schema(
   enum: ["Pending", "Approved", "Rejected"],
   default: "Pending",
 },
+
+    rkOrg: {
+      type: String,
+      default: "",
+    },
+
+    project: {
+      type: String,
+      default: "",
+    },
    
   },
   {
