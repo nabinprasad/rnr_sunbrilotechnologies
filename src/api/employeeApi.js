@@ -1,4 +1,4 @@
-import api from "./api";
+import api, { publicApi } from "./api";
 
 const EMPLOYEE_FORM_FIELDS = [
   "employeeId",
@@ -26,10 +26,10 @@ function buildEmployeeFormData(employee) {
   return formData;
 }
 
-// Get Employees
+// Get Employees (admin)
 export const getEmployees = () => api.get("/employees");
 
-// Add Employee
+// Add Employee (admin)
 export const addEmployee = (employee) => {
   return api.post("/employees", buildEmployeeFormData(employee), {
     headers: {
@@ -38,7 +38,7 @@ export const addEmployee = (employee) => {
   });
 };
 
-// Update Employee
+// Update Employee (admin)
 export const updateEmployee = (id, employee) => {
   return api.put(`/employees/${id}`, buildEmployeeFormData(employee), {
     headers: {
@@ -47,23 +47,28 @@ export const updateEmployee = (id, employee) => {
   });
 };
 
-// Delete Employee
+// Delete Employee (admin)
 export const deleteEmployee = (id) =>
   api.delete(`/employees/${id}`);
 
+// Approve Employee (admin)
 export const approveEmployee = (id) =>
   api.put(`/employees/approve/${id}`);
 
+// Join Employee (public/employee)
 export const joinEmployee = (employeeId) =>
-  api.post("/employees/join", {
+  publicApi.post("/employees/join", {
     employeeId,
   });
 
+// Get Employee Status (public/employee)
 export const getEmployeeStatus = (id) =>
-  api.get(`/employees/status/${id}`);
+  publicApi.get(`/employees/status/${id}`);
 
+// Reset Employee Points (admin)
 export const resetEmployeePoints = () =>
   api.put("/employees/reset-points");
 
+// Get Leaderboard (public)
 export const getLeaderboard = () =>
-  api.get("/employees/leaderboard");
+  publicApi.get("/employees/leaderboard");

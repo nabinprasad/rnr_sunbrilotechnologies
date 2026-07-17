@@ -46,6 +46,8 @@ export const io = new Server(server, {
   },
 });
 
+export const getIO = () => io;
+
 io.on("connection", (socket) => {
   console.log("✅ Socket Connected:", socket.id);
 
