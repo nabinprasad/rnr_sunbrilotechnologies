@@ -3,7 +3,7 @@ import TambolaTicket from "../models/TambolaTicket.js";
 import TambolaClaim from "../models/TambolaClaim.js";
 import Employee from "../models/Employee.js";
 import Event from "../models/Event.js";
-import { io } from "../server.js";
+import { getIO } from "../server.js";
 import {
   generateTambolaTicket,
   validateClaim,
@@ -19,7 +19,7 @@ function emitSessionUpdate(session) {
   try {
     const sessionObj = session.toObject();
     console.log("📡 Emitting tambolaSessionUpdated event:", sessionObj);
-    io.emit("tambolaSessionUpdated", sessionObj);
+    getIO().emit("tambolaSessionUpdated", sessionObj);
   } catch (err) {
     console.log("Socket emit failed:", err.message);
   }
@@ -29,7 +29,7 @@ function emitClaimUpdate(claim) {
   try {
     const claimObj = claim.toObject();
     console.log("📡 Emitting tambolaClaimUpdated event:", claimObj);
-    io.emit("tambolaClaimUpdated", claimObj);
+    getIO().emit("tambolaClaimUpdated", claimObj);
   } catch (err) {
     console.log("Socket emit failed:", err.message);
   }

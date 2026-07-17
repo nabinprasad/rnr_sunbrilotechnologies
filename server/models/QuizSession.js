@@ -14,6 +14,11 @@ const quizSessionSchema = new mongoose.Schema(
       default: null,
     },
 
+    questionNumber: {
+      type: Number,
+      default: 0,
+    },
+
     timer: {
       type: Number,
       default: 30,
