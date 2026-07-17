@@ -10,7 +10,7 @@ import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.get("/", protect, getQuiz);
+router.get("/", getQuiz);
 router.post("/", protect, createQuiz);
 router.put("/:id", protect, updateQuiz);
 router.delete("/:id", protect, deleteQuiz);

@@ -1,5 +1,5 @@
 import QuizSession from "../models/QuizSession.js";
-import { io } from "../server.js";
+import { getIO } from "../server.js";
 
 export const getSession = async (req, res) => {
   try {
@@ -32,13 +32,16 @@ export const updateSession = async (req, res) => {
       await session.save();
     }
 
+    const sessionObj = session.toObject();
+    
     res.json({
       success: true,
-      session,
+      session: sessionObj,
     });
     // Broadcast updated session to all connected clients
     try {
-      io.emit("quizSessionUpdated", session);
+      console.log("📡 Emitting quizSessionUpdated event:", sessionObj);
+      getIO().emit("quizSessionUpdated", sessionObj);
     } catch (e) {
       console.log("Socket emit failed:", e.message);
     }
@@ -68,9 +71,11 @@ export const startQuizTimer = () => {
       if (session.timer > 0) {
         session.timer -= 1;
         await session.save();
+        const sessionObj = session.toObject();
         // Broadcast timer tick so clients stay in sync
         try {
-          io.emit("quizSessionUpdated", session);
+          console.log("📡 Emitting quizSessionUpdated (timer tick):", sessionObj);
+          getIO().emit("quizSessionUpdated", sessionObj);
         } catch (e) {
           console.log("Socket emit failed:", e.message);
         }

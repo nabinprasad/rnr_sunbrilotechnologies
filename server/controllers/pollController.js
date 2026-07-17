@@ -1,6 +1,6 @@
 import Poll from "../models/Poll.js";
 import PollVote from "../models/PollVote.js";
-import { io } from "../server.js";
+import { getIO } from "../server.js";
 
 // ===========================
 // GET ALL POLLS
@@ -101,7 +101,7 @@ export const updatePoll = async (req, res) => {
     // Broadcast to all clients (convert to plain object for better client-side handling)
     try {
       console.log("📡 Emitting pollUpdated event (update):", poll.toObject());
-      io.emit("pollUpdated", poll.toObject());
+      getIO().emit("pollUpdated", poll.toObject());
     } catch (e) {
       console.log("Socket emit failed:", e.message);
     }
@@ -191,7 +191,7 @@ export const votePoll = async (req, res) => {
     // Broadcast updated poll (convert to plain object for better client-side handling)
     try {
       console.log("📡 Emitting pollUpdated event:", poll.toObject());
-      io.emit("pollUpdated", poll.toObject());
+      getIO().emit("pollUpdated", poll.toObject());
     } catch (e) {
       console.log("Socket emit failed:", e.message);
     }

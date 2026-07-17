@@ -1,5 +1,5 @@
 import Employee from "../models/Employee.js";
-import { io } from "../server.js";
+import { getIO } from "../server.js";
 
 const ALLOWED_EMPLOYEE_FIELDS = [
   "employeeId",
@@ -103,7 +103,7 @@ export const approveEmployee = async (req, res) => {
 
     // Notify only this employee using namespaced room
     const room = `employee:${employee._id.toString()}`;
-    io.to(room).emit("employeeApproved", {
+    getIO().to(room).emit("employeeApproved", {
       success: true,
       employee,
     });

@@ -1,6 +1,8 @@
-import api from "./api";
+import api, { publicApi } from "./api";
 
-export const getEvent = () => api.get("/event");
+// Get event (public)
+export const getEvent = () => publicApi.get("/event");
 
+// Update event (admin)
 export const updateEvent = (data) =>
   api.put(`/event`, data);
