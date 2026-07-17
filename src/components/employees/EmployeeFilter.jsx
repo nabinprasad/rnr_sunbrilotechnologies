@@ -25,10 +25,8 @@ export default function EmployeeFilter({
           onChange={(e) => setDepartment(e.target.value)}
         >
           <option value="">All Departments</option>
-          <option>IT</option>
+          <option>Technical</option>
           <option>HR</option>
-          <option>Finance</option>
-          <option>Sales</option>
         </select>
 
         <select
