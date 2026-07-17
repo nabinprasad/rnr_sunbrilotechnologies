@@ -135,10 +135,8 @@ export default function EmployeeForm({
               className="border w-full p-3 rounded-lg mt-1"
             >
               <option value="">Select</option>
-              <option>IT</option>
+              <option>Technical</option>
               <option>HR</option>
-              <option>Finance</option>
-              <option>Sales</option>
             </select>
           </div>
 
