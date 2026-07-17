@@ -8,6 +8,8 @@ const initialForm = {
   email: "",
   mobile: "",
   status: "Active",
+  rkOrg: "",
+  project: "",
 };
 import PhotoUpload from "./PhotoUpload";
 import Modal from "../ui/Modal";
@@ -33,6 +35,8 @@ export default function EmployeeForm({
         email: employee.email || "",
         mobile: employee.mobile || "",
         status: employee.status || "Active",
+        rkOrg: employee.rkOrg || "",
+        project: employee.project || "",
       });
       setPhotoFile(null);
       setImage(employee.photo ? getEmployeePhotoUrl(employee.photo) : "");
@@ -186,6 +190,32 @@ export default function EmployeeForm({
               <option>Active</option>
               <option>Inactive</option>
             </select>
+          </div>
+
+          <div>
+            <label>RK ORG</label>
+
+            <input
+              type="text"
+              name="rkOrg"
+              value={formData.rkOrg}
+              onChange={handleChange}
+              className="border w-full p-3 rounded-lg mt-1"
+              placeholder="Enter RK ORG"
+            />
+          </div>
+
+          <div>
+            <label>Project</label>
+
+            <input
+              type="text"
+              name="project"
+              value={formData.project}
+              onChange={handleChange}
+              className="border w-full p-3 rounded-lg mt-1"
+              placeholder="Enter Project"
+            />
           </div>
         </div>
 

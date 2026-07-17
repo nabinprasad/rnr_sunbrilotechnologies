@@ -8,6 +8,8 @@ const EMPLOYEE_FORM_FIELDS = [
   "email",
   "mobile",
   "status",
+  "rkOrg",
+  "project",
 ];
 
 function buildEmployeeFormData(employee) {
@@ -72,3 +74,21 @@ export const resetEmployeePoints = () =>
 // Get Leaderboard (public)
 export const getLeaderboard = () =>
   publicApi.get("/employees/leaderboard");
+
+// Import Employees (admin)
+export const importEmployees = (file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  return api.post("/employees/import", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
+
+// Export Employees (admin)
+export const exportEmployees = () => {
+  return api.get("/employees/export", {
+    responseType: "blob",
+  });
+};

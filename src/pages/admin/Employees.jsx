@@ -3,6 +3,8 @@ import AdminLayout from "../../components/layout/AdminLayout";
 import EmployeeTable from "../../components/employees/EmployeeTable";
 import EmployeeForm from "../../components/employees/EmployeeForm";
 import EmployeeFilter from "../../components/employees/EmployeeFilter";
+import ImportExcel from "../../components/employees/ImportExcel";
+import ExportExcel from "../../components/employees/ExportExcel";
 import PageHeader from "../../components/ui/PageHeader";
 import Button from "../../components/ui/Button";
 import {
@@ -11,6 +13,7 @@ import {
   addEmployee as addEmployeeApi,
   updateEmployee as updateEmployeeApi,
   deleteEmployee as deleteEmployeeApi,
+  exportEmployees as exportEmployeesApi,
 } from "../../api/employeeApi";
 
 import { useEffect } from "react";
@@ -35,6 +38,23 @@ const fetchEmployees = async () => {
     setEmployees(res.data.employees);
   } catch (error) {
     toast.error("Unable to load employees");
+  }
+};
+
+const handleExport = async () => {
+  try {
+    const res = await exportEmployeesApi();
+    const url = window.URL.createObjectURL(new Blob([res.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'employees.xlsx');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success("Employees exported successfully!");
+  } catch (error) {
+    console.error(error);
+    toast.error("Failed to export employees");
   }
 };
 
@@ -104,9 +124,9 @@ const handleDelete = async (id) => {
           + Add Employee
         </Button>
 
-        <Button variant="secondary">Import Excel</Button>
+        <ImportExcel onImportSuccess={fetchEmployees} />
 
-        <Button variant="secondary">Export Excel</Button>
+        <Button variant="secondary" onClick={handleExport}>Export Excel</Button>
       </PageHeader>
 
       <div className="bg-white p-5 rounded-xl shadow mb-6">
