@@ -1,8 +1,9 @@
 import { io } from "socket.io-client";
 
 const socketUrl = import.meta.env.DEV
-  ? "http://localhost:5000"
-  : "https://rnrapi-test.sunbrilotechnologies.com";
+
+  ? "https://rnrapi-test.sunbrilotechnologies.com"
+  : "http://localhost:5000";
    
 
 
