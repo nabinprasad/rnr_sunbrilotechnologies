@@ -38,7 +38,7 @@ export default function AdminLayout({ children }) {
 
       <div
         className={`transition-all duration-300
-        ${collapsed ? "md:ml-20" : "md:ml-64"}`}
+        ${collapsed ? "md:ml-20" : "md:ml-72"}`}
       >
         <Navbar
           collapsed={collapsed}
