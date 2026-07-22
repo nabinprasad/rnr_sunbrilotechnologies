@@ -85,6 +85,8 @@ export default function Certificates() {
         isOpen={openModal}
         onClose={() => {
           setOpenModal(false);
+          setEditData(null);
+          setIsEdit(false);
           fetchCertificates();
         }}
         employees={employees}

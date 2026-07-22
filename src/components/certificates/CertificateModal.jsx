@@ -33,27 +33,40 @@ export default function CertificateModal({
         }
     };
 
+    // Initialize template and text content when modal opens or editData changes
     useEffect(() => {
-        console.log("🔍 CertificateModal: editData received", editData);
+        if (!isOpen) return;
+        console.log("🔍 CertificateModal: initializing text inputs", editData);
         if (editData) {
-            console.log("📝 Setting content from editData:", editData.content);
-            setSelectedTemplate(editData.templateName);
+            setSelectedTemplate(editData.templateName || "");
             setCategory(editData.category || "");
             setContent(editData.content || "");
-
-            const emp = employees.find(
-                (e) => (e._id === editData.employeeId) || (e._id === editData.employeeId?._id))
-
-            setSelectedEmployee(emp);
-            setSelectedAward(awards.find(a => a._id === editData.awardId) || null);
         } else {
             setSelectedTemplate("");
-            setSelectedEmployee(null);
-            setSelectedAward(null);
             setCategory("");
             setContent("");
         }
-    }, [editData, employees, awards]);
+    }, [isOpen, editData]);
+
+    // Resolve employee and award when employees/awards load or change
+    useEffect(() => {
+        if (!isOpen) return;
+        console.log("🔍 CertificateModal: resolving employee/award", { editData, employeesCount: employees.length, awardsCount: awards.length });
+        if (editData) {
+            const emp = employees.find(
+                (e) => (e._id === editData.employeeId) || (e._id === editData.employeeId?._id)
+            );
+            setSelectedEmployee(emp || null);
+
+            const awd = awards.find(
+                (a) => (a._id === editData.awardId) || (a._id === editData.awardId?._id)
+            );
+            setSelectedAward(awd || null);
+        } else {
+            setSelectedEmployee(null);
+            setSelectedAward(null);
+        }
+    }, [isOpen, editData, employees, awards]);
 
     if (!isOpen) return null;
 

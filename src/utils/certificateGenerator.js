@@ -14,7 +14,7 @@ const TEMPLATE_CONFIG = {
         awardTitleY: 420,
         awardTitleFontSize: 32,
        leftSignature: { x: 170, y: 60, label: "Name" },
-        rightSignature: { x: 720, y: 60, label: "Name" }
+        rightSignature: { x: 690, y: 80, label: "Signature of SBT CEO", name: "Sunil Kumar" },
     },
 
     "/certificates/Employee of the Year.pdf": {
@@ -27,8 +27,9 @@ const TEMPLATE_CONFIG = {
         contentWidth: 450,
         awardTitleY: 350,
         awardTitleFontSize: 28,
-        leftSignature: { x: 80, y: 60, label: "Name" },
-        rightSignature: { x: 720, y: 60, label: "Name" },
+        leftSignature: { x: 80, y: 60, label: "Name & signature of Client Manager" },
+        rightSignature: { x: 690, y: 80, label: "Signature of SBT CEO", name: "Sunil Kumar" },
+        
     },
 
     "/certificates/General.pdf": {
@@ -70,7 +71,7 @@ const TEMPLATE_CONFIG = {
         awardTitleY: 420,
         awardTitleFontSize: 32,
         leftSignature: { x: 190, y: 60, label: "Name" },
-        rightSignature: { x: 720, y: 60, label: "Name" },
+        rightSignature: { x: 690, y: 80, label: "Signature of SBT CEO", name: "Sunil Kumar" },
     },
 
     "/certificates/SPECIAL AWARDS.pdf": {
@@ -84,7 +85,7 @@ const TEMPLATE_CONFIG = {
         awardTitleY: 420,
         awardTitleFontSize: 32,
         leftSignature: { x: 190, y: 60, label: "Name" },
-        rightSignature: { x: 720, y: 60, label: "Name" },
+        rightSignature: { x: 690, y: 80, label: "Signature of SBT CEO", name: "Sunil Kumar" },
     },
 
     "/certificates/TECHNICAL STEWARDSHIP.pdf": {
@@ -98,7 +99,7 @@ const TEMPLATE_CONFIG = {
         awardTitleY: 420,
         awardTitleFontSize: 32,
         leftSignature: { x: 190, y: 60, label: "Name" },
-        rightSignature: { x: 720, y: 60, label: "Name" },
+        rightSignature: { x: 690, y: 80, label: "Signature of SBT CEO", name: "Sunil Kumar" },
     },
 };
 
@@ -221,15 +222,32 @@ export const generateCertificate = async (templatePath, employeeName, certificat
             });
         }
 
-        if (config.rightSignature) {
-            page.drawText(config.rightSignature.label, {
-                x: config.rightSignature.x,
-                y: config.rightSignature.y,
-                size: 12,
-                font: helveticaFont,
-                color: config.color,
-            });
-        }
+      if (config.rightSignature) {
+    // Draw Name
+    if (config.rightSignature.name) {
+        page.drawText(config.rightSignature.name, {
+            x: config.rightSignature.x,
+            y: config.rightSignature.y,
+            size: 12,
+            font: helveticaFont,
+            color: config.color,
+        });
+    }
+
+    // Draw Label below the name
+    if (config.rightSignature.label) {
+        page.drawText(config.rightSignature.label, {
+            x: config.rightSignature.x - 20, // adjust alignment
+            y: config.rightSignature.y - 18, // below the name
+            size: 10,
+            font: helveticaFont,
+            color: config.color,
+        });
+    }
+}
+
+        
+        
 
         // Add verification QR Code if certificateId is provided
         if (certificateId && config.qr) {
