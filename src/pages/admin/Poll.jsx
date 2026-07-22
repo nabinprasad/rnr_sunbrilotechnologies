@@ -5,6 +5,7 @@ import {
   createPoll,
   updatePoll,
   deletePoll,
+  clearPollVotes,
 } from "../../api/pollApi";
 import socket from "../../socket";
 import toast from "react-hot-toast";
@@ -66,6 +67,8 @@ function CreatePollModal({ onClose, onCreated }) {
   const [question, setQuestion] = useState("");
   const [options, setOptions] = useState(["", ""]);
   const [allowMultiple, setAllowMultiple] = useState(false);
+  const [duration, setDuration] = useState(60);
+  const [order, setOrder] = useState(0);
   const [loading, setLoading] = useState(false);
 
   const addOption = () => {
@@ -87,10 +90,16 @@ function CreatePollModal({ onClose, onCreated }) {
     const filled = options.filter((o) => o.trim());
     if (!question.trim()) return toast.error("Question is required");
     if (filled.length < 2) return toast.error("At least 2 options required");
+    if (!duration || duration < 10) return toast.error("Duration must be at least 10 seconds");
 
     try {
       setLoading(true);
-      await createPoll({ question: question.trim(), options: filled, allowMultiple });
+      await createPoll({ 
+        question: question.trim(), 
+        options: filled, 
+        allowMultiple, 
+        duration: parseInt(duration) 
+      });
       toast.success("Poll created!");
       onCreated();
       onClose();
@@ -164,6 +173,21 @@ function CreatePollModal({ onClose, onCreated }) {
             )}
           </div>
 
+          <div>
+            <label className="block text-sm font-semibold text-slate-600 mb-1">
+              Duration (seconds)
+            </label>
+            <input
+              type="number"
+              value={duration}
+              onChange={(e) => setDuration(e.target.value)}
+              min="10"
+              placeholder="60"
+              className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-400 text-slate-800"
+              required
+            />
+          </div>
+
           <label className="flex items-center gap-3 cursor-pointer">
             <input
               type="checkbox"
@@ -203,6 +227,7 @@ function EditPollModal({ poll, onClose, onUpdated }) {
   const [question, setQuestion] = useState(poll.question);
   const [options, setOptions] = useState(poll.options.map(opt => opt.text));
   const [allowMultiple, setAllowMultiple] = useState(poll.allowMultiple);
+  const [duration, setDuration] = useState(poll.duration || 60);
   const [loading, setLoading] = useState(false);
 
   const addOption = () => {
@@ -224,10 +249,16 @@ function EditPollModal({ poll, onClose, onUpdated }) {
     const filled = options.filter((o) => o.trim());
     if (!question.trim()) return toast.error("Question is required");
     if (filled.length < 2) return toast.error("At least 2 options required");
+    if (!duration || duration < 10) return toast.error("Duration must be at least 10 seconds");
 
     try {
       setLoading(true);
-      await updatePoll(poll._id, { question: question.trim(), options: filled, allowMultiple });
+      await updatePoll(poll._id, { 
+        question: question.trim(), 
+        options: filled, 
+        allowMultiple, 
+        duration: parseInt(duration) 
+      });
       toast.success("Poll updated!");
       onUpdated();
       onClose();
@@ -299,6 +330,21 @@ function EditPollModal({ poll, onClose, onUpdated }) {
                 + Add Option
               </button>
             )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-slate-600 mb-1">
+              Duration (seconds)
+            </label>
+            <input
+              type="number"
+              value={duration}
+              onChange={(e) => setDuration(e.target.value)}
+              min="10"
+              placeholder="60"
+              className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-400 text-slate-800"
+              required
+            />
           </div>
 
           <label className="flex items-center gap-3 cursor-pointer">
@@ -392,6 +438,17 @@ export default function Polls() {
       load();
     } catch (err) {
       toast.error("Failed to delete poll");
+    }
+  };
+
+  const handleClearVotes = async (poll) => {
+    if (!window.confirm(`Clear all votes for poll "${poll.question}"?`)) return;
+    try {
+      await clearPollVotes(poll._id);
+      toast.success("Votes cleared!");
+      load();
+    } catch (err) {
+      toast.error("Failed to clear votes");
     }
   };
 
@@ -530,7 +587,7 @@ export default function Polls() {
                     </p>
                     <p className="text-xs text-slate-400 mt-1">
                       {poll.options.length} options · {tv} vote{tv !== 1 ? "s" : ""}
-                      {poll.allowMultiple ? " · Multi-select" : ""}
+                      {poll.allowMultiple ? " · Multi-select" : ""} · {poll.duration || 60}s
                     </p>
                   </div>
 
@@ -551,6 +608,15 @@ export default function Polls() {
                     >
                       ✏️ Edit
                     </button>
+
+                    {totalVotes(poll) > 0 && (
+                      <button
+                        onClick={() => handleClearVotes(poll)}
+                        className="text-xs border border-amber-200 text-amber-600 px-3 py-1.5 rounded-lg hover:bg-amber-50 transition font-medium"
+                      >
+                        🗑 Clear Votes
+                      </button>
+                    )}
 
                     {poll.status === "Draft" && (
                       <button

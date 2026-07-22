@@ -1,33 +1,127 @@
-import { PDFDocument, rgb } from "pdf-lib";
+import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import fontkit from "@pdf-lib/fontkit";
 
 // Template-wise settings
 const TEMPLATE_CONFIG = {
-    "/certificates/template1.pdf": {
-        y: 215,
-        fontSize: 42,
-        color: rgb(0.1, 0.2, 0.45),
-        qr: { x: 80, y: 70, size: 60 }
-    },
-
-    // Image 1 (gold template)
-    "/certificates/template2.pdf": {
+    "/certificates/ABOVE AND BEYOND.pdf": {
         y: 310,
         fontSize: 52,
         color: rgb(0.78, 0.58, 0.15),
-        qr: { x: 90, y: 80, size: 90 }
+        qr: { x: 90, y: 80, size: 90 },
+        categoryY: 380,
+        contentY: 240,
+        contentWidth: 450,
+        awardTitleY: 420,
+        awardTitleFontSize: 32,
+       leftSignature: { x: 170, y: 60, label: "Name" },
+        rightSignature: { x: 720, y: 60, label: "Name" }
     },
 
-    // Image 2 (blue template)
-    "/certificates/template3.pdf": {
+    "/certificates/Employee of the Year.pdf": {
+        y: 215,
+        fontSize: 42,
+        color: rgb(0.1, 0.2, 0.45),
+        qr: { x: 80, y: 70, size: 60 },
+        categoryY: 280,
+        contentY: 160,
+        contentWidth: 450,
+        awardTitleY: 350,
+        awardTitleFontSize: 28,
+        leftSignature: { x: 80, y: 60, label: "Name" },
+        rightSignature: { x: 720, y: 60, label: "Name" },
+    },
+
+    "/certificates/General.pdf": {
+        y: 310,
+        fontSize: 52,
+        color: rgb(0.78, 0.58, 0.15),
+        qr: { x: 90, y: 80, size: 90 },
+        categoryY: 380,
+        contentY: 240,
+        contentWidth: 450,
+        awardTitleY: 420,
+        awardTitleFontSize: 32,
+        leftSignature: { x: 90, y: 50, label: "Name" },
+        rightSignature: { x: 430, y: 50, label: "Name" },
+    },
+
+    "/certificates/Long Service.pdf": {
         y: 290,
         fontSize: 46,
         color: rgb(0.1, 0.25, 0.5),
-        qr: { y: 80, size: 90 }
+        qr: { y: 80, size: 90 },
+        categoryY: 360,
+        contentY: 220,
+        contentWidth: 450,
+        awardTitleY: 400,
+        awardTitleFontSize: 30,
+       leftSignature: { x: 80, y: 80, label: "Name" },
+        rightSignature: { x: 720, y: 80, label: "Name" },
+    },
+
+    "/certificates/QUALITY CHAMPION.pdf": {
+        y: 310,
+        fontSize: 52,
+        color: rgb(0.78, 0.58, 0.15),
+        qr: { x: 90, y: 80, size: 90 },
+        categoryY: 380,
+        contentY: 240,
+        contentWidth: 450,
+        awardTitleY: 420,
+        awardTitleFontSize: 32,
+        leftSignature: { x: 190, y: 60, label: "Name" },
+        rightSignature: { x: 720, y: 60, label: "Name" },
+    },
+
+    "/certificates/SPECIAL AWARDS.pdf": {
+        y: 310,
+        fontSize: 52,
+        color: rgb(0.78, 0.58, 0.15),
+        qr: { x: 90, y: 80, size: 90 },
+        categoryY: 380,
+        contentY: 240,
+        contentWidth: 450,
+        awardTitleY: 420,
+        awardTitleFontSize: 32,
+        leftSignature: { x: 190, y: 60, label: "Name" },
+        rightSignature: { x: 720, y: 60, label: "Name" },
+    },
+
+    "/certificates/TECHNICAL STEWARDSHIP.pdf": {
+        y: 310,
+        fontSize: 52,
+        color: rgb(0.78, 0.58, 0.15),
+        qr: { x: 90, y: 80, size: 90 },
+        categoryY: 380,
+        contentY: 240,
+        contentWidth: 450,
+        awardTitleY: 420,
+        awardTitleFontSize: 32,
+        leftSignature: { x: 190, y: 60, label: "Name" },
+        rightSignature: { x: 720, y: 60, label: "Name" },
     },
 };
 
-export const generateCertificate = async (templatePath, employeeName, certificateId, download = true) => {
+const wrapText = (text, font, fontSize, maxWidth) => {
+    const words = text.split(' ');
+    const lines = [];
+    let currentLine = words[0];
+
+    for (let i = 1; i < words.length; i++) {
+        const word = words[i];
+        const width = font.widthOfTextAtSize(currentLine + ' ' + word, fontSize);
+        if (width < maxWidth) {
+            currentLine += ' ' + word;
+        } else {
+            lines.push(currentLine);
+            currentLine = word;
+        }
+    }
+    lines.push(currentLine);
+    return lines;
+};
+
+export const generateCertificate = async (templatePath, employeeName, certificateId, category, content, awardTitle = null, download = true) => {
     try {
         const existingPdfBytes = await fetch(templatePath).then((res) =>
             res.arrayBuffer()
@@ -41,6 +135,7 @@ export const generateCertificate = async (templatePath, employeeName, certificat
         );
 
         const customFont = await pdfDoc.embedFont(fontBytes);
+        const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
         const page = pdfDoc.getPages()[0];
         const { width, height } = page.getSize();
@@ -69,6 +164,72 @@ export const generateCertificate = async (templatePath, employeeName, certificat
             font: customFont,
             color: config.color,
         });
+
+        // Draw award title
+        if (awardTitle && config.awardTitleY && config.awardTitleFontSize) {
+            const awardTitleWidth = helveticaFont.widthOfTextAtSize(awardTitle, config.awardTitleFontSize);
+            page.drawText(awardTitle, {
+                x: (width - awardTitleWidth) / 2,
+                y: config.awardTitleY,
+                size: config.awardTitleFontSize,
+                font: helveticaFont,
+                color: config.color,
+            });
+        }
+
+        // Draw category
+        if (category) {
+            const categoryFontSize = 18;
+            const categoryWidth = helveticaFont.widthOfTextAtSize(category, categoryFontSize);
+            page.drawText(category, {
+                x: (width - categoryWidth) / 2,
+                y: config.categoryY,
+                size: categoryFontSize,
+                font: helveticaFont,
+                color: config.color,
+            });
+        }
+
+        // Draw content
+        if (content) {
+            const contentFontSize = 12;
+            const lineHeight = 16;
+            const wrappedLines = wrapText(content, helveticaFont, contentFontSize, config.contentWidth);
+            
+            let currentY = config.contentY;
+            wrappedLines.reverse().forEach(line => {
+                const lineWidth = helveticaFont.widthOfTextAtSize(line, contentFontSize);
+                page.drawText(line, {
+                    x: (width - lineWidth) / 2,
+                    y: currentY,
+                    size: contentFontSize,
+                    font: helveticaFont,
+                    color: rgb(0.2, 0.2, 0.2),
+                });
+                currentY += lineHeight;
+            });
+        }
+
+        // Draw signatures
+        if (config.leftSignature) {
+            page.drawText(config.leftSignature.label, {
+                x: config.leftSignature.x,
+                y: config.leftSignature.y,
+                size: 12,
+                font: helveticaFont,
+                color: config.color,
+            });
+        }
+
+        if (config.rightSignature) {
+            page.drawText(config.rightSignature.label, {
+                x: config.rightSignature.x,
+                y: config.rightSignature.y,
+                size: 12,
+                font: helveticaFont,
+                color: config.color,
+            });
+        }
 
         // Add verification QR Code if certificateId is provided
         if (certificateId && config.qr) {
@@ -100,7 +261,7 @@ export const generateCertificate = async (templatePath, employeeName, certificat
         const url = URL.createObjectURL(blob);
 
         if (download) {
-            const link = document.createElement("a");
+            const link = document.createElement('a');
             link.href = url;
             link.download = `${employeeName}_certificate.pdf`;
             link.click();

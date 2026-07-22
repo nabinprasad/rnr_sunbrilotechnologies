@@ -1,13 +1,95 @@
 import Poll from "../models/Poll.js";
 import PollVote from "../models/PollVote.js";
-import { getIO } from "../server.js";
+
+// Store active timeout for auto-closing poll
+let activePollTimeout = null;
+let ioInstance = null;
+
+// Initialize with io instance
+export const initPollAutoClose = (io) => {
+  ioInstance = io;
+  
+  // Check for existing active poll and set timeout
+  Poll.findOne({ status: "Active" }).then((poll) => {
+    if (poll) {
+      setPollAutoCloseTimeout(poll);
+    }
+  }).catch((err) => console.error("Error initializing poll auto-close:", err));
+};
+
+// Function to auto-close poll and start next one
+const autoClosePollAndStartNext = async (currentPollId) => {
+  try {
+    // Close current poll
+    const currentPoll = await Poll.findById(currentPollId);
+    if (currentPoll && currentPoll.status === "Active") {
+      currentPoll.status = "Closed";
+      await currentPoll.save();
+      
+      // Emit event for this poll closing
+      if (ioInstance) {
+        ioInstance.emit("pollUpdated", currentPoll.toObject());
+      }
+      console.log("⏹️ Auto-closed poll:", currentPollId);
+    }
+
+    // Find next poll to activate
+    const nextPoll = await Poll.findOne({ 
+      status: "Draft",
+      _id: { $ne: currentPollId } 
+    }).sort({ order: 1, createdAt: 1 });
+
+    if (nextPoll) {
+      // Activate next poll
+      nextPoll.status = "Active";
+      nextPoll.activatedAt = new Date();
+      await nextPoll.save();
+
+      // Emit event for new active poll
+      if (ioInstance) {
+        ioInstance.emit("pollUpdated", nextPoll.toObject());
+      }
+      console.log("▶️ Auto-started next poll:", nextPoll._id);
+
+      // Set new timeout for next poll
+      setPollAutoCloseTimeout(nextPoll);
+    } else {
+      // No next poll, clear timeout
+      if (activePollTimeout) {
+        clearTimeout(activePollTimeout);
+        activePollTimeout = null;
+      }
+    }
+  } catch (e) {
+    console.error("Error in autoClosePollAndStartNext:", e.message);
+  }
+};
+
+// Function to set auto-close timeout for a poll
+const setPollAutoCloseTimeout = (poll) => {
+  if (activePollTimeout) {
+    clearTimeout(activePollTimeout);
+  }
+
+  if (poll.status === "Active" && poll.duration) {
+    const timeElapsed = poll.activatedAt 
+      ? Date.now() - poll.activatedAt.getTime() 
+      : 0;
+    const remainingTime = Math.max(0, (poll.duration * 1000) - timeElapsed);
+
+    activePollTimeout = setTimeout(() => {
+      autoClosePollAndStartNext(poll._id);
+    }, remainingTime);
+    console.log("⏱️ Auto-close set for poll:", poll._id, "in", remainingTime / 1000, "seconds");
+  }
+};
 
 // ===========================
 // GET ALL POLLS
 // ===========================
 export const getPolls = async (req, res) => {
   try {
-    const polls = await Poll.find().sort({ createdAt: -1 });
+    const polls = await Poll.find().sort({ order: 1, createdAt: -1 });
 
     res.json({ success: true, polls });
   } catch (err) {
@@ -33,7 +115,7 @@ export const getActivePoll = async (req, res) => {
 // ===========================
 export const createPoll = async (req, res) => {
   try {
-    const { question, options, allowMultiple } = req.body;
+    const { question, options, allowMultiple, duration, order } = req.body;
 
     if (!question || !options || options.length < 2) {
       return res.status(400).json({
@@ -48,6 +130,8 @@ export const createPoll = async (req, res) => {
       question,
       options: formattedOptions,
       allowMultiple: allowMultiple || false,
+      duration: duration || 60,
+      order: order !== undefined ? order : 0,
       status: "Draft",
     });
 
@@ -75,12 +159,17 @@ export const updatePoll = async (req, res) => {
         { status: "Active", _id: { $ne: id } },
         { status: "Closed" }
       );
+      
+      // Set activatedAt when status changes to Active
+      poll.activatedAt = new Date();
     }
 
     // Update basic fields
     if (req.body.question) poll.question = req.body.question;
     if (req.body.allowMultiple !== undefined) poll.allowMultiple = req.body.allowMultiple;
     if (req.body.status) poll.status = req.body.status;
+    if (req.body.duration !== undefined) poll.duration = req.body.duration;
+    if (req.body.order !== undefined) poll.order = req.body.order;
 
     // Update options while preserving votes if possible
     if (req.body.options && Array.isArray(req.body.options)) {
@@ -98,14 +187,50 @@ export const updatePoll = async (req, res) => {
 
     await poll.save();
 
+    // If status is now Active, set auto-close timeout
+    if (poll.status === "Active") {
+      setPollAutoCloseTimeout(poll);
+    }
+
     // Broadcast to all clients (convert to plain object for better client-side handling)
     try {
       console.log("📡 Emitting pollUpdated event (update):", poll.toObject());
-      getIO().emit("pollUpdated", poll.toObject());
+      if (ioInstance) {
+        ioInstance.emit("pollUpdated", poll.toObject());
+      }
     } catch (e) {
       console.log("Socket emit failed:", e.message);
     }
 
+    res.json({ success: true, poll });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// ===========================
+// CLEAR POLL VOTES
+// ===========================
+export const clearPollVotes = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const poll = await Poll.findById(id);
+    if (!poll) {
+      return res.status(404).json({ success: false, message: "Poll not found" });
+    }
+    // Reset votes on each option
+    poll.options = poll.options.map(opt => ({ ...opt, votes: 0 }));
+    await poll.save();
+    
+    // Delete all PollVote records for this poll
+    await PollVote.deleteMany({ pollId: id });
+    
+    // Emit socket event to update live poll
+    console.log("📡 Emitting pollUpdated event (votes cleared):", poll.toObject());
+    if (ioInstance) {
+      ioInstance.emit("pollUpdated", poll.toObject());
+    }
+    
     res.json({ success: true, poll });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -191,7 +316,9 @@ export const votePoll = async (req, res) => {
     // Broadcast updated poll (convert to plain object for better client-side handling)
     try {
       console.log("📡 Emitting pollUpdated event:", poll.toObject());
-      getIO().emit("pollUpdated", poll.toObject());
+      if (ioInstance) {
+        ioInstance.emit("pollUpdated", poll.toObject());
+      }
     } catch (e) {
       console.log("Socket emit failed:", e.message);
     }

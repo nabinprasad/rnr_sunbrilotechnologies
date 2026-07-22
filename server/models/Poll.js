@@ -40,6 +40,22 @@ const pollSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+
+    duration: {
+      type: Number,
+      default: 60, // 60 seconds by default
+      min: 10,
+    },
+
+    activatedAt: {
+      type: Date,
+      default: null,
+    },
+
+    order: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,

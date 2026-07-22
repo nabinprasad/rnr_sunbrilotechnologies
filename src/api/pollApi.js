@@ -15,6 +15,9 @@ export const createPoll = (data) => api.post("/polls", data);
 // Update poll (admin)
 export const updatePoll = (id, data) => api.put(`/polls/${id}`, data);
 
+// Clear poll votes (admin)
+export const clearPollVotes = (id) => api.put(`/polls/${id}/clear-votes`);
+
 // Delete poll (admin)
 export const deletePoll = (id) => api.delete(`/polls/${id}`);
 

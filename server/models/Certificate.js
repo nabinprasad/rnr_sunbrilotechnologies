@@ -28,6 +28,14 @@ const certificateSchema = new mongoose.Schema(
             type: String,
             default: "Quality Champion",
         },
+        category: {
+            type: String,
+            default: "",
+        },
+        content: {
+            type: String,
+            default: "",
+        },
     },
     { timestamps: true }
 );

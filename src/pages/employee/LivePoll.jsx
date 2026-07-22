@@ -29,33 +29,75 @@ export default function EmployeeLivePoll() {
   const [hasVoted, setHasVoted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [remainingTime, setRemainingTime] = useState(0);
 
   useEffect(() => {
     console.log("🔗 Employee Socket ID:", socket.id);
     loadActivePoll();
+  }, []);
 
-    const handlePollUpdated = (updatedPoll) => {
-      console.log("📥 Employee pollUpdated event received:", updatedPoll);
-      setPoll(updatedPoll);
-      if (updatedPoll.status !== "Active") {
-        toast("Poll has been closed by the admin", { icon: "📊" });
+  // Calculate and update remaining time every second
+  useEffect(() => {
+    const updateRemainingTime = () => {
+      if (poll && poll.status === "Active" && poll.activatedAt) {
+        const activatedAt = new Date(poll.activatedAt).getTime();
+        const now = Date.now();
+        const elapsed = Math.floor((now - activatedAt) / 1000);
+        const remaining = Math.max(0, (poll.duration || 60) - elapsed);
+        setRemainingTime(remaining);
+      } else {
+        setRemainingTime(0);
       }
     };
 
-    socket.on("connect", () => {
+    updateRemainingTime();
+    const interval = setInterval(updateRemainingTime, 1000);
+    return () => clearInterval(interval);
+  }, [poll]);
+
+  useEffect(() => {
+    const handlePollUpdated = async (updatedPoll) => {
+      console.log("📥 Employee pollUpdated event received:", updatedPoll);
+      
+      // If it's a new poll, reset hasVoted and selected
+      if (poll?._id !== updatedPoll._id && updatedPoll.status === "Active") {
+        setPoll(updatedPoll);
+        setHasVoted(false);
+        setSelected([]);
+        if (employee?._id) {
+          try {
+            const voteRes = await checkVote(updatedPoll._id, employee._id);
+            setHasVoted(voteRes.data.hasVoted);
+          } catch (err) {
+            console.log("Error checking vote for new poll:", err);
+          }
+        }
+      } else {
+        setPoll(updatedPoll);
+        if (updatedPoll.status !== "Active") {
+          toast("Poll has been closed by the admin", { icon: "📊" });
+        }
+      }
+    };
+
+    const handleConnect = () => {
       console.log("✅ Employee socket connected!");
-    });
+    };
 
-    socket.on("disconnect", () => {
+    const handleDisconnect = () => {
       console.log("❌ Employee socket disconnected!");
-    });
+    };
 
+    socket.on("connect", handleConnect);
+    socket.on("disconnect", handleDisconnect);
     socket.on("pollUpdated", handlePollUpdated);
 
     return () => {
+      socket.off("connect", handleConnect);
+      socket.off("disconnect", handleDisconnect);
       socket.off("pollUpdated", handlePollUpdated);
     };
-  }, []);
+  }, [poll, employee]);
 
   const loadActivePoll = async () => {
     try {
@@ -163,11 +205,21 @@ export default function EmployeeLivePoll() {
       <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl w-full max-w-xl shadow-2xl overflow-hidden slide-up">
         {/* Header */}
         <div className="bg-gradient-to-r from-purple-600 to-blue-600 px-8 py-6">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="w-2 h-2 rounded-full bg-green-400 pulse-dot" />
-            <span className="text-green-300 text-xs font-bold uppercase tracking-widest">
-              Live Poll
-            </span>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-green-400 pulse-dot" />
+              <span className="text-green-300 text-xs font-bold uppercase tracking-widest">
+                Live Poll
+              </span>
+            </div>
+            {remainingTime > 0 && (
+              <div className="flex items-center gap-1">
+                <span className="text-yellow-300 text-lg">⏱️</span>
+                <span className={`font-black text-xl ${remainingTime <= 10 ? 'text-red-300 animate-pulse' : 'text-white'}`}>
+                  {remainingTime}s
+                </span>
+              </div>
+            )}
           </div>
           <h1 className="text-white text-2xl font-bold leading-snug">
             {poll.question}
