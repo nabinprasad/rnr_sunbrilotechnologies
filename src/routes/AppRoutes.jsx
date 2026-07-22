@@ -23,6 +23,7 @@ import Activities from "../pages/admin/Activities";
 import LiveQuizControl from "../pages/admin/LiveQuizControl";
 import EmployeeLiveQuiz from "../pages/employee/LiveQuiz";
 import LiveQuiz from "../pages/live/LiveQuiz";
+import LiveResults from "../pages/live/LiveResults";
 import JoinRequests from "../pages/admin/JoinRequests";
 import LiveTambolaControl from "../pages/admin/LiveTambolaControl";
 import EmployeeTambola from "../pages/employee/Tambola";
@@ -170,11 +171,12 @@ export default function AppRoutes() {
         }
       />
 
-      {/* Live Quiz / Tambola / Poll / Verification / Awards */}
+      {/* Live Quiz / Tambola / Poll / Verification / Awards / Results */}
       <Route path="/live-quiz" element={<LiveQuiz />} />
       <Route path="/live-tambola" element={<LiveTambola />} />
       <Route path="/live-poll" element={<LivePollScreen />} />
       <Route path="/live-awards" element={<LiveAwards />} />
+      <Route path="/live-results" element={<LiveResults />} />
       <Route path="/verify-certificate/:id" element={<VerifyCertificate />} />
 
       {/* Employee Routes */}

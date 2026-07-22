@@ -17,6 +17,7 @@ import tambolaRoutes from "./routes/tambolaRoutes.js";
 import pollRoutes from "./routes/pollRoutes.js";
 
 import { startQuizTimer } from "./controllers/quizSessionController.js";
+import { initPollAutoClose } from "./controllers/pollController.js";
 
 import certificateRoutes from "./routes/certificateRoutes.js";
 import awardRoutes from "./routes/awardRoutes.js";
@@ -47,6 +48,9 @@ export const io = new Server(server, {
 });
 
 export const getIO = () => io;
+
+// Initialize poll auto-close
+initPollAutoClose(io);
 
 io.on("connection", (socket) => {
   console.log("✅ Socket Connected:", socket.id);

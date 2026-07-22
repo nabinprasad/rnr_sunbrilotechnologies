@@ -62,34 +62,64 @@ export default function LivePollScreen() {
   const [poll, setPoll] = useState(null);
   const [loading, setLoading] = useState(true);
   const [tick, setTick] = useState(0);
+  const [remainingTime, setRemainingTime] = useState(0);
 
   useEffect(() => {
     console.log("🔗 Socket ID:", socket.id);
     loadActivePoll();
 
-    // Tick every second for live display feel
-    const tickInterval = setInterval(() => setTick((t) => t + 1, 1000))
-
     const handlePollUpdated = (updatedPoll) => {
       console.log("📥 pollUpdated event received:", updatedPoll);
+      console.log("updatedPoll.status:", updatedPoll.status);
+      console.log("updatedPoll.activatedAt:", updatedPoll.activatedAt);
+      console.log("updatedPoll.duration:", updatedPoll.duration);
       setPoll(updatedPoll);
     };
 
-    socket.on("connect", () => {
+    const handleConnect = () => {
       console.log("✅ Socket connected to server!");
-    });
+    };
 
-    socket.on("disconnect", () => {
+    const handleDisconnect = () => {
       console.log("❌ Socket disconnected!");
-    });
+    };
 
+    socket.on("connect", handleConnect);
+    socket.on("disconnect", handleDisconnect);
     socket.on("pollUpdated", handlePollUpdated);
 
     return () => {
-      clearInterval(tickInterval);
+      socket.off("connect", handleConnect);
+      socket.off("disconnect", handleDisconnect);
       socket.off("pollUpdated", handlePollUpdated);
     };
   }, []);
+
+  // Calculate and update remaining time every second
+  useEffect(() => {
+    const updateRemainingTime = () => {
+      console.log("updateRemainingTime called - poll:", poll);
+      if (poll && poll.status === "Active" && poll.activatedAt) {
+        const activatedAt = new Date(poll.activatedAt).getTime();
+        const now = Date.now();
+        const elapsed = Math.floor((now - activatedAt) / 1000);
+        const remaining = Math.max(0, (poll.duration || 60) - elapsed);
+        console.log("activatedAt:", activatedAt, "now:", now, "elapsed:", elapsed, "remaining:", remaining);
+        setRemainingTime(remaining);
+      } else {
+        console.log("Setting remainingTime to 0 because poll not active or no activatedAt");
+        setRemainingTime(0);
+      }
+    };
+
+    updateRemainingTime();
+    const tickInterval = setInterval(() => {
+      setTick((t) => t + 1);
+      updateRemainingTime();
+    }, 1000);
+
+    return () => clearInterval(tickInterval);
+  }, [poll]);
 
   const loadActivePoll = async () => {
     try {
@@ -127,22 +157,53 @@ export default function LivePollScreen() {
   }
 
   if (!poll || poll.status !== "Active") {
+    // Calculate percentages and find 100% option
+    const percentages = poll?.options?.map(opt => ({
+      ...opt,
+      percentage: tv > 0 ? Math.round((opt.votes / tv) * 100) : 0
+    })) || [];
+    const hundredPercentOption = percentages.find(opt => opt.percentage === 100);
+
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-950 via-slate-900 to-blue-950 flex flex-col items-center justify-center text-center p-12">
         <style>{`
           @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
           .float { animation: float 3s ease-in-out infinite; }
+          @keyframes celebrate-pulse { 0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(34, 197, 94, 0.3); } 50% { transform: scale(1.05); box-shadow: 0 0 40px rgba(34, 197, 94, 0.6); } }
+          .celebrate-pulse { animation: celebrate-pulse 1.5s ease-in-out infinite; }
         `}</style>
 
-        <div className="text-9xl mb-8 float">📊</div>
-        <h1 className="text-6xl font-black text-white mb-4">
-          {poll?.status === "Closed" ? "Poll Closed" : "Waiting for Poll..."}
-        </h1>
-        <p className="text-white/50 text-2xl">
-          {poll?.status === "Closed"
-            ? "Thank you for participating!"
-            : "The admin will launch a poll shortly"}
-        </p>
+        {hundredPercentOption ? (
+          <div className="mb-12">
+            <div className="text-9xl mb-6 float">🏆</div>
+            <h1 className="text-6xl md:text-7xl font-black text-green-400 mb-6">
+              Winner!
+            </h1>
+            <div className="bg-green-500/20 border-4 border-green-400 rounded-3xl p-10 max-w-3xl mx-auto celebrate-pulse">
+              <h2 className="text-white text-3xl md:text-4xl font-bold mb-4">
+                {poll?.question}
+              </h2>
+              <div className="text-green-300 text-5xl md:text-6xl font-black">
+                {hundredPercentOption.text}
+              </div>
+              <div className="text-white/70 text-xl mt-4">
+                100% of {tv} vote{tv !== 1 ? "s" : ""}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="text-9xl mb-8 float">📊</div>
+            <h1 className="text-6xl font-black text-white mb-4">
+              {poll?.status === "Closed" ? "Poll Closed" : "Waiting for Poll..."}
+            </h1>
+            <p className="text-white/50 text-2xl">
+              {poll?.status === "Closed"
+                ? "Thank you for participating!"
+                : "The admin will launch a poll shortly"}
+            </p>
+          </>
+        )}
 
         {poll?.status === "Closed" && (
           <div className="mt-12 bg-white/10 backdrop-blur rounded-3xl p-8 max-w-2xl w-full">
@@ -191,10 +252,19 @@ export default function LivePollScreen() {
             Live Poll
           </span>
         </div>
-        <div className="flex items-center gap-6 text-white/50 text-sm">
-          <span>{tv} vote{tv !== 1 ? "s" : ""}</span>
+        <div className="flex items-center gap-6">
+          {remainingTime > 0 && (
+            <div className="flex items-center gap-3 bg-yellow-500/20 border-2 border-yellow-400 rounded-xl px-6 py-3">
+              <span className="text-yellow-400 text-5xl">⏱️</span>
+              <span className={`font-black text-6xl ${remainingTime <= 10 ? 'text-red-400 animate-pulse' : 'text-yellow-300'}`}>
+                {remainingTime}
+              </span>
+              <span className="text-yellow-300 text-2xl font-bold">SEC</span>
+            </div>
+          )}
+          <span className="text-white/50 text-sm">{tv} vote{tv !== 1 ? "s" : ""}</span>
           <span className="w-px h-4 bg-white/20" />
-          <span>Updates in real-time</span>
+          <span className="text-white/50 text-sm">Updates in real-time</span>
         </div>
       </div>
 

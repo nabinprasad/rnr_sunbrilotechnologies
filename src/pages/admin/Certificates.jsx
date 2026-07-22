@@ -30,6 +30,7 @@ export default function Certificates() {
 
   const fetchCertificates = async () => {
     const res = await getCertificates();
+    console.log("✅ Certificates fetched:", res.data.certificates);
     setCertificates(res.data.certificates);
   };
 
@@ -52,12 +53,15 @@ export default function Certificates() {
   };
 
   const handleDownload = async (cert) => {
-    await generateCertificate(
-      cert.templateName,
-      cert.employeeName,
-      cert._id
-    );
-  };
+        await generateCertificate(
+            cert.templateName,
+            cert.employeeName,
+            cert._id,
+            cert.category,
+            cert.content,
+            cert.awardTitle
+        );
+    };
 
   return (
     <AdminLayout>

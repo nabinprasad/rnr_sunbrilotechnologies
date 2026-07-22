@@ -8,6 +8,7 @@ import {
   votePoll,
   checkVote,
   getPollVotes,
+  clearPollVotes,
 } from "../controllers/pollController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
@@ -19,6 +20,7 @@ router.get("/votes", getPollVotes);
 router.post("/", protect, createPoll);
 router.put("/:id", protect, updatePoll);
 router.delete("/:id", protect, deletePoll);
+router.put("/:id/clear-votes", protect, clearPollVotes);
 router.post("/:id/vote", votePoll);
 router.get("/:id/check-vote", checkVote);
 
