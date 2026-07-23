@@ -53,13 +53,15 @@ export default function Certificates() {
   };
 
   const handleDownload = async (cert) => {
+        const awardTitleToPass = cert.awardTitle === "Quality Champion" ? null : cert.awardTitle;
         await generateCertificate(
             cert.templateName,
             cert.employeeName,
             cert._id,
             cert.category,
             cert.content,
-            cert.awardTitle
+            awardTitleToPass,
+            cert.leftSignatureName
         );
     };
 

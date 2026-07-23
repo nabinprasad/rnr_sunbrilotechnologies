@@ -8,6 +8,7 @@ const initialForm = {
     templateName: "/certificates/General.pdf",
     category: "",
     content: "",
+    leftSignatureName: "",
 };
 
 export default function CertificateForm({
@@ -41,6 +42,7 @@ export default function CertificateForm({
                 templateName: certificate.templateName || "template1",
                 category: certificate.category || "",
                 content: certificate.content || "",
+                leftSignatureName: certificate.leftSignatureName || "",
             });
         } else {
             setFormData(initialForm);
@@ -151,6 +153,20 @@ export default function CertificateForm({
           <p className="text-xs text-slate-500 mt-1">
             {formData.content.length}/275 characters
           </p>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">
+            Manager Name (Left Signature)
+          </label>
+          <input
+            type="text"
+            name="leftSignatureName"
+            value={formData.leftSignatureName}
+            onChange={handleChange}
+            className="w-full border border-slate-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            placeholder="e.g., John Doe"
+          />
         </div>
 
         <div className="flex justify-end gap-3 mt-6">

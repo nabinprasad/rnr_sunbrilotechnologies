@@ -13,8 +13,8 @@ const TEMPLATE_CONFIG = {
         contentWidth: 450,
         awardTitleY: 420,
         awardTitleFontSize: 32,
-       leftSignature: { x: 170, y: 60, label: "Name" },
-        rightSignature: { x: 690, y: 80, label: "Signature of SBT CEO", name: "Sunil Kumar" },
+       leftSignature: { x: 170, y: 90, label: "Manager" },
+        rightSignature: { x: 690, y: 80, label: "CEO", name: "Sunil Kumar" },
     },
 
     "/certificates/Employee of the Year.pdf": {
@@ -27,8 +27,8 @@ const TEMPLATE_CONFIG = {
         contentWidth: 450,
         awardTitleY: 350,
         awardTitleFontSize: 28,
-        leftSignature: { x: 80, y: 60, label: "Name & signature of Client Manager" },
-        rightSignature: { x: 690, y: 80, label: "Signature of SBT CEO", name: "Sunil Kumar" },
+        leftSignature: { x: 100, y: 80, label: "Manager" },
+        rightSignature: { x: 690, y: 80, label: "CEO", name: "Sunil Kumar" },
         
     },
 
@@ -42,8 +42,8 @@ const TEMPLATE_CONFIG = {
         contentWidth: 450,
         awardTitleY: 420,
         awardTitleFontSize: 32,
-        leftSignature: { x: 90, y: 50, label: "Name" },
-        rightSignature: { x: 430, y: 50, label: "Name" },
+        leftSignature: { x: 170, y: 90, label: "Manager" },
+        rightSignature: { x: 690, y: 80, label: "CEO", name: "Sunil Kumar" },
     },
 
     "/certificates/Long Service.pdf": {
@@ -56,8 +56,8 @@ const TEMPLATE_CONFIG = {
         contentWidth: 450,
         awardTitleY: 400,
         awardTitleFontSize: 30,
-       leftSignature: { x: 80, y: 80, label: "Name" },
-        rightSignature: { x: 720, y: 80, label: "Name" },
+       leftSignature: { x: 120, y: 80, label: "Manager" },
+        rightSignature: { x: 690, y: 80,label: "CEO", name: "Sunil Kumar" },
     },
 
     "/certificates/QUALITY CHAMPION.pdf": {
@@ -70,8 +70,8 @@ const TEMPLATE_CONFIG = {
         contentWidth: 450,
         awardTitleY: 420,
         awardTitleFontSize: 32,
-        leftSignature: { x: 190, y: 60, label: "Name" },
-        rightSignature: { x: 690, y: 80, label: "Signature of SBT CEO", name: "Sunil Kumar" },
+        leftSignature: { x: 170, y: 90, label: "Manager" },
+        rightSignature: { x: 690, y: 80, label: "CEO", name: "Sunil Kumar" },   
     },
 
     "/certificates/SPECIAL AWARDS.pdf": {
@@ -84,8 +84,8 @@ const TEMPLATE_CONFIG = {
         contentWidth: 450,
         awardTitleY: 420,
         awardTitleFontSize: 32,
-        leftSignature: { x: 190, y: 60, label: "Name" },
-        rightSignature: { x: 690, y: 80, label: "Signature of SBT CEO", name: "Sunil Kumar" },
+        leftSignature: { x: 170, y: 90, label: "Manager" },
+        rightSignature: { x: 690, y: 80, label: "CEO", name: "Sunil Kumar" },       
     },
 
     "/certificates/TECHNICAL STEWARDSHIP.pdf": {
@@ -98,8 +98,8 @@ const TEMPLATE_CONFIG = {
         contentWidth: 450,
         awardTitleY: 420,
         awardTitleFontSize: 32,
-        leftSignature: { x: 190, y: 60, label: "Name" },
-        rightSignature: { x: 690, y: 80, label: "Signature of SBT CEO", name: "Sunil Kumar" },
+        leftSignature: { x: 170, y: 90, label: "Manager" },
+        rightSignature: { x: 690, y: 80, label: "CEO", name: "Sunil Kumar" },           
     },
 };
 
@@ -122,7 +122,7 @@ const wrapText = (text, font, fontSize, maxWidth) => {
     return lines;
 };
 
-export const generateCertificate = async (templatePath, employeeName, certificateId, category, content, awardTitle = null, download = true) => {
+export const generateCertificate = async (templatePath, employeeName, certificateId, category, content, awardTitle = null, leftSignatureName = null, download = true) => {
     try {
         const existingPdfBytes = await fetch(templatePath).then((res) =>
             res.arrayBuffer()
@@ -167,7 +167,7 @@ export const generateCertificate = async (templatePath, employeeName, certificat
         });
 
         // Draw award title
-        if (awardTitle && config.awardTitleY && config.awardTitleFontSize) {
+        if (awardTitle && awardTitle !== "Quality Champion" && config.awardTitleY && config.awardTitleFontSize) {
             const awardTitleWidth = helveticaFont.widthOfTextAtSize(awardTitle, config.awardTitleFontSize);
             page.drawText(awardTitle, {
                 x: (width - awardTitleWidth) / 2,
@@ -213,37 +213,69 @@ export const generateCertificate = async (templatePath, employeeName, certificat
 
         // Draw signatures
         if (config.leftSignature) {
-            page.drawText(config.leftSignature.label, {
-                x: config.leftSignature.x,
-                y: config.leftSignature.y,
-                size: 12,
-                font: helveticaFont,
-                color: config.color,
-            });
+            // Draw horizontal line above the name
+            if (leftSignatureName) {
+                page.drawLine({
+                    start: { x: config.leftSignature.x - 50, y: config.leftSignature.y + 15 },
+                    end: { x: config.leftSignature.x + 100, y: config.leftSignature.y + 15 },
+                    thickness: 1,
+                    color: config.color,
+                });
+
+                // Draw Name
+                page.drawText(leftSignatureName, {
+                    x: config.leftSignature.x,
+                    y: config.leftSignature.y,
+                    size: 12,
+                    font: helveticaFont,
+                    color: config.color,
+                });
+            }
+
+            // Draw Label below the name
+            if (config.leftSignature.label) {
+                page.drawText(config.leftSignature.label, {
+                    x: config.leftSignature.x - -9, // adjust alignment
+                    y: config.leftSignature.y - 18, // below the name
+                    size: 10,
+                    font: helveticaFont,
+                    color: config.color,
+                });
+            }
         }
 
       if (config.rightSignature) {
-    // Draw Name
-    if (config.rightSignature.name) {
-        page.drawText(config.rightSignature.name, {
-            x: config.rightSignature.x,
-            y: config.rightSignature.y,
-            size: 12,
-            font: helveticaFont,
-            color: config.color,
-        });
-    }
+          // Draw horizontal line above the name
+          if (config.rightSignature.name) {
+              page.drawLine({
+                  start: { x: config.rightSignature.x - 50, y: config.rightSignature.y + 15 },
+                  end: { x: config.rightSignature.x + 100, y: config.rightSignature.y + 15 },
+                  thickness: 1,
+                  color: config.color,
+              });
+          }
 
-    // Draw Label below the name
-    if (config.rightSignature.label) {
-        page.drawText(config.rightSignature.label, {
-            x: config.rightSignature.x - 20, // adjust alignment
-            y: config.rightSignature.y - 18, // below the name
-            size: 10,
-            font: helveticaFont,
-            color: config.color,
-        });
-    }
+          // Draw Name
+          if (config.rightSignature.name) {
+              page.drawText(config.rightSignature.name, {
+                  x: config.rightSignature.x,
+                  y: config.rightSignature.y,
+                  size: 12,
+                  font: helveticaFont,
+                  color: config.color,
+              });
+          }
+
+          // Draw Label below the name
+          if (config.rightSignature.label) {
+              page.drawText(config.rightSignature.label, {
+                  x: config.rightSignature.x - -14, // adjust alignment
+                  y: config.rightSignature.y - 18, // below the name
+                  size: 10,
+                  font: helveticaFont,
+                  color: config.color,
+              });
+          }
 }
 
         

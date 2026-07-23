@@ -19,6 +19,7 @@ export default function CertificateModal({
     const [selectedAward, setSelectedAward] = useState(null);
     const [category, setCategory] = useState("");
     const [content, setContent] = useState("");
+    const [leftSignatureName, setLeftSignatureName] = useState("");
 
     useEffect(() => {
         fetchAwards();
@@ -41,10 +42,12 @@ export default function CertificateModal({
             setSelectedTemplate(editData.templateName || "");
             setCategory(editData.category || "");
             setContent(editData.content || "");
+            setLeftSignatureName(editData.leftSignatureName || "");
         } else {
             setSelectedTemplate("");
             setCategory("");
             setContent("");
+            setLeftSignatureName("");
         }
     }, [isOpen, editData]);
 
@@ -84,6 +87,7 @@ export default function CertificateModal({
                 awardId: selectedAward?._id || null,
                 category: category,
                 content: content,
+                leftSignatureName: leftSignatureName,
             };
 
             let savedCertId = null;
@@ -105,7 +109,8 @@ export default function CertificateModal({
                     savedCertId,
                     category,
                     content,
-                    selectedAward?.title || null
+                    selectedAward?.title || null,
+                    leftSignatureName
                 );
             }
 
@@ -196,6 +201,15 @@ export default function CertificateModal({
                 <p className="text-xs text-slate-500 mb-4">
                     {content.length}/275 characters
                 </p>
+
+                <label className="block mb-2 font-medium text-slate-700">Manager Name (Left Signature)</label>
+                <input
+                    type="text"
+                    value={leftSignatureName}
+                    onChange={(e) => setLeftSignatureName(e.target.value)}
+                    placeholder="e.g., John Doe"
+                    className="border border-slate-300 p-3 w-full rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
 
                 <div className="flex justify-end gap-3">
                     <button

@@ -26,13 +26,17 @@ const certificateSchema = new mongoose.Schema(
         },
         awardTitle: {
             type: String,
-            default: "Quality Champion",
+            default: "",
         },
         category: {
             type: String,
             default: "",
         },
         content: {
+            type: String,
+            default: "",
+        },
+        leftSignatureName: {
             type: String,
             default: "",
         },
