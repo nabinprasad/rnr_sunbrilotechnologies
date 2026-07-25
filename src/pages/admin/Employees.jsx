@@ -58,10 +58,17 @@ const handleExport = async () => {
   }
 };
 
+  const canonicalDepartment = (value) => {
+    const normalized = String(value || "").trim().toLowerCase();
+    if (normalized === "acounts") return "accounts";
+    return normalized;
+  };
+
   const filteredEmployees = employees.filter((emp) => {
     return (
       emp.name.toLowerCase().includes(search.toLowerCase()) &&
-      (department === "" || emp.department === department) &&
+      (department === "" ||
+        canonicalDepartment(emp.department) === canonicalDepartment(department)) &&
       (status === "" || emp.status === status)
     );
   });

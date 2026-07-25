@@ -27,6 +27,8 @@ export default function EmployeeFilter({
           <option value="">All Departments</option>
           <option>Technical</option>
           <option>HR</option>
+          <option>TA</option>
+          <option>Accounts</option>
         </select>
 
         <select
