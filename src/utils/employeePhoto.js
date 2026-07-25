@@ -1,7 +1,6 @@
-const API_ORIGIN = import.meta.env.DEV
-
-  ? "https://rnrapi-test.sunbrilotechnologies.com"
-  : "http://localhost:5000";
+const API_ORIGIN =
+  import.meta.env.VITE_API_ORIGIN ||
+  (import.meta.env.DEV ? "http://localhost:5000" : "");
 
 export const DEFAULT_EMPLOYEE_PHOTO = "https://i.pravatar.cc/150";
 
@@ -22,5 +21,6 @@ export function getEmployeePhotoUrl(photo, fallback = DEFAULT_EMPLOYEE_PHOTO) {
   }
 
   const normalized = photo.replace(/\\/g, "/").replace(/^\/+/, "");
+  if (!API_ORIGIN) return `/${normalized}`;
   return `${API_ORIGIN}/${normalized}`;
 }
