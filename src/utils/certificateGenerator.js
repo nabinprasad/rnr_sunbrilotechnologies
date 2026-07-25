@@ -235,7 +235,7 @@ export const generateCertificate = async (templatePath, employeeName, certificat
             // Draw Label below the name
             if (config.leftSignature.label) {
                 page.drawText(config.leftSignature.label, {
-                    x: config.leftSignature.x - -9, // adjust alignment
+                    x: config.leftSignature.x - 0, // adjust alignment
                     y: config.leftSignature.y - 18, // below the name
                     size: 10,
                     font: helveticaFont,
