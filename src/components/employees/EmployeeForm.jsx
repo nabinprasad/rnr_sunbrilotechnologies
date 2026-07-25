@@ -137,6 +137,8 @@ export default function EmployeeForm({
               <option value="">Select</option>
               <option>Technical</option>
               <option>HR</option>
+              <option>TA</option>
+              <option>Accounts</option>
             </select>
           </div>
 
