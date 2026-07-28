@@ -134,14 +134,19 @@ export const generateCertificate = async (templatePath, employeeName, certificat
         const fontBytes = await fetch("/fonts/AlexBrush-Regular.ttf").then((res) =>
             res.arrayBuffer()
         );
+        const halimunFontBytes = await fetch("/fonts/Halimun.ttf").then((res) =>
+            res.arrayBuffer()
+        );
 
         const customFont = await pdfDoc.embedFont(fontBytes);
+        const halimunFont = await pdfDoc.embedFont(halimunFontBytes);
         const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
         const page = pdfDoc.getPages()[0];
         const { width, height } = page.getSize();
 
         const config = TEMPLATE_CONFIG[templatePath];
+        const signatureBlack = rgb(0, 0, 0);
 
         if (!config) {
             throw new Error("Template config not found");
@@ -257,6 +262,18 @@ export const generateCertificate = async (templatePath, employeeName, certificat
 
           // Draw Name
           if (config.rightSignature.name) {
+              const signatureText = config.rightSignature.name;
+              const signatureFontSize = 20;
+              const signatureTextWidth = halimunFont.widthOfTextAtSize(signatureText, signatureFontSize);
+              const signatureCenterX = config.rightSignature.x + 18;
+              page.drawText(signatureText, {
+                  x: signatureCenterX - signatureTextWidth / 2,
+                  y: config.rightSignature.y + 22,
+                  size: signatureFontSize,
+                  font: halimunFont,
+                  color: signatureBlack,
+              });
+
               page.drawText(config.rightSignature.name, {
                   x: config.rightSignature.x,
                   y: config.rightSignature.y,
