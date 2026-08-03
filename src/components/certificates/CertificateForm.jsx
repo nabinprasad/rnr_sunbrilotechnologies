@@ -146,12 +146,12 @@ export default function CertificateForm({
             value={formData.content}
             onChange={handleChange}
             rows={5}
-            maxLength={275}
+            maxLength={300}
             className="w-full border border-slate-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            placeholder="Write the certificate description here (max 275 characters)"
+            placeholder="Write the certificate description here (max 300 characters)"
           />
           <p className="text-xs text-slate-500 mt-1">
-            {formData.content.length}/275 characters
+            {formData.content.length}/300 characters
           </p>
         </div>
 

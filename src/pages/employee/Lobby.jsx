@@ -31,11 +31,10 @@ export default function Lobby() {
     loadEmployee();
     loadLiveData();
 
-    const refreshInterval = setInterval(() => {
-      loadEmployee();
-      loadLiveData();
-    }, 3000);
-
+    // REMOVED: 3-second HTTP polling loop.
+    // In a high-load environment, we should either use Socket.IO 
+    // for all status updates or increase the polling interval to 30s+.
+    
     const countdownInterval = setInterval(() => {
       setCountdown((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000);

@@ -1,0 +1,90 @@
+config:
+  target: "http://localhost:5000/api"
+  phases:
+    - duration: 30
+      arrivalRate: 2
+      name: Ramp up employees
+    - duration: 120
+      arrivalRate: 10
+      name: Main employee load
+    - duration: 60
+      arrivalRate: 25
+      name: Heavy employee traffic
+  plugins:
+    metrics-by-endpoint: {}
+  variables:
+    names:
+      - "Alice Johnson"
+      - "Bob Smith"
+      - "Charlie Davis"
+      - "Diana Evans"
+      - "Ethan Foster"
+      - "Fiona Green"
+      - "George Hall"
+      - "Hannah Irving"
+      - "Ian Jones"
+      - "Julia King"
+  http:
+    timeout: 10
+
+scenarios:
+  - name: "Employee joins and browses event"
+    weight: 3
+    flow:
+      - post:
+          url: "/employees/join"
+          name: "Employee joins event"
+          json:
+            name: "{{ names }}"
+            employeeId: "EMP{{ $randomNumber(1000,9999) }}"
+            email: "emp{{ $randomNumber(100,999) }}@example.com"
+            phone: "9876543210"
+            designation: "Software Engineer"
+            department: "Engineering"
+      - capture:
+          json: "$.data.employee._id"
+          as: "employeeId"
+      - think: 1
+      - get:
+          url: "/event"
+          name: "Get event data"
+      - think: 3
+      - get:
+          url: "/quiz-session"
+          name: "Check quiz session"
+      - think: 2
+      - get:
+          url: "/tambola/session"
+          name: "Check tambola session"
+      - think: 2
+      - get:
+          url: "/employees/leaderboard"
+          name: "View leaderboard"
+      - think: 3
+      - get:
+          url: "/awards"
+          name: "Browse awards"
+      - think: 2
+      - get:
+          url: "/poll"
+          name: "Browse polls"
+
+  - name: "Tambola player checking numbers"
+    weight: 2
+    flow:
+      - loop:
+          - get:
+              url: "/tambola/session"
+              name: "Poll tambola numbers"
+          - think: 2
+        count: 10
+
+  - name: "Quiz participant tracking session"
+    weight: 1
+    flow:
+      - loop:
+          - get:
+              url: "/quiz-session"
+              name: "Poll quiz session"
+          - think: 3
+        count: 8

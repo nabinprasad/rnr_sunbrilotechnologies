@@ -37,15 +37,19 @@ function emitClaimUpdate(claim) {
 
 export const getSession = async (req, res) => {
   try {
-    let session = await TambolaSession.findOne();
-
-    if (!session) {
-      session = await TambolaSession.create({});
-    }
+    let session = await TambolaSession.findOne()
+      .sort({ createdAt: -1 })
+      .select("-__v")
+      .lean();
 
     res.json({
       success: true,
-      session,
+      session: session || {
+        status: "Not Started",
+        calledNumbers: [],
+        currentNumber: null,
+        winners: { earlyFive: null, middleLine: null, fullHouse: null },
+      },
     });
   } catch (err) {
     res.status(500).json({

@@ -7,7 +7,18 @@
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:smoke": "npx artillery run tests/smoke-test.yml --output tests/reports/smoke-report.json",
+    "test:employee": "npx artillery run tests/employee-load-test.yml --output tests/reports/employee-report.json",
+    "test:admin": "npx artillery run tests/admin-stress-test.yml --output tests/reports/admin-report.json",
+    "test:100vu": "npx artillery run tests/100vu-load-test.yml --output tests/reports/100vu-report.json",
+    "test:100vu:optimized": "npx artillery run tests/100vu-optimized.yml --output tests/reports/100vu-opt-report.json",
+    "test:quick": "npx artillery quick --count 20 --num 50 http://localhost:5000/api/event",
+    "test:report": "node tests/artillery-html-reporter.js tests/reports/smoke-report.json",
+    "test:report:employee": "node tests/artillery-html-reporter.js tests/reports/employee-report.json",
+    "test:report:admin": "node tests/artillery-html-reporter.js tests/reports/admin-report.json",
+    "test:report:100vu": "node tests/artillery-html-reporter.js tests/reports/100vu-report.json",
+    "test:report:100vu:optimized": "node tests/artillery-html-reporter.js tests/reports/100vu-opt-report.json"
   },
   "dependencies": {
     "@pdf-lib/fontkit": "^1.1.1",
@@ -33,6 +44,7 @@
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.2",
+    "artillery": "^2.0.21",
     "eslint": "^10.5.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.3",

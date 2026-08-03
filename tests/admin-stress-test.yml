@@ -1,0 +1,121 @@
+config:
+  target: "http://localhost:5000/api"
+  phases:
+    - duration: 10
+      arrivalRate: 1
+      name: Login admin
+    - duration: 60
+      arrivalRate: 5
+      name: Moderate admin actions
+    - duration: 60
+      arrivalRate: 10
+      name: Stress admin panel
+  plugins:
+    metrics-by-endpoint: {}
+  http:
+    timeout: 10
+  # NOTE: Replace these defaults with your real admin credentials
+  variables:
+    adminEmail: "admin@example.com"
+    adminPassword: "admin123"
+
+scenarios:
+  - name: "Admin dashboard and employee CRUD"
+    weight: 2
+    flow:
+      - post:
+          url: "/auth/login"
+          name: "Admin login"
+          json:
+            email: "{{ adminEmail }}"
+            password: "{{ adminPassword }}"
+      - capture:
+          json: "$.data.token"
+          as: "token"
+      - think: 1
+      - get:
+          url: "/employees"
+          name: "List employees"
+          headers:
+            Authorization: "Bearer {{ token }}"
+      - think: 2
+      - get:
+          url: "/event"
+          name: "Get event"
+      - think: 1
+      - get:
+          url: "/employees/leaderboard"
+          name: "Get leaderboard"
+      - think: 2
+      - get:
+          url: "/awards"
+          name: "List awards"
+      - think: 1
+      - get:
+          url: "/quiz"
+          name: "List quizzes"
+      - think: 1
+      - get:
+          url: "/poll"
+          name: "List polls"
+      - think: 1
+      - get:
+          url: "/certificates"
+          name: "List certificates"
+          headers:
+            Authorization: "Bearer {{ token }}"
+      - think: 2
+      - get:
+          url: "/teams"
+          name: "List teams"
+      - think: 1
+      - get:
+          url: "/tambola/session"
+          name: "Get tambola session"
+      - think: 1
+      - get:
+          url: "/activities"
+          name: "List activities"
+
+  - name: "Tambola admin call numbers stress"
+    weight: 1
+    flow:
+      - post:
+          url: "/auth/login"
+          name: "Admin login"
+          json:
+            email: "{{ adminEmail }}"
+            password: "{{ adminPassword }}"
+      - capture:
+          json: "$.data.token"
+          as: "token"
+      - think: 2
+      - post:
+          url: "/tambola/call-number"
+          name: "Call number"
+          headers:
+            Authorization: "Bearer {{ token }}"
+          capture:
+            json: "$.success"
+            as: "ok"
+      - think: 1
+
+  - name: "Quiz admin session check"
+    weight: 1
+    flow:
+      - post:
+          url: "/auth/login"
+          name: "Admin login"
+          json:
+            email: "{{ adminEmail }}"
+            password: "{{ adminPassword }}"
+      - capture:
+          json: "$.data.token"
+          as: "token"
+      - think: 1
+      - loop:
+          - get:
+              url: "/quiz-session"
+              name: "Check quiz session status"
+          - think: 2
+        count: 10

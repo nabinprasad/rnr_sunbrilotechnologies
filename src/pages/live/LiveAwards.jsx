@@ -11,6 +11,8 @@ import {
   FaPlay,
   FaPause,
   FaMicrophone,
+  FaVolumeUp,
+  FaVolumeMute,
 } from "react-icons/fa";
 
 export default function LiveAwards() {
@@ -23,7 +25,8 @@ export default function LiveAwards() {
   const bgMusicRef = useRef(null);
   const drumRollRef = useRef(null);
   const applauseRef = useRef(null);
-  const [isBgMusicPlaying, setIsBgMusicPlaying] = useState(false);
+  const [volume, setVolume] = useState(0.25);
+  const [isMuted, setIsMuted] = useState(false);
   const [showThankYou, setShowThankYou] = useState(false);
   const [showSpinWheel, setShowSpinWheel] = useState(false);
   const [isSpinning, setIsSpinning] = useState(false);
@@ -53,23 +56,32 @@ export default function LiveAwards() {
 
   useEffect(() => {
     if (loading) return;
-    if (!bgMusicRef.current) return;
-
     const audio = bgMusicRef.current;
-    const onPlay = () => setIsBgMusicPlaying(true);
-    const onPause = () => setIsBgMusicPlaying(false);
+    if (!audio) return;
 
-    audio.addEventListener("play", onPlay);
-    audio.addEventListener("pause", onPause);
-    setIsBgMusicPlaying(!audio.paused);
+    audio.volume = volume;
 
     return () => {
-      audio.removeEventListener("play", onPlay);
-      audio.removeEventListener("pause", onPause);
       audio.pause();
       audio.currentTime = 0;
     };
   }, [loading, showSpinWheel, showThankYou]);
+
+  // Sync volume changes
+  useEffect(() => {
+    if (bgMusicRef.current) {
+      bgMusicRef.current.volume = volume;
+    }
+  }, [volume]);
+
+  // Sync mute state for all audio elements
+  useEffect(() => {
+    [bgMusicRef, drumRollRef, applauseRef].forEach((ref) => {
+      if (ref.current) {
+        ref.current.muted = isMuted;
+      }
+    });
+  }, [isMuted]);
 
   const fetchAwards = async () => {
     try {
@@ -87,40 +99,55 @@ export default function LiveAwards() {
     }
   };
 
-  const toggleBgMusic = async () => {
-    const audio = bgMusicRef.current;
-    if (!audio) return;
-
-    if (!audio.paused) {
-      audio.pause();
-      return;
-    }
-
-    if (!audio.volume) audio.volume = 0.25;
-
-    try {
-      await audio.play();
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
   const renderMusicController = () => {
     return (
-      <div className="fixed top-6 left-6 z-50">
+      <div className="fixed top-6 left-6 z-50 flex items-center gap-4">
+        {/* Master Mute Toggle */}
         <button
           type="button"
-          onClick={toggleBgMusic}
-          className="bg-white/10 hover:bg-white/20 backdrop-blur-xl border border-white/15 text-white px-4 py-3 rounded-2xl shadow-lg transition duration-200 flex items-center gap-3"
-          title={isBgMusicPlaying ? "Pause music" : "Play music"}
+          onClick={() => setIsMuted(!isMuted)}
+          className={`bg-white/10 hover:bg-white/20 backdrop-blur-xl border border-white/15 px-4 py-3 rounded-2xl shadow-lg transition duration-200 flex items-center gap-3 ${
+            isMuted ? "text-red-400" : "text-white"
+          }`}
+          title={isMuted ? "Unmute all" : "Mute all"}
         >
-          <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-yellow-400 to-amber-500 text-slate-950 flex items-center justify-center shadow">
-            {isBgMusicPlaying ? <FaPause /> : <FaPlay />}
+          <span
+            className={`w-9 h-9 rounded-xl flex items-center justify-center shadow ${
+              isMuted
+                ? "bg-red-500/20 text-red-400"
+                : "bg-gradient-to-br from-yellow-400 to-amber-500 text-slate-950"
+            }`}
+          >
+            {isMuted ? <FaVolumeMute /> : <FaVolumeUp />}
           </span>
           <span className="hidden md:inline text-sm font-extrabold tracking-wide">
-            {isBgMusicPlaying ? "Pause Music" : "Play Music"}
+            {isMuted ? "Muted" : "Sound On"}
           </span>
         </button>
+
+        {/* Volume Controller */}
+        <div className="bg-white/10 backdrop-blur-xl border border-white/15 px-4 py-3 rounded-2xl shadow-lg flex items-center gap-3 group transition-all duration-300 hover:w-48 w-14 overflow-hidden">
+          <div className="flex-shrink-0 text-yellow-400 text-xl">
+            {volume === 0 || isMuted ? <FaVolumeMute /> : <FaVolumeUp />}
+          </div>
+          <div className="flex-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value={volume}
+              onChange={(e) => setVolume(parseFloat(e.target.value))}
+              disabled={isMuted}
+              className={`w-full h-1.5 rounded-lg appearance-none cursor-pointer accent-yellow-400 ${
+                isMuted ? "bg-white/5 opacity-50" : "bg-white/20"
+              }`}
+            />
+          </div>
+          <span className="text-white text-xs font-bold opacity-0 group-hover:opacity-100 w-8 text-right">
+            {isMuted ? "0" : Math.round(volume * 100)}%
+          </span>
+        </div>
       </div>
     );
   };
@@ -156,7 +183,7 @@ export default function LiveAwards() {
   const handleReveal = () => {
     // Lower background music
     if (bgMusicRef.current) {
-      bgMusicRef.current.volume = 0.08;
+      bgMusicRef.current.volume = volume * 0.3;
     }
 
     // Play drum roll
@@ -173,9 +200,9 @@ export default function LiveAwards() {
         applauseRef.current.currentTime = 0;
         applauseRef.current.play();
       }
-
+  
       if (bgMusicRef.current) {
-        bgMusicRef.current.volume = 0.25;
+        bgMusicRef.current.volume = volume;
       }
     }, 3500);
   };
@@ -239,7 +266,7 @@ export default function LiveAwards() {
   const handleNext = () => {
     // Start music only when Start Presentation is clicked
     if (currentIndex === -1 && bgMusicRef.current) {
-      bgMusicRef.current.volume = 0.25;
+      bgMusicRef.current.volume = volume;
 
       if (bgMusicRef.current.paused) {
         bgMusicRef.current.play().catch((err) => console.log(err));

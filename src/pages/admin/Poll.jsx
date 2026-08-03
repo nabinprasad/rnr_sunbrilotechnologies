@@ -98,7 +98,8 @@ function CreatePollModal({ onClose, onCreated }) {
         question: question.trim(), 
         options: filled, 
         allowMultiple, 
-        duration: parseInt(duration) 
+        duration: parseInt(duration),
+        order: parseInt(order)
       });
       toast.success("Poll created!");
       onCreated();
@@ -173,19 +174,33 @@ function CreatePollModal({ onClose, onCreated }) {
             )}
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-slate-600 mb-1">
-              Duration (seconds)
-            </label>
-            <input
-              type="number"
-              value={duration}
-              onChange={(e) => setDuration(e.target.value)}
-              min="10"
-              placeholder="60"
-              className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-400 text-slate-800"
-              required
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-slate-600 mb-1">
+                Duration (seconds)
+              </label>
+              <input
+                type="number"
+                value={duration}
+                onChange={(e) => setDuration(e.target.value)}
+                min="10"
+                placeholder="60"
+                className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-400 text-slate-800"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-slate-600 mb-1">
+                Display Order
+              </label>
+              <input
+                type="number"
+                value={order}
+                onChange={(e) => setOrder(e.target.value)}
+                placeholder="0"
+                className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-400 text-slate-800"
+              />
+            </div>
           </div>
 
           <label className="flex items-center gap-3 cursor-pointer">
@@ -228,6 +243,7 @@ function EditPollModal({ poll, onClose, onUpdated }) {
   const [options, setOptions] = useState(poll.options.map(opt => opt.text));
   const [allowMultiple, setAllowMultiple] = useState(poll.allowMultiple);
   const [duration, setDuration] = useState(poll.duration || 60);
+  const [order, setOrder] = useState(poll.order || 0);
   const [loading, setLoading] = useState(false);
 
   const addOption = () => {
@@ -257,7 +273,8 @@ function EditPollModal({ poll, onClose, onUpdated }) {
         question: question.trim(), 
         options: filled, 
         allowMultiple, 
-        duration: parseInt(duration) 
+        duration: parseInt(duration),
+        order: parseInt(order)
       });
       toast.success("Poll updated!");
       onUpdated();
@@ -332,19 +349,33 @@ function EditPollModal({ poll, onClose, onUpdated }) {
             )}
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-slate-600 mb-1">
-              Duration (seconds)
-            </label>
-            <input
-              type="number"
-              value={duration}
-              onChange={(e) => setDuration(e.target.value)}
-              min="10"
-              placeholder="60"
-              className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-400 text-slate-800"
-              required
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-slate-600 mb-1">
+                Duration (seconds)
+              </label>
+              <input
+                type="number"
+                value={duration}
+                onChange={(e) => setDuration(e.target.value)}
+                min="10"
+                placeholder="60"
+                className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-400 text-slate-800"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-slate-600 mb-1">
+                Display Order
+              </label>
+              <input
+                type="number"
+                value={order}
+                onChange={(e) => setOrder(e.target.value)}
+                placeholder="0"
+                className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-400 text-slate-800"
+              />
+            </div>
           </div>
 
           <label className="flex items-center gap-3 cursor-pointer">

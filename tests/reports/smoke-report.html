@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Artillery Load Test Report</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<style>
+  body { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto; }
+  .card { background: white; border-radius: 1rem; box-shadow: 0 10px 30px rgba(2,6,23,.08); border: 1px solid #e2e8f0; }
+</style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 to-indigo-50 min-h-screen">
+  <div class="max-w-6xl mx-auto px-6 py-10">
+
+    <!-- Header + Grade -->
+    <div class="card p-8 mb-8 bg-gradient-to-r from-slate-900 via-indigo-900 to-slate-900 text-white border-0 relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-80 h-80 bg-emerald-500/20 rounded-full blur-3xl"></div>
+      <div class="relative z-10 grid md:grid-cols-3 gap-8 items-center">
+        <div class="md:col-span-2">
+          <p class="uppercase tracking-[0.25em] text-indigo-300 text-sm font-semibold">Performance Report</p>
+          <h1 class="text-4xl md:text-5xl font-black mt-2">Artillery Load Test</h1>
+          <p class="text-indigo-200 mt-3 text-lg">Reward &amp; Recognition Platform — API Benchmark</p>
+          <div class="flex flex-wrap gap-2 mt-5">
+            <span class="px-3 py-1.5 rounded-lg bg-white/10 border border-white/20 text-sm font-semibold text-indigo-100">smoke-report.json</span>
+            <span class="px-3 py-1.5 rounded-lg bg-white/10 border border-white/20 text-sm font-semibold text-indigo-100">4,500 VUs</span>
+            <span class="px-3 py-1.5 rounded-lg bg-white/10 border border-white/20 text-sm font-semibold text-indigo-100">36,000 req</span>
+          </div>
+        </div>
+        <div class="text-center">
+          <div class="inline-flex flex-col items-center justify-center rounded-3xl bg-emerald-500/30 border-4 border-emerald-300/50 backdrop-blur px-10 py-6">
+            <div class="text-sm uppercase tracking-[0.25em] text-emerald-200 font-bold">Overall Grade</div>
+            <div class="text-8xl font-black text-emerald-100 mt-1 drop-shadow-lg">A</div>
+            <div class="mt-2 text-2xl font-bold text-white">100.0% OK</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLA / Verdict -->
+    <div class="card p-6 mb-8">
+      <h2 class="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+        <span class="w-1.5 h-6 rounded-full bg-emerald-600 inline-block"></span>
+        SLA Benchmarks — Pass / Fail
+        <span class="ml-auto text-sm font-medium text-slate-500">Industry standard SLAs</span>
+      </h2>
+      <div class="grid md:grid-cols-2 gap-4">
+  <div class="flex items-start gap-3 p-4 rounded-xl border bg-green-50 border-green-200">
+    <div class="text-2xl flex-shrink-0">✅</div>
+    <div class="flex-1">
+      <div class="font-bold text-green-800">Success rate ≥ 98%</div>
+      <div class="text-sm text-green-600">Actual: <b>100.00%</b></div>
+    </div>
+  </div>
+  <div class="flex items-start gap-3 p-4 rounded-xl border bg-green-50 border-green-200">
+    <div class="text-2xl flex-shrink-0">✅</div>
+    <div class="flex-1">
+      <div class="font-bold text-green-800">Median (p50) ≤ 500 ms</div>
+      <div class="text-sm text-green-600">Actual: <b>1 ms</b></div>
+    </div>
+  </div>
+  <div class="flex items-start gap-3 p-4 rounded-xl border bg-green-50 border-green-200">
+    <div class="text-2xl flex-shrink-0">✅</div>
+    <div class="flex-1">
+      <div class="font-bold text-green-800">p95 latency ≤ 2000 ms</div>
+      <div class="text-sm text-green-600">Actual: <b>3 ms</b></div>
+    </div>
+  </div>
+  <div class="flex items-start gap-3 p-4 rounded-xl border bg-green-50 border-green-200">
+    <div class="text-2xl flex-shrink-0">✅</div>
+    <div class="flex-1">
+      <div class="font-bold text-green-800">p99 latency ≤ 5000 ms</div>
+      <div class="text-sm text-green-600">Actual: <b>13 ms</b></div>
+    </div>
+  </div></div>
+      <div class="mt-6 p-4 rounded-xl bg-slate-50 border border-slate-200">
+        <p class="text-sm text-slate-500 font-semibold mb-1">Interpretation</p>
+        <p class="text-slate-700">
+          <b>A:</b> Excellent — production-ready &nbsp;·&nbsp;
+          <b>B:</b> Good — minor optimizations &nbsp;·&nbsp;
+          <b>C:</b> Acceptable — investigate slow endpoints &nbsp;·&nbsp;
+          <b>D:</b> Poor — needs fixes before scaling &nbsp;·&nbsp;
+          <b>F:</b> Critical — unstable at this load
+        </p>
+      </div>
+    </div>
+
+    <!-- Overview -->
+    <div class="grid md:grid-cols-2 gap-8 mb-8">
+      <div class="card p-6">
+        <h2 class="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+          <span class="w-1.5 h-6 rounded-full bg-indigo-600 inline-block"></span>
+          Test Overview
+        </h2>
+        <div class="overflow-hidden rounded-xl border border-slate-200">
+          <table class="w-full text-left">
+            <tbody>
+              <tr><td class="px-4 py-3 font-medium text-slate-600">Test file</td><td class="px-4 py-3 font-bold text-slate-900 ">smoke-report.json</td></tr><tr><td class="px-4 py-3 font-medium text-slate-600">Generated at</td><td class="px-4 py-3 font-bold text-slate-900 ">1/8/2026, 3:02:02 pm</td></tr><tr><td class="px-4 py-3 font-medium text-slate-600">Total VUs (scenarios) created</td><td class="px-4 py-3 font-bold text-slate-900 ">4500</td></tr><tr><td class="px-4 py-3 font-medium text-slate-600">Completed VUs</td><td class="px-4 py-3 font-bold text-slate-900 ">4500</td></tr><tr><td class="px-4 py-3 font-medium text-slate-600">Failed VUs</td><td class="px-4 py-3 font-bold text-slate-900 ">0</td></tr><tr><td class="px-4 py-3 font-medium text-slate-600">HTTP requests sent</td><td class="px-4 py-3 font-bold text-slate-900 ">36000</td></tr><tr><td class="px-4 py-3 font-medium text-slate-600">HTTP responses received</td><td class="px-4 py-3 font-bold text-slate-900 ">36000</td></tr><tr><td class="px-4 py-3 font-medium text-slate-600">HTTP 2xx/3xx OK</td><td class="px-4 py-3 font-bold text-slate-900 ">27000</td></tr><tr><td class="px-4 py-3 font-medium text-slate-600">HTTP 4xx/5xx errors</td><td class="px-4 py-3 font-bold text-slate-900 ">9000</td></tr><tr><td class="px-4 py-3 font-medium text-slate-600">Socket/engine errors</td><td class="px-4 py-3 font-bold text-slate-900 ">0</td></tr><tr><td class="px-4 py-3 font-medium text-slate-600">Overall success rate</td><td class="px-4 py-3 font-bold text-slate-900 ">100.00%</td></tr><tr><td class="px-4 py-3 font-medium text-slate-600">Total data downloaded</td><td class="px-4 py-3 font-bold text-slate-900 ">17.8 KB</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card p-6">
+        <h2 class="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+          <span class="w-1.5 h-6 rounded-full bg-green-600 inline-block"></span>
+          Latency (response time, all responses)
+        </h2>
+        <div class="grid grid-cols-2 gap-4 mb-6">
+          <div class="rounded-xl bg-slate-50 p-4">
+            <p class="text-slate-500 text-sm font-medium">Minimum</p>
+            <p class="text-3xl font-black text-slate-900 mt-1">0 ms</p>
+          </div>
+          <div class="rounded-xl bg-slate-50 p-4">
+            <p class="text-slate-500 text-sm font-medium">Maximum</p>
+            <p class="text-3xl font-black text-slate-900 mt-1">2199 ms</p>
+          </div>
+          <div class="rounded-xl bg-blue-50 p-4">
+            <p class="text-blue-600 text-sm font-medium">Median (p50)</p>
+            <p class="text-3xl font-black text-blue-900 mt-1">1 ms</p>
+          </div>
+          <div class="rounded-xl bg-purple-50 p-4">
+            <p class="text-purple-600 text-sm font-medium">Average (mean)</p>
+            <p class="text-3xl font-black text-purple-900 mt-1">2 ms</p>
+          </div>
+          <div class="rounded-xl bg-orange-50 p-4">
+            <p class="text-orange-600 text-sm font-medium">p95</p>
+            <p class="text-3xl font-black text-orange-900 mt-1">3 ms</p>
+          </div>
+          <div class="rounded-xl bg-red-50 p-4">
+            <p class="text-red-600 text-sm font-medium">p99</p>
+            <p class="text-3xl font-black text-red-900 mt-1">13 ms</p>
+          </div>
+        </div>
+        <canvas id="latencyChart" height="120"></canvas>
+      </div>
+    </div>
+
+    <!-- Throughput & Traffic -->
+    <div class="grid md:grid-cols-3 gap-6 mb-8">
+      <div class="card p-6 text-center">
+        <p class="text-slate-500 font-medium">Requests / sec (avg)</p>
+        <p class="text-4xl font-black text-indigo-700 mt-2">—</p>
+      </div>
+      <div class="card p-6 text-center">
+        <p class="text-slate-500 font-medium">Requests / sec (peak)</p>
+        <p class="text-4xl font-black text-green-700 mt-2">—</p>
+      </div>
+      <div class="card p-6 text-center">
+        <p class="text-slate-500 font-medium">Total data (response)</p>
+        <p class="text-4xl font-black text-slate-900 mt-2">17.8 KB</p>
+      </div>
+    </div>
+
+    <!-- HTTP Status Codes -->
+    <div class="card p-6 mb-8">
+      <h2 class="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+        <span class="w-1.5 h-6 rounded-full bg-emerald-600 inline-block"></span>
+        HTTP Status Codes
+      </h2>
+      <div class="flex flex-wrap gap-3 mb-4">
+              <div class="px-4 py-2 rounded-xl font-bold border bg-green-100 text-green-800"><span class="text-lg">200</span> <span class="ml-2 opacity-70">× 27,000</span></div><div class="px-4 py-2 rounded-xl font-bold border bg-yellow-100 text-yellow-800"><span class="text-lg">404</span> <span class="ml-2 opacity-70">× 9,000</span></div>
+            </div>
+            <canvas id="codesChart" height="80"></canvas>
+    </div>
+
+    <!-- Errors -->
+    <div class="card p-6 mb-8">
+      <h2 class="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+        <span class="w-1.5 h-6 rounded-full bg-green-600 inline-block"></span>
+        Errors (engine + socket)
+        <span class="ml-2 px-3 py-1 rounded-full text-sm font-bold bg-green-100 text-green-700">0 total</span>
+      </h2>
+      <div class="flex items-center gap-3 p-4 bg-green-50 rounded-xl border border-green-200">
+              <div class="text-3xl">✅</div>
+              <div>
+                <p class="font-bold text-green-800">No errors detected!</p>
+                <p class="text-green-700 text-sm">All requests completed successfully.</p>
+              </div>
+            </div>
+    </div>
+
+    <!-- Per-endpoint stats -->
+    <div class="card p-6 mb-8">
+            <h2 class="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+              <span class="w-1.5 h-6 rounded-full bg-indigo-600 inline-block"></span>
+              Per-Endpoint Performance
+              <span class="ml-auto text-sm font-medium text-slate-500">8 endpoints</span>
+            </h2>
+            <div class="overflow-auto rounded-xl border border-slate-200">
+              <table class="w-full text-left text-sm">
+                <thead class="bg-slate-50">
+                  <tr>
+                    <th class="px-4 py-3 font-semibold text-slate-700 sticky left-0 bg-slate-50">Endpoint</th>
+                    <th class="px-4 py-3 font-semibold text-slate-700 text-right">Requests</th>
+                    <th class="px-4 py-3 font-semibold text-slate-700 text-right">OK %</th>
+                    <th class="px-4 py-3 font-semibold text-slate-700 text-right">Median</th>
+                    <th class="px-4 py-3 font-semibold text-slate-700 text-right">p95</th>
+                    <th class="px-4 py-3 font-semibold text-slate-700 text-right">p99</th>
+                    <th class="px-4 py-3 font-semibold text-slate-700 text-right">Errors</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="border-t border-slate-100 hover:bg-slate-50">
+                          <td class="px-4 py-3 font-mono sticky left-0 bg-white hover:bg-slate-50">/api/event (Get event details)</td>
+                          <td class="px-4 py-3 text-right font-bold">4,500</td>
+                          <td class="px-4 py-3 text-right font-bold text-green-700">100.0%</td>
+                          <td class="px-4 py-3 text-right">1 ms</td>
+                          <td class="px-4 py-3 text-right text-slate-700">1 ms</td>
+                          <td class="px-4 py-3 text-right">11 ms</td>
+                          <td class="px-4 py-3 text-right text-slate-400">0</td>
+                        </tr><tr class="border-t border-slate-100 hover:bg-slate-50">
+                          <td class="px-4 py-3 font-mono sticky left-0 bg-white hover:bg-slate-50">/api/employees/leaderboard (Get leaderboard)</td>
+                          <td class="px-4 py-3 text-right font-bold">4,500</td>
+                          <td class="px-4 py-3 text-right font-bold text-green-700">100.0%</td>
+                          <td class="px-4 py-3 text-right">1 ms</td>
+                          <td class="px-4 py-3 text-right text-slate-700">3 ms</td>
+                          <td class="px-4 py-3 text-right">27 ms</td>
+                          <td class="px-4 py-3 text-right text-slate-400">0</td>
+                        </tr><tr class="border-t border-slate-100 hover:bg-slate-50">
+                          <td class="px-4 py-3 font-mono sticky left-0 bg-white hover:bg-slate-50">/api/awards (Get awards list)</td>
+                          <td class="px-4 py-3 text-right font-bold">4,500</td>
+                          <td class="px-4 py-3 text-right font-bold text-green-700">100.0%</td>
+                          <td class="px-4 py-3 text-right">1 ms</td>
+                          <td class="px-4 py-3 text-right text-slate-700">4 ms</td>
+                          <td class="px-4 py-3 text-right">37 ms</td>
+                          <td class="px-4 py-3 text-right text-slate-400">0</td>
+                        </tr><tr class="border-t border-slate-100 hover:bg-slate-50">
+                          <td class="px-4 py-3 font-mono sticky left-0 bg-white hover:bg-slate-50">/api/quiz (Get quizzes list)</td>
+                          <td class="px-4 py-3 text-right font-bold">4,500</td>
+                          <td class="px-4 py-3 text-right font-bold text-green-700">100.0%</td>
+                          <td class="px-4 py-3 text-right">2 ms</td>
+                          <td class="px-4 py-3 text-right text-slate-700">4 ms</td>
+                          <td class="px-4 py-3 text-right">17 ms</td>
+                          <td class="px-4 py-3 text-right text-slate-400">0</td>
+                        </tr><tr class="border-t border-slate-100 hover:bg-slate-50">
+                          <td class="px-4 py-3 font-mono sticky left-0 bg-white hover:bg-slate-50">/api/poll (Get polls list)</td>
+                          <td class="px-4 py-3 text-right font-bold">4,500</td>
+                          <td class="px-4 py-3 text-right font-bold text-green-700">100.0%</td>
+                          <td class="px-4 py-3 text-right">1 ms</td>
+                          <td class="px-4 py-3 text-right text-slate-700">2 ms</td>
+                          <td class="px-4 py-3 text-right">4 ms</td>
+                          <td class="px-4 py-3 text-right text-slate-400">0</td>
+                        </tr><tr class="border-t border-slate-100 hover:bg-slate-50">
+                          <td class="px-4 py-3 font-mono sticky left-0 bg-white hover:bg-slate-50">/api/teams (Get teams list)</td>
+                          <td class="px-4 py-3 text-right font-bold">4,500</td>
+                          <td class="px-4 py-3 text-right font-bold text-green-700">100.0%</td>
+                          <td class="px-4 py-3 text-right">1 ms</td>
+                          <td class="px-4 py-3 text-right text-slate-700">2 ms</td>
+                          <td class="px-4 py-3 text-right">4 ms</td>
+                          <td class="px-4 py-3 text-right text-slate-400">0</td>
+                        </tr><tr class="border-t border-slate-100 hover:bg-slate-50">
+                          <td class="px-4 py-3 font-mono sticky left-0 bg-white hover:bg-slate-50">/api/tambola/session (Get tambola session)</td>
+                          <td class="px-4 py-3 text-right font-bold">4,500</td>
+                          <td class="px-4 py-3 text-right font-bold text-green-700">100.0%</td>
+                          <td class="px-4 py-3 text-right">1 ms</td>
+                          <td class="px-4 py-3 text-right text-slate-700">3 ms</td>
+                          <td class="px-4 py-3 text-right">14 ms</td>
+                          <td class="px-4 py-3 text-right text-slate-400">0</td>
+                        </tr><tr class="border-t border-slate-100 hover:bg-slate-50">
+                          <td class="px-4 py-3 font-mono sticky left-0 bg-white hover:bg-slate-50">/api/quiz-session (Get quiz session)</td>
+                          <td class="px-4 py-3 text-right font-bold">4,500</td>
+                          <td class="px-4 py-3 text-right font-bold text-green-700">100.0%</td>
+                          <td class="px-4 py-3 text-right">1 ms</td>
+                          <td class="px-4 py-3 text-right text-slate-700">2 ms</td>
+                          <td class="px-4 py-3 text-right">12 ms</td>
+                          <td class="px-4 py-3 text-right text-slate-400">0</td>
+                        </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+    <p class="text-center text-slate-400 text-sm py-4">
+      Generated by Artillery custom reporter · 1/8/2026, 3:02:02 pm
+    </p>
+  </div>
+
+  <script>
+    const codesList = ["200","404"];
+    const codeCounts = [27000,9000];
+    if (typeof Chart !== "undefined" && codesList.length > 0) {
+      new Chart(document.getElementById("codesChart"), {
+        type: "bar",
+        data: {
+          labels: codesList,
+          datasets: [{
+            label: "Responses",
+            data: codeCounts,
+            backgroundColor: codesList.map(c =>
+              c.startsWith("2") || c.startsWith("3") ? "#10b981" :
+              c.startsWith("4") ? "#f59e0b" : "#ef4444"
+            ),
+            borderRadius: 10
+          }]
+        },
+        options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+      });
+    }
+
+    const latLabels = ["Min", "Avg", "p50", "p95", "p99", "Max"];
+    const latValues = [
+      0,
+      2.2,
+      1,
+      3,
+      13.1,
+      2199
+    ];
+    if (typeof Chart !== "undefined" && latValues.some(v => v > 0)) {
+      new Chart(document.getElementById("latencyChart"), {
+        type: "line",
+        data: {
+          labels: latLabels,
+          datasets: [{
+            label: "Latency (ms)",
+            data: latValues,
+            borderColor: "#6366f1",
+            backgroundColor: "rgba(99,102,241,0.15)",
+            tension: 0.35,
+            fill: true,
+            pointRadius: 5,
+            pointBackgroundColor: "#6366f1"
+          }]
+        },
+        options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+      });
+    }
+  </script>
+</body>
+</html>

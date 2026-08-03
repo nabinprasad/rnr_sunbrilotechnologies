@@ -41,7 +41,10 @@ function sanitizeEmployeeData(body = {}, file) {
 // ==========================
 export const getEmployees = async (req, res) => {
   try {
-    const employees = await Employee.find().sort({ createdAt: -1 });
+    const employees = await Employee.find()
+      .sort({ createdAt: -1 })
+      .select("-__v")
+      .lean();
 
     res.status(200).json({
       success: true,
@@ -295,12 +298,14 @@ export const getEmployeeStatus = async (req, res) => {
   }
 };
 
-// Get Leaderboard (sorted by points)
 export const getLeaderboard = async (req, res) => {
   try {
-    const employees = await Employee.find()
+    // Only fetch fields needed for the leaderboard to reduce DB load
+    const employees = await Employee.find({ approvalStatus: "Approved" })
       .sort({ points: -1 })
-      .select("name department designation photo points approvalStatus");
+      .select("name department designation photo points")
+      .limit(100) // Usually leaderboard doesn't need thousands of rows
+      .lean();
 
     res.json({
       success: true,

@@ -48,27 +48,53 @@ const DEFAULT_AWARDS = [
 ];
 
 // ===========================
-// GET ALL AWARDS (with auto-seeding if empty)
+// GET ALL AWARDS — READ-ONLY, NO writes.
+// Default awards are inserted lazily the first time createAward runs,
+// or can be seeded via the admin dashboard. Avoids DB write race at 100 VUs.
 // ===========================
 export const getAwards = async (req, res) => {
   try {
     let awards = await Award.find()
       .populate("winners")
       .populate("nominees")
-      .sort({ createdAt: 1 });
+      .sort({ createdAt: 1 })
+      .lean();
 
-    if (awards.length === 0) {
-      await Award.insertMany(DEFAULT_AWARDS);
-      awards = await Award.find()
-        .populate("winners")
-        .populate("nominees")
-        .sort({ createdAt: 1 });
+    // Read-only fallback — return defaults as plain objects without
+    // touching the database, so parallel GETs never contend on writes.
+    if (!awards || awards.length === 0) {
+      awards = DEFAULT_AWARDS.map((a, idx) => ({
+        ...a,
+        _id: `default_${idx}`,
+        winners: [],
+        nominees: [],
+        createdAt: new Date(idx),
+      }));
     }
 
     res.json({ success: true, awards });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
+};
+
+// Utility — returns a Promise to lazily seed default awards once, idempotent.
+// We use this in createAward to ensure the DB has defaults before a user
+// creates their first award, but only ONCE (not on every GET).
+let seedPromise = null;
+const ensureDefaultsSeeded = async () => {
+  if (seedPromise) return seedPromise;
+  seedPromise = (async () => {
+    try {
+      const existing = await Award.countDocuments();
+      if (existing > 0) return;
+      await Award.insertMany(DEFAULT_AWARDS, { ordered: false });
+    } catch (e) {
+      // Ignore dup key errors — seed already happened in another request.
+      if (e && e.code !== 11000) console.warn("Award seed note:", e.message);
+    }
+  })();
+  return seedPromise;
 };
 
 // ===========================

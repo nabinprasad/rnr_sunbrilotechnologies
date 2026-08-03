@@ -1,0 +1,63 @@
+config:
+  target: "http://localhost:5000/api"
+  phases:
+    - duration: 60
+      arrivalRate: 5
+      rampTo: 50
+      name: "Warm up"
+    - duration: 120
+      arrivalRate: 50
+      rampTo: 100
+      name: "Ramp to 100 VU"
+    - duration: 180
+      arrivalRate: 100
+      name: "Sustained 100 VU load"
+  plugins:
+    metrics-by-endpoint: {}
+  ensure:
+    maxErrorRate: 1
+    max:
+      http.response_time.p95: 1000 # More aggressive SLA since we optimized
+  http:
+    timeout: 10
+    extendedMetrics: true
+    pool: 1000
+    sockets:
+      - targetHosts: ["localhost"]
+        maxSockets: 1000
+        maxFreeSockets: 100
+
+scenarios:
+  - name: "Employee Activity Flow (70% weight)"
+    weight: 70
+    flow:
+      - get:
+          url: "/event"
+          name: "GET /event"
+      - think: 1
+      - get:
+          url: "/employees/leaderboard"
+          name: "GET /leaderboard"
+      - think: 2
+      - get:
+          url: "/quiz-session"
+          name: "GET /quiz-session"
+      - think: 1
+      - get:
+          url: "/tambola/session"
+          name: "GET /tambola/session"
+      - think: 2
+      - get:
+          url: "/polls"
+          name: "GET /polls"
+
+  - name: "Guest/Admin Browsing (30% weight)"
+    weight: 30
+    flow:
+      - get:
+          url: "/awards"
+          name: "GET /awards"
+      - think: 1
+      - get:
+          url: "/certificates"
+          name: "GET /certificates"

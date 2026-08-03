@@ -91,12 +91,8 @@ export function validateClaim(grid, calledNumbers, claimType) {
   switch (claimType) {
     case "earlyFive":
       return markedCount >= 5;
-    case "topLine":
-      return rowComplete(0);
     case "middleLine":
       return rowComplete(1);
-    case "bottomLine":
-      return rowComplete(2);
     case "fullHouse":
       return markedCount === 15;
     default:

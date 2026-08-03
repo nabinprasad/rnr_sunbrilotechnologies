@@ -2,7 +2,10 @@ import Certificate from "../models/Certificate.js";
 
 export const getCertificates = async (req, res) => {
     try {
-        const certificates = await Certificate.find().sort({ createdAt: -1 });
+        const certificates = await Certificate.find()
+          .sort({ createdAt: -1 })
+          .select("-__v")
+          .lean();
         res.json({ certificates });
     } catch (error) {
         res.status(500).json({ message: error.message });

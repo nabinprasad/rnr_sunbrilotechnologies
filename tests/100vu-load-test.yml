@@ -1,0 +1,106 @@
+config:
+  target: "http://localhost:5000/api"
+  phases:
+    - duration: 60
+      arrivalRate: 5
+      rampTo: 25
+      name: "Phase 1 — Warm up (5 → 25/s, 1 min)"
+    - duration: 60
+      arrivalRate: 25
+      rampTo: 60
+      name: "Phase 2 — Build load (25 → 60/s, 1 min)"
+    - duration: 60
+      arrivalRate: 60
+      rampTo: 100
+      name: "Phase 3 — Ramp to peak 100/s (1 min)"
+    - duration: 120
+      arrivalRate: 100
+      name: "Phase 4 — SUSTAINED 100 VUs / 100 req/s (2 min)"
+    - duration: 60
+      arrivalRate: 50
+      rampTo: 10
+      name: "Phase 5 — Cool down (1 min)"
+  plugins:
+    metrics-by-endpoint: {}
+  ensure:
+    maxErrorRate: 5
+    max:
+      http.response_time.p95: 5000
+  http:
+    timeout: 30
+    extendedMetrics: true
+    pool: 500
+    sockets:
+      - targetHosts: ["localhost"]
+        maxSockets: 500
+        maxFreeSockets: 50
+
+scenarios:
+  - name: "Guest — browse public data (50% weight)"
+    weight: 50
+    flow:
+      - get:
+          url: "/event"
+          name: "GET /event (event info)"
+      - think: 2
+      - get:
+          url: "/employees/leaderboard"
+          name: "GET /employees/leaderboard"
+      - think: 3
+      - get:
+          url: "/awards"
+          name: "GET /awards list"
+      - think: 2
+      - get:
+          url: "/teams"
+          name: "GET /teams list"
+      - think: 2
+      - get:
+          url: "/polls"
+          name: "GET /poll list"
+      - think: 2
+      - get:
+          url: "/quiz"
+          name: "GET /quiz list"
+      - think: 3
+
+  - name: "Polling spectator — live event updates (30% weight)"
+    weight: 30
+    flow:
+      - loop:
+          - get:
+              url: "/event"
+              name: "Poll /event"
+          - think: 1
+          - get:
+              url: "/tambola/session"
+              name: "Poll /tambola/session"
+          - think: 2
+          - get:
+              url: "/quiz-session"
+              name: "Poll /quiz-session"
+          - think: 2
+          - get:
+              url: "/employees/leaderboard"
+              name: "Poll /leaderboard"
+          - think: 3
+        count: 10
+
+  - name: "Certificate & award viewer (20% weight)"
+    weight: 20
+    flow:
+      - get:
+          url: "/awards"
+          name: "Browse awards"
+      - think: 2
+      - get:
+          url: "/certificates"
+          name: "Browse certificates"
+      - think: 3
+      - get:
+          url: "/event"
+          name: "Check event details"
+      - think: 2
+      - get:
+          url: "/tambola/session"
+          name: "Check tambola"
