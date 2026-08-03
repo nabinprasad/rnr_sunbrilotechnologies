@@ -1,0 +1,1623 @@
+{
+  "aggregate": {
+    "counters": {
+      "vusers.created_by_name.Tambola admin call numbers stress": 232,
+      "vusers.created": 910,
+      "http.requests": 910,
+      "http.codes.400": 910,
+      "http.responses": 910,
+      "http.downloaded_bytes": 50050,
+      "plugins.metrics-by-endpoint./api/auth/login (Admin login).codes.400": 910,
+      "errors.an URL must be specified": 910,
+      "vusers.failed": 910,
+      "vusers.created_by_name.Quiz admin session check": 252,
+      "vusers.created_by_name.Admin dashboard and employee CRUD": 426
+    },
+    "rates": {
+      "http.request_rate": 10
+    },
+    "firstCounterAt": 1785577291777,
+    "firstHistogramAt": 1785577291874,
+    "lastCounterAt": 1785577421186,
+    "lastHistogramAt": 1785577421186,
+    "firstMetricAt": 1785577291777,
+    "lastMetricAt": 1785577421186,
+    "period": 1785577420000,
+    "summaries": {
+      "http.response_time": {
+        "min": 6,
+        "max": 522,
+        "count": 910,
+        "mean": 22.1,
+        "p50": 12.1,
+        "median": 12.1,
+        "p75": 16.9,
+        "p90": 32.1,
+        "p95": 59.7,
+        "p99": 257.3,
+        "p999": 468.8
+      },
+      "http.response_time.4xx": {
+        "min": 6,
+        "max": 522,
+        "count": 910,
+        "mean": 22.1,
+        "p50": 12.1,
+        "median": 12.1,
+        "p75": 16.9,
+        "p90": 32.1,
+        "p95": 59.7,
+        "p99": 257.3,
+        "p999": 468.8
+      },
+      "plugins.metrics-by-endpoint.response_time./api/auth/login (Admin login)": {
+        "min": 6,
+        "max": 522,
+        "count": 910,
+        "mean": 22.1,
+        "p50": 12.1,
+        "median": 12.1,
+        "p75": 16.9,
+        "p90": 32.1,
+        "p95": 59.7,
+        "p99": 257.3,
+        "p999": 468.8
+      }
+    },
+    "histograms": {
+      "http.response_time": {
+        "min": 6,
+        "max": 522,
+        "count": 910,
+        "mean": 22.1,
+        "p50": 12.1,
+        "median": 12.1,
+        "p75": 16.9,
+        "p90": 32.1,
+        "p95": 59.7,
+        "p99": 257.3,
+        "p999": 468.8
+      },
+      "http.response_time.4xx": {
+        "min": 6,
+        "max": 522,
+        "count": 910,
+        "mean": 22.1,
+        "p50": 12.1,
+        "median": 12.1,
+        "p75": 16.9,
+        "p90": 32.1,
+        "p95": 59.7,
+        "p99": 257.3,
+        "p999": 468.8
+      },
+      "plugins.metrics-by-endpoint.response_time./api/auth/login (Admin login)": {
+        "min": 6,
+        "max": 522,
+        "count": 910,
+        "mean": 22.1,
+        "p50": 12.1,
+        "median": 12.1,
+        "p75": 16.9,
+        "p90": 32.1,
+        "p95": 59.7,
+        "p99": 257.3,
+        "p999": 468.8
+      }
+    }
+  },
+  "intermediate": [
+    {
+      "counters": {
+        "vusers.created_by_name.Tambola admin call numbers stress": 4,
+        "vusers.created": 9,
+        "http.requests": 9,
+        "http.codes.400": 9,
+        "http.responses": 9,
+        "http.downloaded_bytes": 495,
+        "plugins.metrics-by-endpoint./api/auth/login (Admin login).codes.400": 9,
+        "errors.an URL must be specified": 9,
+        "vusers.failed": 9,
+        "vusers.created_by_name.Quiz admin session check": 4,
+        "vusers.created_by_name.Admin dashboard and employee CRUD": 1
+      },
+      "rates": {
+        "http.request_rate": 1
+      },
+      "http.request_rate": null,
+      "firstCounterAt": 1785577291777,
+      "firstHistogramAt": 1785577291874,
+      "lastCounterAt": 1785577299800,
+      "lastHistogramAt": 1785577299800,
+      "firstMetricAt": 1785577291777,
+      "lastMetricAt": 1785577299800,
+      "period": "1785577290000",
+      "summaries": {
+        "http.response_time": {
+          "min": 10,
+          "max": 69,
+          "count": 9,
+          "mean": 20.9,
+          "p50": 13.9,
+          "median": 13.9,
+          "p75": 16,
+          "p90": 29.1,
+          "p95": 29.1,
+          "p99": 29.1,
+          "p999": 29.1
+        },
+        "http.response_time.4xx": {
+          "min": 10,
+          "max": 69,
+          "count": 9,
+          "mean": 20.9,
+          "p50": 13.9,
+          "median": 13.9,
+          "p75": 16,
+          "p90": 29.1,
+          "p95": 29.1,
+          "p99": 29.1,
+          "p999": 29.1
+        },
+        "plugins.metrics-by-endpoint.response_time./api/auth/login (Admin login)": {
+          "min": 10,
+          "max": 69,
+          "count": 9,
+          "mean": 20.9,
+          "p50": 13.9,
+          "median": 13.9,
+          "p75": 16,
+          "p90": 29.1,
+          "p95": 29.1,
+          "p99": 29.1,
+          "p999": 29.1
+        }
+      },
+      "histograms": {
+        "http.response_time": {
+          "min": 10,
+          "max": 69,
+          "count": 9,
+          "mean": 20.9,
+          "p50": 13.9,
+          "median": 13.9,
+          "p75": 16,
+          "p90": 29.1,
+          "p95": 29.1,
+          "p99": 29.1,
+          "p999": 29.1
+        },
+        "http.response_time.4xx": {
+          "min": 10,
+          "max": 69,
+          "count": 9,
+          "mean": 20.9,
+          "p50": 13.9,
+          "median": 13.9,
+          "p75": 16,
+          "p90": 29.1,
+          "p95": 29.1,
+          "p99": 29.1,
+          "p999": 29.1
+        },
+        "plugins.metrics-by-endpoint.response_time./api/auth/login (Admin login)": {
+          "min": 10,
+          "max": 69,
+          "count": 9,
+          "mean": 20.9,
+          "p50": 13.9,
+          "median": 13.9,
+          "p75": 16,
+          "p90": 29.1,
+          "p95": 29.1,
+          "p99": 29.1,
+          "p999": 29.1
+        }
+      }
+    },
+    {
+      "counters": {
+        "vusers.created_by_name.Admin dashboard and employee CRUD": 26,
+        "vusers.created": 45,
+        "http.requests": 45,
+        "http.codes.400": 45,
+        "http.responses": 45,
+        "http.downloaded_bytes": 2475,
+        "plugins.metrics-by-endpoint./api/auth/login (Admin login).codes.400": 45,
+        "errors.an URL must be specified": 45,
+        "vusers.failed": 45,
+        "vusers.created_by_name.Quiz admin session check": 8,
+        "vusers.created_by_name.Tambola admin call numbers stress": 11
+      },
+      "rates": {
+        "http.request_rate": 5
+      },
+      "http.request_rate": null,
+      "firstCounterAt": 1785577300775,
+      "firstHistogramAt": 1785577300802,
+      "lastCounterAt": 1785577309991,
+      "lastHistogramAt": 1785577309990,
+      "firstMetricAt": 1785577300775,
+      "lastMetricAt": 1785577309991,
+      "period": "1785577300000",
+      "summaries": {
+        "http.response_time": {
+          "min": 7,
+          "max": 259,
+          "count": 45,
+          "mean": 17.1,
+          "p50": 10.9,
+          "median": 10.9,
+          "p75": 13.1,
+          "p90": 16.9,
+          "p95": 19.1,
+          "p99": 26.8,
+          "p999": 26.8
+        },
+        "http.response_time.4xx": {
+          "min": 7,
+          "max": 259,
+          "count": 45,
+          "mean": 17.1,
+          "p50": 10.9,
+          "median": 10.9,
+          "p75": 13.1,
+          "p90": 16.9,
+          "p95": 19.1,
+          "p99": 26.8,
+          "p999": 26.8
+        },
+        "plugins.metrics-by-endpoint.response_time./api/auth/login (Admin login)": {
+          "min": 7,
+          "max": 259,
+          "count": 45,
+          "mean": 17.1,
+          "p50": 10.9,
+          "median": 10.9,
+          "p75": 13.1,
+          "p90": 16.9,
+          "p95": 19.1,
+          "p99": 26.8,
+          "p999": 26.8
+        }
+      },
+      "histograms": {
+        "http.response_time": {
+          "min": 7,
+          "max": 259,
+          "count": 45,
+          "mean": 17.1,
+          "p50": 10.9,
+          "median": 10.9,
+          "p75": 13.1,
+          "p90": 16.9,
+          "p95": 19.1,
+          "p99": 26.8,
+          "p999": 26.8
+        },
+        "http.response_time.4xx": {
+          "min": 7,
+          "max": 259,
+          "count": 45,
+          "mean": 17.1,
+          "p50": 10.9,
+          "median": 10.9,
+          "p75": 13.1,
+          "p90": 16.9,
+          "p95": 19.1,
+          "p99": 26.8,
+          "p999": 26.8
+        },
+        "plugins.metrics-by-endpoint.response_time./api/auth/login (Admin login)": {
+          "min": 7,
+          "max": 259,
+          "count": 45,
+          "mean": 17.1,
+          "p50": 10.9,
+          "median": 10.9,
+          "p75": 13.1,
+          "p90": 16.9,
+          "p95": 19.1,
+          "p99": 26.8,
+          "p999": 26.8
+        }
+      }
+    },
+    {
+      "counters": {
+        "vusers.created_by_name.Tambola admin call numbers stress": 13,
+        "vusers.created": 50,
+        "http.requests": 50,
+        "http.codes.400": 50,
+        "http.responses": 50,
+        "http.downloaded_bytes": 2750,
+        "plugins.metrics-by-endpoint./api/auth/login (Admin login).codes.400": 50,
+        "errors.an URL must be specified": 50,
+        "vusers.failed": 50,
+        "vusers.created_by_name.Admin dashboard and employee CRUD": 23,
+        "vusers.created_by_name.Quiz admin session check": 14
+      },
+      "rates": {
+        "http.request_rate": 5
+      },
+      "http.request_rate": null,
+      "firstCounterAt": 1785577310037,
+      "firstHistogramAt": 1785577310050,
+      "lastCounterAt": 1785577319980,
+      "lastHistogramAt": 1785577319979,
+      "firstMetricAt": 1785577310037,
+      "lastMetricAt": 1785577319980,
+      "period": "1785577310000",
+      "summaries": {
+        "http.response_time": {
+          "min": 7,
+          "max": 23,
+          "count": 50,
+          "mean": 10.9,
+          "p50": 10.1,
+          "median": 10.1,
+          "p75": 10.9,
+          "p90": 15,
+          "p95": 15,
+          "p99": 16.9,
+          "p999": 16.9
+        },
+        "http.response_time.4xx": {
+          "min": 7,
+          "max": 23,
+          "count": 50,
+          "mean": 10.9,
+          "p50": 10.1,
+          "median": 10.1,
+          "p75": 10.9,
+          "p90": 15,
+          "p95": 15,
+          "p99": 16.9,
+          "p999": 16.9
+        },
+        "plugins.metrics-by-endpoint.response_time./api/auth/login (Admin login)": {
+          "min": 7,
+          "max": 23,
+          "count": 50,
+          "mean": 10.9,
+          "p50": 10.1,
+          "median": 10.1,
+          "p75": 10.9,
+          "p90": 15,
+          "p95": 15,
+          "p99": 16.9,
+          "p999": 16.9
+        }
+      },
+      "histograms": {
+        "http.response_time": {
+          "min": 7,
+          "max": 23,
+          "count": 50,
+          "mean": 10.9,
+          "p50": 10.1,
+          "median": 10.1,
+          "p75": 10.9,
+          "p90": 15,
+          "p95": 15,
+          "p99": 16.9,
+          "p999": 16.9
+        },
+        "http.response_time.4xx": {
+          "min": 7,
+          "max": 23,
+          "count": 50,
+          "mean": 10.9,
+          "p50": 10.1,
+          "median": 10.1,
+          "p75": 10.9,
+          "p90": 15,
+          "p95": 15,
+          "p99": 16.9,
+          "p999": 16.9
+        },
+        "plugins.metrics-by-endpoint.response_time./api/auth/login (Admin login)": {
+          "min": 7,
+          "max": 23,
+          "count": 50,
+          "mean": 10.9,
+          "p50": 10.1,
+          "median": 10.1,
+          "p75": 10.9,
+          "p90": 15,
+          "p95": 15,
+          "p99": 16.9,
+          "p999": 16.9
+        }
+      }
+    },
+    {
+      "counters": {
+        "vusers.created_by_name.Admin dashboard and employee CRUD": 24,
+        "vusers.created": 50,
+        "http.requests": 50,
+        "http.codes.400": 50,
+        "http.responses": 50,
+        "http.downloaded_bytes": 2750,
+        "plugins.metrics-by-endpoint./api/auth/login (Admin login).codes.400": 50,
+        "errors.an URL must be specified": 50,
+        "vusers.failed": 50,
+        "vusers.created_by_name.Quiz admin session check": 12,
+        "vusers.created_by_name.Tambola admin call numbers stress": 14
+      },
+      "rates": {
+        "http.request_rate": 5
+      },
+      "http.request_rate": null,
+      "firstCounterAt": 1785577320037,
+      "firstHistogramAt": 1785577320053,
+      "lastCounterAt": 1785577329984,
+      "lastHistogramAt": 1785577329984,
+      "firstMetricAt": 1785577320037,
+      "lastMetricAt": 1785577329984,
+      "period": "1785577320000",
+      "summaries": {
+        "http.response_time": {
+          "min": 7,
+          "max": 117,
+          "count": 50,
+          "mean": 17.9,
+          "p50": 10.9,
+          "median": 10.9,
+          "p75": 15,
+          "p90": 26.8,
+          "p95": 37,
+          "p99": 89.1,
+          "p999": 89.1
+        },
+        "http.response_time.4xx": {
+          "min": 7,
+          "max": 117,
+          "count": 50,
+          "mean": 17.9,
+          "p50": 10.9,
+          "median": 10.9,
+          "p75": 15,
+          "p90": 26.8,
+          "p95": 37,
+          "p99": 89.1,
+          "p999": 89.1
+        },
+        "plugins.metrics-by-endpoint.response_time./api/auth/login (Admin login)": {
+          "min": 7,
+          "max": 117,
+          "count": 50,
+          "mean": 17.9,
+          "p50": 10.9,
+          "median": 10.9,
+          "p75": 15,
+          "p90": 26.8,
+          "p95": 37,
+          "p99": 89.1,
+          "p999": 89.1
+        }
+      },
+      "histograms": {
+        "http.response_time": {
+          "min": 7,
+          "max": 117,
+          "count": 50,
+          "mean": 17.9,
+          "p50": 10.9,
+          "median": 10.9,
+          "p75": 15,
+          "p90": 26.8,
+          "p95": 37,
+          "p99": 89.1,
+          "p999": 89.1
+        },
+        "http.response_time.4xx": {
+          "min": 7,
+          "max": 117,
+          "count": 50,
+          "mean": 17.9,
+          "p50": 10.9,
+          "median": 10.9,
+          "p75": 15,
+          "p90": 26.8,
+          "p95": 37,
+          "p99": 89.1,
+          "p999": 89.1
+        },
+        "plugins.metrics-by-endpoint.response_time./api/auth/login (Admin login)": {
+          "min": 7,
+          "max": 117,
+          "count": 50,
+          "mean": 17.9,
+          "p50": 10.9,
+          "median": 10.9,
+          "p75": 15,
+          "p90": 26.8,
+          "p95": 37,
+          "p99": 89.1,
+          "p999": 89.1
+        }
+      }
+    },
+    {
+      "counters": {
+        "vusers.created_by_name.Admin dashboard and employee CRUD": 21,
+        "vusers.created": 50,
+        "http.requests": 50,
+        "http.codes.400": 50,
+        "http.responses": 50,
+        "http.downloaded_bytes": 2750,
+        "plugins.metrics-by-endpoint./api/auth/login (Admin login).codes.400": 50,
+        "errors.an URL must be specified": 50,
+        "vusers.failed": 50,
+        "vusers.created_by_name.Quiz admin session check": 16,
+        "vusers.created_by_name.Tambola admin call numbers stress": 13
+      },
+      "rates": {
+        "http.request_rate": 5
+      },
+      "http.request_rate": null,
+      "firstCounterAt": 1785577330037,
+      "firstHistogramAt": 1785577330054,
+      "lastCounterAt": 1785577339989,
+      "lastHistogramAt": 1785577339989,
+      "firstMetricAt": 1785577330037,
+      "lastMetricAt": 1785577339989,
+      "period": "1785577330000",
+      "summaries": {
+        "http.response_time": {
+          "min": 7,
+          "max": 123,
+          "count": 50,
+          "mean": 18.2,
+          "p50": 13.1,
+          "median": 13.1,
+          "p75": 18,
+          "p90": 32.8,
+          "p95": 40.9,
+          "p99": 45.2,
+          "p999": 45.2
+        },
+        "http.response_time.4xx": {
+          "min": 7,
+          "max": 123,
+          "count": 50,
+          "mean": 18.2,
+          "p50": 13.1,
+          "median": 13.1,
+          "p75": 18,
+          "p90": 32.8,
+          "p95": 40.9,
+          "p99": 45.2,
+          "p999": 45.2
+        },
+        "plugins.metrics-by-endpoint.response_time./api/auth/login (Admin login)": {
+          "min": 7,
+          "max": 123,
+          "count": 50,
+          "mean": 18.2,
+          "p50": 13.1,
+          "median": 13.1,
+          "p75": 18,
+          "p90": 32.8,
+          "p95": 40.9,
+          "p99": 45.2,
+          "p999": 45.2
+        }
+      },
+      "histograms": {
+        "http.response_time": {
+          "min": 7,
+          "max": 123,
+          "count": 50,
+          "mean": 18.2,
+          "p50": 13.1,
+          "median": 13.1,
+          "p75": 18,
+          "p90": 32.8,
+          "p95": 40.9,
+          "p99": 45.2,
+          "p999": 45.2
+        },
+        "http.response_time.4xx": {
+          "min": 7,
+          "max": 123,
+          "count": 50,
+          "mean": 18.2,
+          "p50": 13.1,
+          "median": 13.1,
+          "p75": 18,
+          "p90": 32.8,
+          "p95": 40.9,
+          "p99": 45.2,
+          "p999": 45.2
+        },
+        "plugins.metrics-by-endpoint.response_time./api/auth/login (Admin login)": {
+          "min": 7,
+          "max": 123,
+          "count": 50,
+          "mean": 18.2,
+          "p50": 13.1,
+          "median": 13.1,
+          "p75": 18,
+          "p90": 32.8,
+          "p95": 40.9,
+          "p99": 45.2,
+          "p999": 45.2
+        }
+      }
+    },
+    {
+      "counters": {
+        "vusers.created_by_name.Quiz admin session check": 20,
+        "vusers.created": 50,
+        "http.requests": 50,
+        "http.codes.400": 50,
+        "http.responses": 50,
+        "http.downloaded_bytes": 2750,
+        "plugins.metrics-by-endpoint./api/auth/login (Admin login).codes.400": 50,
+        "errors.an URL must be specified": 50,
+        "vusers.failed": 50,
+        "vusers.created_by_name.Tambola admin call numbers stress": 8,
+        "vusers.created_by_name.Admin dashboard and employee CRUD": 22
+      },
+      "rates": {
+        "http.request_rate": 5
+      },
+      "http.request_rate": null,
+      "firstCounterAt": 1785577340037,
+      "firstHistogramAt": 1785577340053,
+      "lastCounterAt": 1785577349982,
+      "lastHistogramAt": 1785577349981,
+      "firstMetricAt": 1785577340037,
+      "lastMetricAt": 1785577349982,
+      "period": "1785577340000",
+      "summaries": {
+        "http.response_time": {
+          "min": 7,
+          "max": 268,
+          "count": 50,
+          "mean": 20.6,
+          "p50": 12.1,
+          "median": 12.1,
+          "p75": 16,
+          "p90": 30.3,
+          "p95": 43.4,
+          "p99": 57.4,
+          "p999": 57.4
+        },
+        "http.response_time.4xx": {
+          "min": 7,
+          "max": 268,
+          "count": 50,
+          "mean": 20.6,
+          "p50": 12.1,
+          "median": 12.1,
+          "p75": 16,
+          "p90": 30.3,
+          "p95": 43.4,
+          "p99": 57.4,
+          "p999": 57.4
+        },
+        "plugins.metrics-by-endpoint.response_time./api/auth/login (Admin login)": {
+          "min": 7,
+          "max": 268,
+          "count": 50,
+          "mean": 20.6,
+          "p50": 12.1,
+          "median": 12.1,
+          "p75": 16,
+          "p90": 30.3,
+          "p95": 43.4,
+          "p99": 57.4,
+          "p999": 57.4
+        }
+      },
+      "histograms": {
+        "http.response_time": {
+          "min": 7,
+          "max": 268,
+          "count": 50,
+          "mean": 20.6,
+          "p50": 12.1,
+          "median": 12.1,
+          "p75": 16,
+          "p90": 30.3,
+          "p95": 43.4,
+          "p99": 57.4,
+          "p999": 57.4
+        },
+        "http.response_time.4xx": {
+          "min": 7,
+          "max": 268,
+          "count": 50,
+          "mean": 20.6,
+          "p50": 12.1,
+          "median": 12.1,
+          "p75": 16,
+          "p90": 30.3,
+          "p95": 43.4,
+          "p99": 57.4,
+          "p999": 57.4
+        },
+        "plugins.metrics-by-endpoint.response_time./api/auth/login (Admin login)": {
+          "min": 7,
+          "max": 268,
+          "count": 50,
+          "mean": 20.6,
+          "p50": 12.1,
+          "median": 12.1,
+          "p75": 16,
+          "p90": 30.3,
+          "p95": 43.4,
+          "p99": 57.4,
+          "p999": 57.4
+        }
+      }
+    },
+    {
+      "counters": {
+        "vusers.created_by_name.Admin dashboard and employee CRUD": 32,
+        "vusers.created": 50,
+        "http.requests": 50,
+        "http.codes.400": 50,
+        "http.responses": 50,
+        "http.downloaded_bytes": 2750,
+        "plugins.metrics-by-endpoint./api/auth/login (Admin login).codes.400": 50,
+        "errors.an URL must be specified": 50,
+        "vusers.failed": 50,
+        "vusers.created_by_name.Quiz admin session check": 10,
+        "vusers.created_by_name.Tambola admin call numbers stress": 8
+      },
+      "rates": {
+        "http.request_rate": 5
+      },
+      "http.request_rate": null,
+      "firstCounterAt": 1785577350036,
+      "firstHistogramAt": 1785577350047,
+      "lastCounterAt": 1785577359991,
+      "lastHistogramAt": 1785577359991,
+      "firstMetricAt": 1785577350036,
+      "lastMetricAt": 1785577359991,
+      "period": "1785577350000",
+      "summaries": {
+        "http.response_time": {
+          "min": 7,
+          "max": 97,
+          "count": 50,
+          "mean": 15.8,
+          "p50": 10.9,
+          "median": 10.9,
+          "p75": 13.9,
+          "p90": 22,
+          "p95": 34.1,
+          "p99": 53,
+          "p999": 53
+        },
+        "http.response_time.4xx": {
+          "min": 7,
+          "max": 97,
+          "count": 50,
+          "mean": 15.8,
+          "p50": 10.9,
+          "median": 10.9,
+          "p75": 13.9,
+          "p90": 22,
+          "p95": 34.1,
+          "p99": 53,
+          "p999": 53
+        },
+        "plugins.metrics-by-endpoint.response_time./api/auth/login (Admin login)": {
+          "min": 7,
+          "max": 97,
+          "count": 50,
+          "mean": 15.8,
+          "p50": 10.9,
+          "median": 10.9,
+          "p75": 13.9,
+          "p90": 22,
+          "p95": 34.1,
+          "p99": 53,
+          "p999": 53
+        }
+      },
+      "histograms": {
+        "http.response_time": {
+          "min": 7,
+          "max": 97,
+          "count": 50,
+          "mean": 15.8,
+          "p50": 10.9,
+          "median": 10.9,
+          "p75": 13.9,
+          "p90": 22,
+          "p95": 34.1,
+          "p99": 53,
+          "p999": 53
+        },
+        "http.response_time.4xx": {
+          "min": 7,
+          "max": 97,
+          "count": 50,
+          "mean": 15.8,
+          "p50": 10.9,
+          "median": 10.9,
+          "p75": 13.9,
+          "p90": 22,
+          "p95": 34.1,
+          "p99": 53,
+          "p999": 53
+        },
+        "plugins.metrics-by-endpoint.response_time./api/auth/login (Admin login)": {
+          "min": 7,
+          "max": 97,
+          "count": 50,
+          "mean": 15.8,
+          "p50": 10.9,
+          "median": 10.9,
+          "p75": 13.9,
+          "p90": 22,
+          "p95": 34.1,
+          "p99": 53,
+          "p999": 53
+        }
+      }
+    },
+    {
+      "counters": {
+        "vusers.created_by_name.Admin dashboard and employee CRUD": 40,
+        "vusers.created": 93,
+        "http.requests": 93,
+        "http.codes.400": 93,
+        "http.responses": 93,
+        "http.downloaded_bytes": 5115,
+        "plugins.metrics-by-endpoint./api/auth/login (Admin login).codes.400": 93,
+        "errors.an URL must be specified": 93,
+        "vusers.failed": 93,
+        "vusers.created_by_name.Tambola admin call numbers stress": 23,
+        "vusers.created_by_name.Quiz admin session check": 30
+      },
+      "rates": {
+        "http.request_rate": 10
+      },
+      "http.request_rate": null,
+      "firstCounterAt": 1785577360036,
+      "firstHistogramAt": 1785577360047,
+      "lastCounterAt": 1785577369984,
+      "lastHistogramAt": 1785577369984,
+      "firstMetricAt": 1785577360036,
+      "lastMetricAt": 1785577369984,
+      "period": "1785577360000",
+      "summaries": {
+        "http.response_time": {
+          "min": 7,
+          "max": 82,
+          "count": 93,
+          "mean": 15.1,
+          "p50": 13.1,
+          "median": 13.1,
+          "p75": 15,
+          "p90": 22,
+          "p95": 29.1,
+          "p99": 59.7,
+          "p999": 59.7
+        },
+        "http.response_time.4xx": {
+          "min": 7,
+          "max": 82,
+          "count": 93,
+          "mean": 15.1,
+          "p50": 13.1,
+          "median": 13.1,
+          "p75": 15,
+          "p90": 22,
+          "p95": 29.1,
+          "p99": 59.7,
+          "p999": 59.7
+        },
+        "plugins.metrics-by-endpoint.response_time./api/auth/login (Admin login)": {
+          "min": 7,
+          "max": 82,
+          "count": 93,
+          "mean": 15.1,
+          "p50": 13.1,
+          "median": 13.1,
+          "p75": 15,
+          "p90": 22,
+          "p95": 29.1,
+          "p99": 59.7,
+          "p999": 59.7
+        }
+      },
+      "histograms": {
+        "http.response_time": {
+          "min": 7,
+          "max": 82,
+          "count": 93,
+          "mean": 15.1,
+          "p50": 13.1,
+          "median": 13.1,
+          "p75": 15,
+          "p90": 22,
+          "p95": 29.1,
+          "p99": 59.7,
+          "p999": 59.7
+        },
+        "http.response_time.4xx": {
+          "min": 7,
+          "max": 82,
+          "count": 93,
+          "mean": 15.1,
+          "p50": 13.1,
+          "median": 13.1,
+          "p75": 15,
+          "p90": 22,
+          "p95": 29.1,
+          "p99": 59.7,
+          "p999": 59.7
+        },
+        "plugins.metrics-by-endpoint.response_time./api/auth/login (Admin login)": {
+          "min": 7,
+          "max": 82,
+          "count": 93,
+          "mean": 15.1,
+          "p50": 13.1,
+          "median": 13.1,
+          "p75": 15,
+          "p90": 22,
+          "p95": 29.1,
+          "p99": 59.7,
+          "p999": 59.7
+        }
+      }
+    },
+    {
+      "counters": {
+        "vusers.created_by_name.Quiz admin session check": 30,
+        "vusers.created": 100,
+        "http.requests": 100,
+        "http.codes.400": 100,
+        "http.responses": 100,
+        "http.downloaded_bytes": 5500,
+        "plugins.metrics-by-endpoint./api/auth/login (Admin login).codes.400": 100,
+        "errors.an URL must be specified": 100,
+        "vusers.failed": 100,
+        "vusers.created_by_name.Admin dashboard and employee CRUD": 44,
+        "vusers.created_by_name.Tambola admin call numbers stress": 26
+      },
+      "rates": {
+        "http.request_rate": 10
+      },
+      "http.request_rate": null,
+      "firstCounterAt": 1785577370038,
+      "firstHistogramAt": 1785577370058,
+      "lastCounterAt": 1785577379985,
+      "lastHistogramAt": 1785577379985,
+      "firstMetricAt": 1785577370038,
+      "lastMetricAt": 1785577379985,
+      "period": "1785577370000",
+      "summaries": {
+        "http.response_time": {
+          "min": 7,
+          "max": 188,
+          "count": 100,
+          "mean": 19.9,
+          "p50": 12.1,
+          "median": 12.1,
+          "p75": 16,
+          "p90": 24.8,
+          "p95": 57.4,
+          "p99": 149.9,
+          "p999": 149.9
+        },
+        "http.response_time.4xx": {
+          "min": 7,
+          "max": 188,
+          "count": 100,
+          "mean": 19.9,
+          "p50": 12.1,
+          "median": 12.1,
+          "p75": 16,
+          "p90": 24.8,
+          "p95": 57.4,
+          "p99": 149.9,
+          "p999": 149.9
+        },
+        "plugins.metrics-by-endpoint.response_time./api/auth/login (Admin login)": {
+          "min": 7,
+          "max": 188,
+          "count": 100,
+          "mean": 19.9,
+          "p50": 12.1,
+          "median": 12.1,
+          "p75": 16,
+          "p90": 24.8,
+          "p95": 57.4,
+          "p99": 149.9,
+          "p999": 149.9
+        }
+      },
+      "histograms": {
+        "http.response_time": {
+          "min": 7,
+          "max": 188,
+          "count": 100,
+          "mean": 19.9,
+          "p50": 12.1,
+          "median": 12.1,
+          "p75": 16,
+          "p90": 24.8,
+          "p95": 57.4,
+          "p99": 149.9,
+          "p999": 149.9
+        },
+        "http.response_time.4xx": {
+          "min": 7,
+          "max": 188,
+          "count": 100,
+          "mean": 19.9,
+          "p50": 12.1,
+          "median": 12.1,
+          "p75": 16,
+          "p90": 24.8,
+          "p95": 57.4,
+          "p99": 149.9,
+          "p999": 149.9
+        },
+        "plugins.metrics-by-endpoint.response_time./api/auth/login (Admin login)": {
+          "min": 7,
+          "max": 188,
+          "count": 100,
+          "mean": 19.9,
+          "p50": 12.1,
+          "median": 12.1,
+          "p75": 16,
+          "p90": 24.8,
+          "p95": 57.4,
+          "p99": 149.9,
+          "p999": 149.9
+        }
+      }
+    },
+    {
+      "counters": {
+        "vusers.created_by_name.Tambola admin call numbers stress": 28,
+        "vusers.created": 100,
+        "http.requests": 100,
+        "http.codes.400": 100,
+        "http.responses": 100,
+        "http.downloaded_bytes": 5500,
+        "plugins.metrics-by-endpoint./api/auth/login (Admin login).codes.400": 100,
+        "errors.an URL must be specified": 100,
+        "vusers.failed": 100,
+        "vusers.created_by_name.Admin dashboard and employee CRUD": 46,
+        "vusers.created_by_name.Quiz admin session check": 26
+      },
+      "rates": {
+        "http.request_rate": 10
+      },
+      "http.request_rate": null,
+      "firstCounterAt": 1785577380038,
+      "firstHistogramAt": 1785577380051,
+      "lastCounterAt": 1785577389990,
+      "lastHistogramAt": 1785577389990,
+      "firstMetricAt": 1785577380038,
+      "lastMetricAt": 1785577389990,
+      "period": "1785577380000",
+      "summaries": {
+        "http.response_time": {
+          "min": 7,
+          "max": 275,
+          "count": 100,
+          "mean": 18.4,
+          "p50": 12.1,
+          "median": 12.1,
+          "p75": 16.9,
+          "p90": 30.3,
+          "p95": 37.7,
+          "p99": 70.1,
+          "p999": 70.1
+        },
+        "http.response_time.4xx": {
+          "min": 7,
+          "max": 275,
+          "count": 100,
+          "mean": 18.4,
+          "p50": 12.1,
+          "median": 12.1,
+          "p75": 16.9,
+          "p90": 30.3,
+          "p95": 37.7,
+          "p99": 70.1,
+          "p999": 70.1
+        },
+        "plugins.metrics-by-endpoint.response_time./api/auth/login (Admin login)": {
+          "min": 7,
+          "max": 275,
+          "count": 100,
+          "mean": 18.4,
+          "p50": 12.1,
+          "median": 12.1,
+          "p75": 16.9,
+          "p90": 30.3,
+          "p95": 37.7,
+          "p99": 70.1,
+          "p999": 70.1
+        }
+      },
+      "histograms": {
+        "http.response_time": {
+          "min": 7,
+          "max": 275,
+          "count": 100,
+          "mean": 18.4,
+          "p50": 12.1,
+          "median": 12.1,
+          "p75": 16.9,
+          "p90": 30.3,
+          "p95": 37.7,
+          "p99": 70.1,
+          "p999": 70.1
+        },
+        "http.response_time.4xx": {
+          "min": 7,
+          "max": 275,
+          "count": 100,
+          "mean": 18.4,
+          "p50": 12.1,
+          "median": 12.1,
+          "p75": 16.9,
+          "p90": 30.3,
+          "p95": 37.7,
+          "p99": 70.1,
+          "p999": 70.1
+        },
+        "plugins.metrics-by-endpoint.response_time./api/auth/login (Admin login)": {
+          "min": 7,
+          "max": 275,
+          "count": 100,
+          "mean": 18.4,
+          "p50": 12.1,
+          "median": 12.1,
+          "p75": 16.9,
+          "p90": 30.3,
+          "p95": 37.7,
+          "p99": 70.1,
+          "p999": 70.1
+        }
+      }
+    },
+    {
+      "counters": {
+        "vusers.created_by_name.Tambola admin call numbers stress": 30,
+        "vusers.created": 100,
+        "http.requests": 100,
+        "http.codes.400": 100,
+        "http.responses": 100,
+        "http.downloaded_bytes": 5500,
+        "plugins.metrics-by-endpoint./api/auth/login (Admin login).codes.400": 100,
+        "errors.an URL must be specified": 100,
+        "vusers.failed": 100,
+        "vusers.created_by_name.Quiz admin session check": 25,
+        "vusers.created_by_name.Admin dashboard and employee CRUD": 45
+      },
+      "rates": {
+        "http.request_rate": 10
+      },
+      "http.request_rate": null,
+      "firstCounterAt": 1785577390038,
+      "firstHistogramAt": 1785577390063,
+      "lastCounterAt": 1785577399981,
+      "lastHistogramAt": 1785577399981,
+      "firstMetricAt": 1785577390038,
+      "lastMetricAt": 1785577399981,
+      "period": "1785577390000",
+      "summaries": {
+        "http.response_time": {
+          "min": 6,
+          "max": 87,
+          "count": 100,
+          "mean": 16.8,
+          "p50": 12.1,
+          "median": 12.1,
+          "p75": 16.9,
+          "p90": 24.8,
+          "p95": 44.3,
+          "p99": 83.9,
+          "p999": 83.9
+        },
+        "http.response_time.4xx": {
+          "min": 6,
+          "max": 87,
+          "count": 100,
+          "mean": 16.8,
+          "p50": 12.1,
+          "median": 12.1,
+          "p75": 16.9,
+          "p90": 24.8,
+          "p95": 44.3,
+          "p99": 83.9,
+          "p999": 83.9
+        },
+        "plugins.metrics-by-endpoint.response_time./api/auth/login (Admin login)": {
+          "min": 6,
+          "max": 87,
+          "count": 100,
+          "mean": 16.8,
+          "p50": 12.1,
+          "median": 12.1,
+          "p75": 16.9,
+          "p90": 24.8,
+          "p95": 44.3,
+          "p99": 83.9,
+          "p999": 83.9
+        }
+      },
+      "histograms": {
+        "http.response_time": {
+          "min": 6,
+          "max": 87,
+          "count": 100,
+          "mean": 16.8,
+          "p50": 12.1,
+          "median": 12.1,
+          "p75": 16.9,
+          "p90": 24.8,
+          "p95": 44.3,
+          "p99": 83.9,
+          "p999": 83.9
+        },
+        "http.response_time.4xx": {
+          "min": 6,
+          "max": 87,
+          "count": 100,
+          "mean": 16.8,
+          "p50": 12.1,
+          "median": 12.1,
+          "p75": 16.9,
+          "p90": 24.8,
+          "p95": 44.3,
+          "p99": 83.9,
+          "p999": 83.9
+        },
+        "plugins.metrics-by-endpoint.response_time./api/auth/login (Admin login)": {
+          "min": 6,
+          "max": 87,
+          "count": 100,
+          "mean": 16.8,
+          "p50": 12.1,
+          "median": 12.1,
+          "p75": 16.9,
+          "p90": 24.8,
+          "p95": 44.3,
+          "p99": 83.9,
+          "p999": 83.9
+        }
+      }
+    },
+    {
+      "counters": {
+        "vusers.created_by_name.Admin dashboard and employee CRUD": 45,
+        "vusers.created": 100,
+        "http.requests": 100,
+        "http.codes.400": 100,
+        "http.responses": 100,
+        "http.downloaded_bytes": 5500,
+        "plugins.metrics-by-endpoint./api/auth/login (Admin login).codes.400": 100,
+        "errors.an URL must be specified": 100,
+        "vusers.failed": 100,
+        "vusers.created_by_name.Quiz admin session check": 31,
+        "vusers.created_by_name.Tambola admin call numbers stress": 24
+      },
+      "rates": {
+        "http.request_rate": 10
+      },
+      "http.request_rate": null,
+      "firstCounterAt": 1785577400038,
+      "firstHistogramAt": 1785577400059,
+      "lastCounterAt": 1785577409989,
+      "lastHistogramAt": 1785577409989,
+      "firstMetricAt": 1785577400038,
+      "lastMetricAt": 1785577409989,
+      "period": "1785577400000",
+      "summaries": {
+        "http.response_time": {
+          "min": 8,
+          "max": 522,
+          "count": 100,
+          "mean": 48.6,
+          "p50": 16,
+          "median": 16,
+          "p75": 29.1,
+          "p90": 115.6,
+          "p95": 262.5,
+          "p99": 468.8,
+          "p999": 468.8
+        },
+        "http.response_time.4xx": {
+          "min": 8,
+          "max": 522,
+          "count": 100,
+          "mean": 48.6,
+          "p50": 16,
+          "median": 16,
+          "p75": 29.1,
+          "p90": 115.6,
+          "p95": 262.5,
+          "p99": 468.8,
+          "p999": 468.8
+        },
+        "plugins.metrics-by-endpoint.response_time./api/auth/login (Admin login)": {
+          "min": 8,
+          "max": 522,
+          "count": 100,
+          "mean": 48.6,
+          "p50": 16,
+          "median": 16,
+          "p75": 29.1,
+          "p90": 115.6,
+          "p95": 262.5,
+          "p99": 468.8,
+          "p999": 468.8
+        }
+      },
+      "histograms": {
+        "http.response_time": {
+          "min": 8,
+          "max": 522,
+          "count": 100,
+          "mean": 48.6,
+          "p50": 16,
+          "median": 16,
+          "p75": 29.1,
+          "p90": 115.6,
+          "p95": 262.5,
+          "p99": 468.8,
+          "p999": 468.8
+        },
+        "http.response_time.4xx": {
+          "min": 8,
+          "max": 522,
+          "count": 100,
+          "mean": 48.6,
+          "p50": 16,
+          "median": 16,
+          "p75": 29.1,
+          "p90": 115.6,
+          "p95": 262.5,
+          "p99": 468.8,
+          "p999": 468.8
+        },
+        "plugins.metrics-by-endpoint.response_time./api/auth/login (Admin login)": {
+          "min": 8,
+          "max": 522,
+          "count": 100,
+          "mean": 48.6,
+          "p50": 16,
+          "median": 16,
+          "p75": 29.1,
+          "p90": 115.6,
+          "p95": 262.5,
+          "p99": 468.8,
+          "p999": 468.8
+        }
+      }
+    },
+    {
+      "counters": {
+        "vusers.created_by_name.Tambola admin call numbers stress": 26,
+        "vusers.created": 100,
+        "http.requests": 100,
+        "http.codes.400": 100,
+        "http.responses": 100,
+        "http.downloaded_bytes": 5500,
+        "plugins.metrics-by-endpoint./api/auth/login (Admin login).codes.400": 100,
+        "errors.an URL must be specified": 100,
+        "vusers.failed": 100,
+        "vusers.created_by_name.Admin dashboard and employee CRUD": 50,
+        "vusers.created_by_name.Quiz admin session check": 24
+      },
+      "rates": {
+        "http.request_rate": 10
+      },
+      "http.request_rate": null,
+      "firstCounterAt": 1785577410038,
+      "firstHistogramAt": 1785577410060,
+      "lastCounterAt": 1785577419992,
+      "lastHistogramAt": 1785577419991,
+      "firstMetricAt": 1785577410038,
+      "lastMetricAt": 1785577419992,
+      "period": "1785577410000",
+      "summaries": {
+        "http.response_time": {
+          "min": 7,
+          "max": 285,
+          "count": 100,
+          "mean": 28.2,
+          "p50": 15,
+          "median": 15,
+          "p75": 22,
+          "p90": 46.1,
+          "p95": 82.3,
+          "p99": 273.2,
+          "p999": 273.2
+        },
+        "http.response_time.4xx": {
+          "min": 7,
+          "max": 285,
+          "count": 100,
+          "mean": 28.2,
+          "p50": 15,
+          "median": 15,
+          "p75": 22,
+          "p90": 46.1,
+          "p95": 82.3,
+          "p99": 273.2,
+          "p999": 273.2
+        },
+        "plugins.metrics-by-endpoint.response_time./api/auth/login (Admin login)": {
+          "min": 7,
+          "max": 285,
+          "count": 100,
+          "mean": 28.2,
+          "p50": 15,
+          "median": 15,
+          "p75": 22,
+          "p90": 46.1,
+          "p95": 82.3,
+          "p99": 273.2,
+          "p999": 273.2
+        }
+      },
+      "histograms": {
+        "http.response_time": {
+          "min": 7,
+          "max": 285,
+          "count": 100,
+          "mean": 28.2,
+          "p50": 15,
+          "median": 15,
+          "p75": 22,
+          "p90": 46.1,
+          "p95": 82.3,
+          "p99": 273.2,
+          "p999": 273.2
+        },
+        "http.response_time.4xx": {
+          "min": 7,
+          "max": 285,
+          "count": 100,
+          "mean": 28.2,
+          "p50": 15,
+          "median": 15,
+          "p75": 22,
+          "p90": 46.1,
+          "p95": 82.3,
+          "p99": 273.2,
+          "p999": 273.2
+        },
+        "plugins.metrics-by-endpoint.response_time./api/auth/login (Admin login)": {
+          "min": 7,
+          "max": 285,
+          "count": 100,
+          "mean": 28.2,
+          "p50": 15,
+          "median": 15,
+          "p75": 22,
+          "p90": 46.1,
+          "p95": 82.3,
+          "p99": 273.2,
+          "p999": 273.2
+        }
+      }
+    },
+    {
+      "counters": {
+        "vusers.created_by_name.Tambola admin call numbers stress": 4,
+        "vusers.created": 13,
+        "http.requests": 13,
+        "http.codes.400": 13,
+        "http.responses": 13,
+        "http.downloaded_bytes": 715,
+        "plugins.metrics-by-endpoint./api/auth/login (Admin login).codes.400": 13,
+        "errors.an URL must be specified": 13,
+        "vusers.failed": 13,
+        "vusers.created_by_name.Admin dashboard and employee CRUD": 7,
+        "vusers.created_by_name.Quiz admin session check": 2
+      },
+      "rates": {
+        "http.request_rate": 13
+      },
+      "http.request_rate": null,
+      "firstCounterAt": 1785577420038,
+      "firstHistogramAt": 1785577420055,
+      "lastCounterAt": 1785577421186,
+      "lastHistogramAt": 1785577421186,
+      "firstMetricAt": 1785577420038,
+      "lastMetricAt": 1785577421186,
+      "period": "1785577420000",
+      "summaries": {
+        "http.response_time": {
+          "min": 10,
+          "max": 149,
+          "count": 13,
+          "mean": 31.4,
+          "p50": 13.1,
+          "median": 13.1,
+          "p75": 22.9,
+          "p90": 34.1,
+          "p95": 87.4,
+          "p99": 87.4,
+          "p999": 87.4
+        },
+        "http.response_time.4xx": {
+          "min": 10,
+          "max": 149,
+          "count": 13,
+          "mean": 31.4,
+          "p50": 13.1,
+          "median": 13.1,
+          "p75": 22.9,
+          "p90": 34.1,
+          "p95": 87.4,
+          "p99": 87.4,
+          "p999": 87.4
+        },
+        "plugins.metrics-by-endpoint.response_time./api/auth/login (Admin login)": {
+          "min": 10,
+          "max": 149,
+          "count": 13,
+          "mean": 31.4,
+          "p50": 13.1,
+          "median": 13.1,
+          "p75": 22.9,
+          "p90": 34.1,
+          "p95": 87.4,
+          "p99": 87.4,
+          "p999": 87.4
+        }
+      },
+      "histograms": {
+        "http.response_time": {
+          "min": 10,
+          "max": 149,
+          "count": 13,
+          "mean": 31.4,
+          "p50": 13.1,
+          "median": 13.1,
+          "p75": 22.9,
+          "p90": 34.1,
+          "p95": 87.4,
+          "p99": 87.4,
+          "p999": 87.4
+        },
+        "http.response_time.4xx": {
+          "min": 10,
+          "max": 149,
+          "count": 13,
+          "mean": 31.4,
+          "p50": 13.1,
+          "median": 13.1,
+          "p75": 22.9,
+          "p90": 34.1,
+          "p95": 87.4,
+          "p99": 87.4,
+          "p999": 87.4
+        },
+        "plugins.metrics-by-endpoint.response_time./api/auth/login (Admin login)": {
+          "min": 10,
+          "max": 149,
+          "count": 13,
+          "mean": 31.4,
+          "p50": 13.1,
+          "median": 13.1,
+          "p75": 22.9,
+          "p90": 34.1,
+          "p95": 87.4,
+          "p99": 87.4,
+          "p999": 87.4
+        }
+      }
+    }
+  ]
+}

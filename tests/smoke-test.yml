@@ -1,0 +1,52 @@
+config:
+  target: "http://localhost:5000/api"
+  phases:
+    - duration: 60
+      arrivalRate: 5
+      name: Warm up
+    - duration: 120
+      arrivalRate: 20
+      name: Sustained load
+    - duration: 60
+      arrivalRate: 30
+      name: Spike
+  plugins:
+    metrics-by-endpoint: {}
+  http:
+    timeout: 10
+
+scenarios:
+  - name: "Basic public endpoints smoke test"
+    weight: 1
+    flow:
+      - get:
+          url: "/event"
+          name: "Get event details"
+      - think: 2
+      - get:
+          url: "/employees/leaderboard"
+          name: "Get leaderboard"
+      - think: 2
+      - get:
+          url: "/awards"
+          name: "Get awards list"
+      - think: 2
+      - get:
+          url: "/quiz"
+          name: "Get quizzes list"
+      - think: 2
+      - get:
+          url: "/poll"
+          name: "Get polls list"
+      - think: 2
+      - get:
+          url: "/teams"
+          name: "Get teams list"
+      - think: 2
+      - get:
+          url: "/tambola/session"
+          name: "Get tambola session"
+      - think: 2
+      - get:
+          url: "/quiz-session"
+          name: "Get quiz session"

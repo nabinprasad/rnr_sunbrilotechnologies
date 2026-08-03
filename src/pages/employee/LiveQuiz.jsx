@@ -26,10 +26,9 @@ export default function EmployeeLiveQuiz() {
   useEffect(() => {
     loadData();
 
-    const interval = setInterval(() => {
-      loadData();
-    }, 2000);
-
+    // REMOVED: 2-second HTTP polling loop that was crashing the server under load.
+    // Relying on Socket.IO 'quizSessionUpdated' event instead.
+    
     const handleSession = (session) => {
       if (!session) return;
       if (employeeFinished.current && session.status === "Live") return;

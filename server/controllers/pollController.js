@@ -30,7 +30,6 @@ const autoClosePollAndStartNext = async (currentPollId) => {
       if (ioInstance) {
         ioInstance.emit("pollUpdated", currentPoll.toObject());
       }
-      console.log("⏹️ Auto-closed poll:", currentPollId);
     }
 
     // Find next poll to activate
@@ -89,7 +88,10 @@ const setPollAutoCloseTimeout = (poll) => {
 // ===========================
 export const getPolls = async (req, res) => {
   try {
-    const polls = await Poll.find().sort({ order: 1, createdAt: -1 });
+    const polls = await Poll.find()
+      .sort({ order: 1, createdAt: -1 })
+      .select("-__v")
+      .lean();
 
     res.json({ success: true, polls });
   } catch (err) {
@@ -194,7 +196,6 @@ export const updatePoll = async (req, res) => {
 
     // Broadcast to all clients (convert to plain object for better client-side handling)
     try {
-      console.log("📡 Emitting pollUpdated event (update):", poll.toObject());
       if (ioInstance) {
         ioInstance.emit("pollUpdated", poll.toObject());
       }

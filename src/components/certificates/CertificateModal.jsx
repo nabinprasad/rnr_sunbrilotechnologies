@@ -194,12 +194,12 @@ export default function CertificateModal({
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     rows={5}
-                    maxLength={275}
-                    placeholder="Write the certificate description here (max 275 characters)"
+                    maxLength={300}
+                    placeholder="Write the certificate description here (max 300 characters)"
                     className="border border-slate-300 p-3 w-full rounded-lg mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <p className="text-xs text-slate-500 mb-4">
-                    {content.length}/275 characters
+                    {content.length}/300 characters
                 </p>
 
                 <label className="block mb-2 font-medium text-slate-700">Manager Name (Left Signature)</label>
