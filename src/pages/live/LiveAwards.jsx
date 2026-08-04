@@ -168,7 +168,12 @@ export default function LiveAwards() {
         certificate.templateName,
         certificate.employeeName || winner.name,
         certificate._id,
-        false,
+        certificate.category,
+        certificate.content,
+        certificate.awardTitle === "Quality Champion" ? null : certificate.awardTitle,
+        certificate.leftSignatureName,
+        certificate.leftSignatureLabel,
+        false
       );
 
       if (url) {

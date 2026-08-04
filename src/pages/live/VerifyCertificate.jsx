@@ -29,6 +29,11 @@ export default function VerifyCertificate() {
           cert.templateName,
           cert.employeeName,
           cert._id,
+          cert.category,
+          cert.content,
+          cert.awardTitle === "Quality Champion" ? null : cert.awardTitle,
+          cert.leftSignatureName,
+          cert.leftSignatureLabel,
           false // do not download, just generate url
         );
         setPdfUrl(url);
@@ -47,6 +52,11 @@ export default function VerifyCertificate() {
       certificate.templateName,
       certificate.employeeName,
       certificate._id,
+      certificate.category,
+      certificate.content,
+      certificate.awardTitle === "Quality Champion" ? null : certificate.awardTitle,
+      certificate.leftSignatureName,
+      certificate.leftSignatureLabel,
       true
     );
   };

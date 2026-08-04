@@ -9,6 +9,7 @@ const initialForm = {
     category: "",
     content: "",
     leftSignatureName: "",
+    leftSignatureLabel: "",
 };
 
 export default function CertificateForm({
@@ -43,6 +44,7 @@ export default function CertificateForm({
                 category: certificate.category || "",
                 content: certificate.content || "",
                 leftSignatureName: certificate.leftSignatureName || "",
+                leftSignatureLabel: certificate.leftSignatureLabel || "",
             });
         } else {
             setFormData(initialForm);
@@ -166,6 +168,20 @@ export default function CertificateForm({
             onChange={handleChange}
             className="w-full border border-slate-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             placeholder="e.g., John Doe"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">
+            Manager Title (Left Signature Label)
+          </label>
+          <input
+            type="text"
+            name="leftSignatureLabel"
+            value={formData.leftSignatureLabel}
+            onChange={handleChange}
+            className="w-full border border-slate-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            placeholder="e.g., HR Manager"
           />
         </div>
 
