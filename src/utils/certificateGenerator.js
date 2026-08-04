@@ -56,7 +56,7 @@ const TEMPLATE_CONFIG = {
         contentWidth: 450,
         awardTitleY: 400,
         awardTitleFontSize: 30,
-       leftSignature: { x: 120, y: 120, label: "Client Manager" },
+       leftSignature: { x: 120, y: 120, label: "HR Manager" },
         rightSignature: { x: 690, y: 120,label: "CEO", name: "Sunil Kumar" },
     },
 
@@ -122,7 +122,7 @@ const wrapText = (text, font, fontSize, maxWidth) => {
     return lines;
 };
 
-export const generateCertificate = async (templatePath, employeeName, certificateId, category, content, awardTitle = null, leftSignatureName = null, download = true) => {
+export const generateCertificate = async (templatePath, employeeName, certificateId, category, content, awardTitle = null, leftSignatureName = null, leftSignatureLabel = null, download = true) => {
     try {
         const existingPdfBytes = await fetch(templatePath).then((res) =>
             res.arrayBuffer()
@@ -238,8 +238,9 @@ export const generateCertificate = async (templatePath, employeeName, certificat
             }
 
             // Draw Label below the name
-            if (config.leftSignature.label) {
-                page.drawText(config.leftSignature.label, {
+            const labelText = leftSignatureLabel || config.leftSignature.label;
+            if (labelText) {
+                page.drawText(labelText, {
                     x: config.leftSignature.x - 0, // adjust alignment
                     y: config.leftSignature.y - 18, // below the name
                     size: 10,
@@ -263,9 +264,9 @@ export const generateCertificate = async (templatePath, employeeName, certificat
           // Draw Name
           if (config.rightSignature.name) {
               const signatureText = config.rightSignature.name;
-              const signatureFontSize = 20;
+              const signatureFontSize = 16;
               const signatureTextWidth = halimunFont.widthOfTextAtSize(signatureText, signatureFontSize);
-              const signatureCenterX = config.rightSignature.x + 18;
+              const signatureCenterX = config.rightSignature.x + 10;
               page.drawText(signatureText, {
                   x: signatureCenterX - signatureTextWidth / 2,
                   y: config.rightSignature.y + 22,

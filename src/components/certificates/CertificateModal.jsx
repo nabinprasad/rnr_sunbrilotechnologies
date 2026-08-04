@@ -20,6 +20,7 @@ export default function CertificateModal({
     const [category, setCategory] = useState("");
     const [content, setContent] = useState("");
     const [leftSignatureName, setLeftSignatureName] = useState("");
+    const [leftSignatureLabel, setLeftSignatureLabel] = useState("");
 
     useEffect(() => {
         fetchAwards();
@@ -43,11 +44,13 @@ export default function CertificateModal({
             setCategory(editData.category || "");
             setContent(editData.content || "");
             setLeftSignatureName(editData.leftSignatureName || "");
+            setLeftSignatureLabel(editData.leftSignatureLabel || "");
         } else {
             setSelectedTemplate("");
             setCategory("");
             setContent("");
             setLeftSignatureName("");
+            setLeftSignatureLabel("");
         }
     }, [isOpen, editData]);
 
@@ -88,6 +91,7 @@ export default function CertificateModal({
                 category: category,
                 content: content,
                 leftSignatureName: leftSignatureName,
+                leftSignatureLabel: leftSignatureLabel,
             };
 
             let savedCertId = null;
@@ -110,7 +114,8 @@ export default function CertificateModal({
                     category,
                     content,
                     selectedAward?.title || null,
-                    leftSignatureName
+                    leftSignatureName,
+                    leftSignatureLabel
                 );
             }
 
@@ -208,6 +213,15 @@ export default function CertificateModal({
                     value={leftSignatureName}
                     onChange={(e) => setLeftSignatureName(e.target.value)}
                     placeholder="e.g., John Doe"
+                    className="border border-slate-300 p-3 w-full rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+
+                <label className="block mb-2 font-medium text-slate-700">Manager Title (Left Signature Label)</label>
+                <input
+                    type="text"
+                    value={leftSignatureLabel}
+                    onChange={(e) => setLeftSignatureLabel(e.target.value)}
+                    placeholder="e.g., HR Manager"
                     className="border border-slate-300 p-3 w-full rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
 

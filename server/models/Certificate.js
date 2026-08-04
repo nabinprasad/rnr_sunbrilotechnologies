@@ -40,6 +40,10 @@ const certificateSchema = new mongoose.Schema(
             type: String,
             default: "",
         },
+        leftSignatureLabel: {
+            type: String,
+            default: "",
+        },
     },
     { timestamps: true }
 );
