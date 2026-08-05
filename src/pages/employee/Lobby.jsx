@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   FaAward,
   FaCalendarAlt,
@@ -19,8 +19,11 @@ import { getQuizSession } from "../../api/quizSessionApi";
 import { getTambolaSession } from "../../api/tambolaApi";
 import { getEmployee, setEmployee as setStoredEmployee } from "../../utils/employeeStorage";
 import { getEmployeePhotoUrl, DEFAULT_EMPLOYEE_PHOTO } from "../../utils/employeePhoto.js";
+import socket from "../../socket";
+import toast from "react-hot-toast";
 
 export default function Lobby() {
+  const navigate = useNavigate();
   const [employee, setEmployee] = useState(getEmployee());
   const [event, setEvent] = useState(null);
   const [quizSession, setQuizSession] = useState(null);
@@ -31,19 +34,46 @@ export default function Lobby() {
     loadEmployee();
     loadLiveData();
 
-    // REMOVED: 3-second HTTP polling loop.
-    // In a high-load environment, we should either use Socket.IO 
-    // for all status updates or increase the polling interval to 30s+.
-    
-    const countdownInterval = setInterval(() => {
-      setCountdown((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
+    const currentEmp = getEmployee();
+    if (currentEmp?._id) {
+      // Join employee room for real-time updates
+      socket.emit("joinEmployee", currentEmp._id);
+      console.log("🏠 Lobby: joined employee room:", currentEmp._id);
 
-    return () => {
-      clearInterval(refreshInterval);
-      clearInterval(countdownInterval);
-    };
+      // Listen for approval events via room
+      const handleApprovedRoom = (data) => {
+        console.log("✅ Lobby: employeeApproved received via room:", data);
+        handleApproval(data);
+      };
+
+      // Also listen for ID-specific global event (fallback)
+      const handleApprovedGlobal = (data) => {
+        console.log("✅ Lobby: employeeApproved global received:", data);
+        handleApproval(data);
+      };
+
+      socket.on("employeeApproved", handleApprovedRoom);
+      socket.on(`employeeApproved:${currentEmp._id}`, handleApprovedGlobal);
+
+      const countdownInterval = setInterval(() => {
+        setCountdown((prev) => (prev > 0 ? prev - 1 : 0));
+      }, 1000);
+
+      return () => {
+        clearInterval(countdownInterval);
+        socket.off("employeeApproved", handleApprovedRoom);
+        socket.off(`employeeApproved:${currentEmp._id}`, handleApprovedGlobal);
+      };
+    }
   }, []);
+
+  const handleApproval = (data) => {
+    if (data?.employee) {
+      setStoredEmployee(data.employee);
+      setEmployee(data.employee);
+      toast.success("✅ Your request has been approved! Click Enter Event to continue.");
+    }
+  };
 
   const loadEmployee = async () => {
     try {

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import socket from "../../socket";
 import { getQuizSession } from "../../api/quizSessionApi";
 import { getTambolaSession } from "../../api/tambolaApi";
@@ -40,13 +41,31 @@ export default function EmployeeHome() {
     const storedEmployee = getEmployee();
     if (storedEmployee?._id) {
       socket.emit("joinEmployee", storedEmployee._id);
-    }
+      console.log("🏠 Home: joined employee room:", storedEmployee._id);
 
-    socket.on("employeeApproved", (data) => {
-      setEmployee(data.employee);
-      setEmployeeData(data.employee);
-      navigate("/employee/lobby");
-    });
+      // Listen for approval events via room
+      const handleApprovedRoom = (data) => {
+        console.log("✅ Home: employeeApproved received via room:", data);
+        if (data?.employee) {
+          setEmployee(data.employee);
+          setEmployeeData(data.employee);
+          toast.success("✅ Your request has been approved! Click Enter Event Lobby to continue.");
+        }
+      };
+
+      // Also listen for ID-specific global event (fallback)
+      const handleApprovedGlobal = (data) => {
+        console.log("✅ Home: employeeApproved global received:", data);
+        if (data?.employee) {
+          setEmployee(data.employee);
+          setEmployeeData(data.employee);
+          toast.success("✅ Your request has been approved! Click Enter Event Lobby to continue.");
+        }
+      };
+
+      socket.on("employeeApproved", handleApprovedRoom);
+      socket.on(`employeeApproved:${storedEmployee._id}`, handleApprovedGlobal);
+    }
 
     const handleQuizSession = (session) => {
       if (session) setQuizSession(session);
@@ -71,6 +90,7 @@ export default function EmployeeHome() {
     return () => {
       clearInterval(interval);
       socket.off("employeeApproved");
+      socket.off(`employeeApproved:${storedEmployee?._id}`);
       socket.off("quizSessionUpdated", handleQuizSession);
       socket.off("tambolaSessionUpdated", handleTambolaSession);
       socket.off("pollUpdated", handlePollUpdated);
