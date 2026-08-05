@@ -107,19 +107,30 @@ export const approveEmployee = async (req, res) => {
       });
     }
 
-    // Notify only this employee using namespaced room
+    // Convert to plain object for socket transmission
+    const employeePlain = employee.toObject();
+
+    // 1) Notify specific employee via their personal room
     const room = `employee:${employee._id.toString()}`;
+    console.log("✅ Emitting employeeApproved to room:", room);
     getIO().to(room).emit("employeeApproved", {
       success: true,
-      employee,
+      employee: employeePlain,
+    });
+
+    // 2) Also broadcast globally (for clients that haven't joined the room yet)
+    getIO().emit(`employeeApproved:${employee._id.toString()}`, {
+      success: true,
+      employee: employeePlain,
     });
 
     res.json({
       success: true,
       message: "Employee Approved Successfully",
-      employee,
+      employee: employeePlain,
     });
   } catch (err) {
+    console.error("Approve employee error:", err);
     res.status(500).json({
       success: false,
       message: err.message,

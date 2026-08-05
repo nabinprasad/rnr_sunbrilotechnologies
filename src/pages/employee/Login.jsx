@@ -1,14 +1,37 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { joinEmployee } from "../../api/employeeApi";
-import { setEmployee } from "../../utils/employeeStorage";
+import { getEmployee, setEmployee } from "../../utils/employeeStorage";
 import socket from "../../socket";
 
 export default function EmployeeLogin() {
   const [employeeId, setEmployeeId] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // If employee data already stored and waiting, listen for approval
+    const storedEmp = getEmployee();
+    if (storedEmp?._id) {
+      socket.emit("joinEmployee", storedEmp._id);
+
+      const handleApproved = (data) => {
+        if (data?.employee?._id === storedEmp._id) {
+          setEmployee(data.employee);
+          toast.success("✅ Your request has been approved! Click Join Event to continue.");
+        }
+      };
+
+      socket.on("employeeApproved", handleApproved);
+      socket.on(`employeeApproved:${storedEmp._id}`, handleApproved);
+
+      return () => {
+        socket.off("employeeApproved", handleApproved);
+        socket.off(`employeeApproved:${storedEmp._id}`, handleApproved);
+      };
+    }
+  }, [navigate]);
 
   const handleLogin = async () => {
     if (!employeeId.trim()) {
