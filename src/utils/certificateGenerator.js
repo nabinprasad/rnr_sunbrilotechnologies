@@ -122,7 +122,7 @@ const wrapText = (text, font, fontSize, maxWidth) => {
     return lines;
 };
 
-export const generateCertificate = async (templatePath, employeeName, certificateId, category, content, awardTitle = null, leftSignatureName = null, leftSignatureLabel = null, download = true) => {
+export const generateCertificate = async (templatePath, employeeName, certificateId, category, content, awardTitle = null, leftSignatureName = null, leftSignatureLabel = null, leftSignatureFont = "Halimun", download = true) => {
     try {
         const existingPdfBytes = await fetch(templatePath).then((res) =>
             res.arrayBuffer()
@@ -137,10 +137,88 @@ export const generateCertificate = async (templatePath, employeeName, certificat
         const halimunFontBytes = await fetch("/fonts/Halimun.ttf").then((res) =>
             res.arrayBuffer()
         );
+        let brittanyFontBytes = null;
+        try {
+            console.log("🔤 Loading Brittany Signature font from /fonts/BrittanySignature.ttf");
+            const brittanyRes = await fetch("/fonts/BrittanySignature.ttf");
+            if (brittanyRes.ok) {
+                brittanyFontBytes = await brittanyRes.arrayBuffer();
+                console.log("🔤 BrittanySignature font loaded successfully, bytes:", brittanyFontBytes.byteLength);
+            } else {
+                console.log("ℹ️ BrittanySignature font not found, will use fallback if requested");
+            }
+        } catch (e) {
+            console.log("ℹ️ Could not load BrittanySignature font:", e.message);
+        }
+        let segoeFontBytes = null;
+        try {
+            console.log("🔤 Loading Segoe Script font from /fonts/segoesc.ttf");
+            const segoeRes = await fetch("/fonts/segoesc.ttf");
+            if (segoeRes.ok) {
+                segoeFontBytes = await segoeRes.arrayBuffer();
+                console.log("🔤 SegoeScript font loaded successfully, bytes:", segoeFontBytes.byteLength);
+            } else {
+                console.log("ℹ️ SegoeScript font not found, will use fallback if requested");
+            }
+        } catch (e) {
+            console.log("ℹ️ Could not load SegoeScript font:", e.message);
+        }
 
         const customFont = await pdfDoc.embedFont(fontBytes);
         const halimunFont = await pdfDoc.embedFont(halimunFontBytes);
         const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
+
+        // Embed BrittanySignature if available
+        let brittanyFont = null;
+        if (brittanyFontBytes) {
+            try {
+                brittanyFont = await pdfDoc.embedFont(brittanyFontBytes);
+                console.log("✅ BrittanySignature font embedded successfully!");
+            } catch (e) {
+                console.error("❌ Failed to embed BrittanySignature:", e);
+                brittanyFont = null;
+            }
+        }
+
+        // Embed Segoe Script if available
+        let segoeFont = null;
+        if (segoeFontBytes) {
+            try {
+                segoeFont = await pdfDoc.embedFont(segoeFontBytes);
+                console.log("✅ SegoeScript font embedded successfully!");
+            } catch (e) {
+                console.error("❌ Failed to embed SegoeScript:", e);
+                segoeFont = null;
+            }
+        }
+
+        // Resolve left signature font based on selection (with smart fallbacks)
+        const resolveSignatureFont = () => {
+            const sel = (leftSignatureFont || "Halimun").toLowerCase();
+            console.log(`🔤 Resolving left signature font, requested: ${leftSignatureFont}`);
+            if (sel === "alexbrush") {
+                return { font: customFont, name: "AlexBrush", size: 16 };
+            }
+            if (sel === "brittanysignature" || sel === "brittany") {
+                if (brittanyFont) {
+                    return { font: brittanyFont, name: "BrittanySignature", size: 16 };
+                }
+                console.log("ℹ️ BrittanySignature not available, falling back to AlexBrush");
+                return { font: customFont, name: "AlexBrush (fallback)", size: 16 };
+            }
+            if (sel === "segoescript" || sel === "segoe") {
+                if (segoeFont) {
+                    return { font: segoeFont, name: "SegoeScript", size: 16 };
+                }
+                console.log("ℹ️ SegoeScript not available, falling back to AlexBrush");
+                return { font: customFont, name: "AlexBrush (fallback)", size: 16 };
+            }
+            // Default: Halimun
+            return { font: halimunFont, name: "Halimun", size: 16 };
+        };
+
+        const resolvedSig = resolveSignatureFont();
+        console.log("🔤 Final signature font being used:", resolvedSig.name);
 
         const page = pdfDoc.getPages()[0];
         const { width, height } = page.getSize();
@@ -218,7 +296,7 @@ export const generateCertificate = async (templatePath, employeeName, certificat
 
         // Draw signatures
         if (config.leftSignature) {
-            // Draw horizontal line above the name
+            // Draw horizontal line above the name (same as right side)
             if (leftSignatureName) {
                 page.drawLine({
                     start: { x: config.leftSignature.x - 50, y: config.leftSignature.y + 15 },
@@ -227,7 +305,22 @@ export const generateCertificate = async (templatePath, employeeName, certificat
                     color: config.color,
                 });
 
-                // Draw Name
+                // ✅ DYNAMIC CURSIVE SIGNATURE ABOVE THE LINE (matching right-side style)
+                try {
+                    const sigTextWidth = resolvedSig.font.widthOfTextAtSize(leftSignatureName, resolvedSig.size);
+                    const sigCenterX = config.leftSignature.x + 10;
+                    page.drawText(leftSignatureName, {
+                        x: sigCenterX - sigTextWidth / 2,
+                        y: config.leftSignature.y + 27,  // cursive sig above the horizontal line
+                        size: resolvedSig.size,
+                        font: resolvedSig.font,
+                        color: signatureBlack,
+                    });
+                } catch (err) {
+                    console.warn("⚠️ Failed to draw cursive signature, falling back:", err);
+                }
+
+                // Printed name below the line (same as CEO side has printed)
                 page.drawText(leftSignatureName, {
                     x: config.leftSignature.x,
                     y: config.leftSignature.y,

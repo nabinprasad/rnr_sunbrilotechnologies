@@ -44,6 +44,10 @@ const certificateSchema = new mongoose.Schema(
             type: String,
             default: "",
         },
+        leftSignatureFont: {
+            type: String,
+            default: "Halimun",
+        },
     },
     { timestamps: true }
 );
