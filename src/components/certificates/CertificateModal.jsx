@@ -21,6 +21,7 @@ export default function CertificateModal({
     const [content, setContent] = useState("");
     const [leftSignatureName, setLeftSignatureName] = useState("");
     const [leftSignatureLabel, setLeftSignatureLabel] = useState("");
+    const [leftSignatureFont, setLeftSignatureFont] = useState("Halimun");
 
     useEffect(() => {
         fetchAwards();
@@ -45,12 +46,14 @@ export default function CertificateModal({
             setContent(editData.content || "");
             setLeftSignatureName(editData.leftSignatureName || "");
             setLeftSignatureLabel(editData.leftSignatureLabel || "");
+            setLeftSignatureFont(editData.leftSignatureFont || "Halimun");
         } else {
             setSelectedTemplate("");
             setCategory("");
             setContent("");
             setLeftSignatureName("");
             setLeftSignatureLabel("");
+            setLeftSignatureFont("Halimun");
         }
     }, [isOpen, editData]);
 
@@ -92,6 +95,7 @@ export default function CertificateModal({
                 content: content,
                 leftSignatureName: leftSignatureName,
                 leftSignatureLabel: leftSignatureLabel,
+                leftSignatureFont: leftSignatureFont,
             };
 
             let savedCertId = null;
@@ -115,7 +119,8 @@ export default function CertificateModal({
                     content,
                     selectedAward?.title || null,
                     leftSignatureName,
-                    leftSignatureLabel
+                    leftSignatureLabel,
+                    leftSignatureFont
                 );
             }
 
@@ -215,6 +220,18 @@ export default function CertificateModal({
                     placeholder="e.g., John Doe"
                     className="border border-slate-300 p-3 w-full rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
+
+                <label className="block mb-2 font-medium text-slate-700">Signature Font Style (Left Signature)</label>
+                <select
+                    value={leftSignatureFont}
+                    onChange={(e) => setLeftSignatureFont(e.target.value)}
+                    className="border border-slate-300 p-3 w-full rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                    <option value="Halimun">Halimun - Elegant Cursive</option>
+                    <option value="AlexBrush">Alex Brush - Smooth Script</option>
+                    <option value="BrittanySignature">Brittany Signature - Fancy Script</option>
+                    <option value="SegoeScript">Segoe Script - Classic Script</option>
+                </select>
 
                 <label className="block mb-2 font-medium text-slate-700">Manager Title (Left Signature Label)</label>
                 <input
