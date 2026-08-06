@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import socket from "../../socket";
 import { getQuizSession } from "../../api/quizSessionApi";
 import { getQuiz } from "../../api/quizApi";
@@ -10,60 +10,229 @@ export default function LiveQuiz() {
   const [questions, setQuestions] = useState([]);
   const [leaderboard, setLeaderboard] = useState([]);
   const [currentQuestion, setCurrentQuestion] = useState(null);
+  const [timer, setTimer] = useState(0);
+  const countdownRef = useRef(null);
+  const timerStartedAtRef = useRef(null);
+  const sessionRef = useRef(null);
+  const questionsRef = useRef([]);
+  const leaderboardRef = useRef([]);
+  const lastQuestionId = useRef(null);
+  const sessionLoadedRef = useRef(false);
+  const questionsLoadedRef = useRef(false);
 
-  useEffect(() => {
-    loadInitialData();
-
-    const handleSessionUpdate = (updatedSession) => {
-      setSession(updatedSession);
-    };
-
-    socket.on("quizSessionUpdated", handleSessionUpdate);
-
-    // Refresh leaderboard every 3 seconds
-    const leaderboardInterval = setInterval(() => {
-      loadLeaderboard();
-    }, 3000);
-
-    return () => {
-      socket.off("quizSessionUpdated", handleSessionUpdate);
-      clearInterval(leaderboardInterval);
-    };
+  const findQuestionById = useCallback((questionId) => {
+    if (!questionId) return null;
+    return questionsRef.current.find(
+      (q) => String(q._id) === String(questionId),
+    );
   }, []);
 
-  useEffect(() => {
-    if (session?.currentQuestion && questions.length > 0) {
-      const q = questions.find((q) => q._id === session.currentQuestion);
-      setCurrentQuestion(q);
-    }
-  }, [session?.currentQuestion, questions]);
+  const applySessionToState = useCallback((sess) => {
+    if (!sess) return;
+    sessionRef.current = sess;
+    setSession(sess);
 
-  const loadInitialData = async () => {
-    try {
-      const [sessionRes, quizRes] = await Promise.all([
-        getQuizSession(),
-        getQuiz(),
-      ]);
-      setSession(sessionRes.data.session);
-      setQuestions(quizRes.data.questions);
-      await loadLeaderboard();
-    } catch (err) {
-      console.error("Failed to load initial data:", err);
+    // Timer handling
+    if (sess.status === "Live" && sess.timerStartedAt) {
+      timerStartedAtRef.current = new Date(sess.timerStartedAt).getTime();
+      const duration = Number(sess.timerDuration || sess.timer || 30);
+      const elapsed = Math.floor((Date.now() - timerStartedAtRef.current) / 1000);
+      const remaining = Math.max(0, duration - elapsed);
+      setTimer(remaining);
+      if (!countdownRef.current) {
+        countdownRef.current = setInterval(() => {
+          if (!timerStartedAtRef.current || !sessionRef.current) return;
+          const d = Number(
+            sessionRef.current.timerDuration || sessionRef.current.timer || 30,
+          );
+          const e = Math.floor((Date.now() - timerStartedAtRef.current) / 1000);
+          const r = Math.max(0, d - e);
+          setTimer(r);
+          if (r <= 0 && countdownRef.current) {
+            clearInterval(countdownRef.current);
+            countdownRef.current = null;
+          }
+        }, 250);
+      }
+    } else if (sess.status !== "Live") {
+      if (countdownRef.current) {
+        clearInterval(countdownRef.current);
+        countdownRef.current = null;
+      }
+      timerStartedAtRef.current = null;
+      setTimer(0);
     }
-  };
 
-  const loadLeaderboard = async () => {
+    // Update question if questions are loaded
+    if (questionsLoadedRef.current) {
+      const currentId =
+        sess.currentQuestion?._id || sess.currentQuestion;
+      if (currentId && String(currentId) !== String(lastQuestionId.current)) {
+        const q = findQuestionById(currentId);
+        if (q) {
+          lastQuestionId.current = String(q._id);
+          setCurrentQuestion(q);
+        }
+      }
+    }
+  }, [findQuestionById]);
+
+  const syncQuestionIfReady = useCallback(() => {
+    if (sessionLoadedRef.current && questionsLoadedRef.current && sessionRef.current) {
+      const currentId =
+        sessionRef.current.currentQuestion?._id ||
+        sessionRef.current.currentQuestion;
+      if (currentId) {
+        const q = findQuestionById(currentId);
+        if (q && String(q._id) !== String(lastQuestionId.current)) {
+          lastQuestionId.current = String(q._id);
+          setCurrentQuestion(q);
+        } else if (!currentQuestion && q) {
+          setCurrentQuestion(q);
+        }
+      } else {
+        setCurrentQuestion(null);
+      }
+    }
+  }, [findQuestionById, currentQuestion]);
+
+  const loadLeaderboard = useCallback(async () => {
     try {
       const res = await getLeaderboard();
-      // Filter to only approved active employees and take top 10
-      const topEmployees = res.data.employees.filter(
-        (emp) => emp.approvalStatus === "Approved" && emp.status === "Active"
-      ).slice(0, 10);
+      const topEmployees = res.data.employees
+        .filter(
+          (emp) =>
+            emp.approvalStatus === "Approved" && emp.status === "Active",
+        )
+        .slice(0, 10);
+      leaderboardRef.current = topEmployees;
       setLeaderboard(topEmployees);
     } catch (err) {
       console.error("Failed to load leaderboard:", err);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadAllInitial = async () => {
+      try {
+        const [sessionRes, quizRes] = await Promise.all([
+          getQuizSession(),
+          getQuiz(),
+        ]);
+        if (!mounted) return;
+        const sess = sessionRes.data.session;
+        const quizQuestions = quizRes.data.questions;
+
+        questionsRef.current = quizQuestions;
+        setQuestions(quizQuestions);
+        questionsLoadedRef.current = true;
+
+        sessionLoadedRef.current = true;
+        applySessionToState(sess);
+        syncQuestionIfReady();
+
+        await loadLeaderboard();
+      } catch (err) {
+        console.error("Failed to load initial data:", err);
+      }
+    };
+
+    const refreshSession = async () => {
+      try {
+        const res = await getQuizSession();
+        if (!mounted) return;
+        applySessionToState(res.data.session);
+        syncQuestionIfReady();
+      } catch (e) {
+        // ignore
+      }
+    };
+
+    loadAllInitial();
+
+    const handleSessionUpdate = (updatedSession) => {
+      console.log("🔔 LiveQuiz (LiveScreen): quizSessionUpdated received");
+      applySessionToState(updatedSession);
+      syncQuestionIfReady();
+    };
+
+    const handleLeaderboardUpdate = (payload) => {
+      console.log("🔔 LiveQuiz: leaderboardUpdated received");
+      // Update the specific employee in the leaderboard if present, else refresh
+      const updated = payload?.updatedEmployee;
+      if (!updated) {
+        loadLeaderboard();
+        return;
+      }
+      const currentBoard = [...leaderboardRef.current];
+      const idx = currentBoard.findIndex(
+        (e) => String(e._id) === String(updated._id),
+      );
+      if (idx >= 0) {
+        currentBoard[idx] = { ...currentBoard[idx], ...updated };
+      } else {
+        currentBoard.push(updated);
+      }
+      currentBoard.sort((a, b) => Number(b.points || 0) - Number(a.points || 0));
+      const filtered = currentBoard
+        .filter(
+          (emp) =>
+            emp.approvalStatus === "Approved" && emp.status === "Active",
+        )
+        .slice(0, 10);
+      leaderboardRef.current = filtered;
+      setLeaderboard(filtered);
+    };
+
+    const handleLeaderboardReset = () => {
+      console.log("🔔 LiveQuiz: leaderboardReset received");
+      leaderboardRef.current = [];
+      setLeaderboard([]);
+      loadLeaderboard();
+    };
+
+    const handleConnect = () => {
+      console.log("✅ LiveQuiz: Socket connected!");
+      loadAllInitial();
+    };
+
+    const handleDisconnect = () => {
+      console.log("❌ LiveQuiz: Socket disconnected!");
+    };
+
+    socket.on("connect", handleConnect);
+    socket.on("disconnect", handleDisconnect);
+    socket.on("quizSessionUpdated", handleSessionUpdate);
+    socket.on("leaderboardUpdated", handleLeaderboardUpdate);
+    socket.on("leaderboardReset", handleLeaderboardReset);
+
+    // Fallback session refresh every 3 seconds as safety net
+    const sessionInterval = setInterval(() => {
+      if (mounted) refreshSession();
+    }, 3000);
+
+    // Fallback leaderboard refresh every 10s as safety net
+    const leaderboardInterval = setInterval(() => {
+      if (mounted) loadLeaderboard();
+    }, 10000);
+
+    return () => {
+      mounted = false;
+      clearInterval(sessionInterval);
+      clearInterval(leaderboardInterval);
+      socket.off("connect", handleConnect);
+      socket.off("disconnect", handleDisconnect);
+      socket.off("quizSessionUpdated", handleSessionUpdate);
+      socket.off("leaderboardUpdated", handleLeaderboardUpdate);
+      socket.off("leaderboardReset", handleLeaderboardReset);
+      if (countdownRef.current) {
+        clearInterval(countdownRef.current);
+        countdownRef.current = null;
+      }
+    };
+  }, [applySessionToState, syncQuestionIfReady, loadLeaderboard]);
 
   const getRankColor = (index) => {
     if (index === 0) return "text-yellow-400";
@@ -118,9 +287,9 @@ export default function LiveQuiz() {
                   <div className="flex flex-col items-center">
                     <p className="text-blue-200 text-sm uppercase tracking-wider mb-2">Time Remaining</p>
                     <div className={`text-8xl font-black ${
-                      session?.timer <= 5 ? "text-red-500 animate-pulse" : "text-yellow-400"
+                      timer <= 5 ? "text-red-500 animate-pulse" : "text-yellow-400"
                     }`}>
-                      {session?.timer || 0}
+                      {timer || 0}
                     </div>
                   </div>
                 </div>

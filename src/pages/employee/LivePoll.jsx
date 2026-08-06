@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { getActivePoll, votePoll, checkVote } from "../../api/pollApi";
 import { getEmployee } from "../../utils/employeeStorage";
@@ -30,43 +30,54 @@ export default function EmployeeLivePoll() {
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [remainingTime, setRemainingTime] = useState(0);
+  const pollRef = useRef(null);
+  const employeeRef = useRef(employee);
+
+  const loadActivePoll = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await getActivePoll();
+      const activePoll = res.data.poll;
+      pollRef.current = activePoll;
+      setPoll(activePoll);
+
+      if (activePoll && employeeRef.current?._id) {
+        try {
+          const voteRes = await checkVote(activePoll._id, employeeRef.current._id);
+          setHasVoted(voteRes.data.hasVoted);
+        } catch (err) {
+          console.log("Error checking vote:", err);
+        }
+      } else {
+        setHasVoted(false);
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     console.log("🔗 Employee Socket ID:", socket.id);
+    let mounted = true;
+
     loadActivePoll();
-  }, []);
 
-  // Calculate and update remaining time every second
-  useEffect(() => {
-    const updateRemainingTime = () => {
-      if (poll && poll.status === "Active" && poll.activatedAt) {
-        const activatedAt = new Date(poll.activatedAt).getTime();
-        const now = Date.now();
-        const elapsed = Math.floor((now - activatedAt) / 1000);
-        const remaining = Math.max(0, (poll.duration || 60) - elapsed);
-        setRemainingTime(remaining);
-      } else {
-        setRemainingTime(0);
-      }
-    };
-
-    updateRemainingTime();
-    const interval = setInterval(updateRemainingTime, 1000);
-    return () => clearInterval(interval);
-  }, [poll]);
-
-  useEffect(() => {
     const handlePollUpdated = async (updatedPoll) => {
+      if (!mounted) return;
       console.log("📥 Employee pollUpdated event received:", updatedPoll);
-      
+      const prevPoll = pollRef.current;
+      pollRef.current = updatedPoll;
+
       // If it's a new poll, reset hasVoted and selected
-      if (poll?._id !== updatedPoll._id && updatedPoll.status === "Active") {
+      if (prevPoll?._id !== updatedPoll._id && updatedPoll.status === "Active") {
         setPoll(updatedPoll);
         setHasVoted(false);
         setSelected([]);
-        if (employee?._id) {
+        if (employeeRef.current?._id) {
           try {
-            const voteRes = await checkVote(updatedPoll._id, employee._id);
+            const voteRes = await checkVote(updatedPoll._id, employeeRef.current._id);
             setHasVoted(voteRes.data.hasVoted);
           } catch (err) {
             console.log("Error checking vote for new poll:", err);
@@ -74,7 +85,7 @@ export default function EmployeeLivePoll() {
         }
       } else {
         setPoll(updatedPoll);
-        if (updatedPoll.status !== "Active") {
+        if (prevPoll?.status === "Active" && updatedPoll.status !== "Active") {
           toast("Poll has been closed by the admin", { icon: "📊" });
         }
       }
@@ -82,6 +93,7 @@ export default function EmployeeLivePoll() {
 
     const handleConnect = () => {
       console.log("✅ Employee socket connected!");
+      loadActivePoll();
     };
 
     const handleDisconnect = () => {
@@ -92,30 +104,39 @@ export default function EmployeeLivePoll() {
     socket.on("disconnect", handleDisconnect);
     socket.on("pollUpdated", handlePollUpdated);
 
+    // Fallback polling every 3 seconds in case socket events miss
+    const fallbackInterval = setInterval(() => {
+      if (mounted) loadActivePoll();
+    }, 3000);
+
     return () => {
+      mounted = false;
+      clearInterval(fallbackInterval);
       socket.off("connect", handleConnect);
       socket.off("disconnect", handleDisconnect);
       socket.off("pollUpdated", handlePollUpdated);
     };
-  }, [poll, employee]);
+  }, [loadActivePoll]);
 
-  const loadActivePoll = async () => {
-    try {
-      setLoading(true);
-      const res = await getActivePoll();
-      const activePoll = res.data.poll;
-      setPoll(activePoll);
-
-      if (activePoll && employee?._id) {
-        const voteRes = await checkVote(activePoll._id, employee._id);
-        setHasVoted(voteRes.data.hasVoted);
+  // Calculate and update remaining time every second
+  useEffect(() => {
+    const updateRemainingTime = () => {
+      const p = pollRef.current || poll;
+      if (p && p.status === "Active" && p.activatedAt) {
+        const activatedAt = new Date(p.activatedAt).getTime();
+        const now = Date.now();
+        const elapsed = Math.floor((now - activatedAt) / 1000);
+        const remaining = Math.max(0, (p.duration || 60) - elapsed);
+        setRemainingTime(remaining);
+      } else {
+        setRemainingTime(0);
       }
-    } catch (err) {
-      console.log(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+
+    updateRemainingTime();
+    const interval = setInterval(updateRemainingTime, 1000);
+    return () => clearInterval(interval);
+  }, [poll]);
 
   const toggleOption = (index) => {
     if (hasVoted || submitting) return;
@@ -132,7 +153,7 @@ export default function EmployeeLivePoll() {
   };
 
   const handleSubmit = async () => {
-    if (!employee?._id) {
+    if (!employeeRef.current?._id) {
       toast.error("Please log in again");
       return;
     }
@@ -144,9 +165,10 @@ export default function EmployeeLivePoll() {
     try {
       setSubmitting(true);
       const res = await votePoll(poll._id, {
-        employeeId: employee._id,
+        employeeId: employeeRef.current._id,
         selectedOptions: selected,
       });
+      pollRef.current = res.data.poll;
       setPoll(res.data.poll);
       setHasVoted(true);
       toast.success("🗳️ Vote submitted successfully!");

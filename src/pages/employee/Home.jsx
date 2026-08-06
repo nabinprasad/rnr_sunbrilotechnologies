@@ -31,6 +31,27 @@ export default function EmployeeHome() {
   const [quizSession, setQuizSession] = useState(null);
   const [tambolaSession, setTambolaSession] = useState(null);
   const [activePoll, setActivePoll] = useState(null);
+  const [liveNow, setLiveNow] = useState(new Date());
+
+  // Real-time date & time clock updates every second
+  useEffect(() => {
+    const tick = setInterval(() => setLiveNow(new Date()), 1000);
+    return () => clearInterval(tick);
+  }, []);
+
+  const formattedDate = liveNow.toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
+  const formattedTime = liveNow.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+  });
 
   useEffect(() => {
     loadEmployee();
@@ -178,6 +199,22 @@ export default function EmployeeHome() {
 
         {/* Glassmorphism Card */}
         <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 sm:p-10 shadow-2xl">
+          {/* Real-time Date & Time Clock */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mb-8 pb-6 border-b border-white/10">
+            <div className="flex items-center gap-2 bg-white/10 border border-white/15 rounded-2xl px-4 py-2">
+              <span className="text-blue-300 text-lg">📅</span>
+              <span className="text-sm sm:text-base font-bold text-white/80">
+                {formattedDate}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-400/30 rounded-2xl px-5 py-2">
+              <span className="text-yellow-300 text-xl animate-pulse">🕒</span>
+              <span className="text-xl sm:text-2xl font-black bg-gradient-to-r from-yellow-300 to-amber-400 bg-clip-text text-transparent tabular-nums">
+                {formattedTime}
+              </span>
+            </div>
+          </div>
+
           {/* Profile Section */}
           <div className="flex flex-col items-center text-center">
             <div className="relative mb-6 animate-float">

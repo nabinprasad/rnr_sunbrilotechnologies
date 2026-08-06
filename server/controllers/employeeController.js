@@ -274,6 +274,12 @@ export const resetEmployeePoints = async (req, res) => {
   try {
     await Employee.updateMany({}, { points: 0 });
 
+    try {
+      getIO().emit("leaderboardReset");
+    } catch (e) {
+      console.log("Socket emit leaderboardReset failed:", e.message);
+    }
+
     res.json({
       success: true,
       message: "Employee points reset successfully",
