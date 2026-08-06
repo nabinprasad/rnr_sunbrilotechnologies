@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { getActivePoll, votePoll, checkVote } from "../../api/pollApi";
 import { getEmployee } from "../../utils/employeeStorage";
