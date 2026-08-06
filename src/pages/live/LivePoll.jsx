@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { getActivePoll } from "../../api/pollApi";
 import socket from "../../socket";
 
@@ -63,21 +63,37 @@ export default function LivePollScreen() {
   const [loading, setLoading] = useState(true);
   const [tick, setTick] = useState(0);
   const [remainingTime, setRemainingTime] = useState(0);
+  const pollRef = useRef(null);
+
+  const loadActivePoll = async () => {
+    try {
+      const res = await getActivePoll();
+      const p = res.data.poll;
+      pollRef.current = p;
+      setPoll(p);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     console.log("🔗 Socket ID:", socket.id);
+    let mounted = true;
+
     loadActivePoll();
 
     const handlePollUpdated = (updatedPoll) => {
+      if (!mounted) return;
       console.log("📥 pollUpdated event received:", updatedPoll);
-      console.log("updatedPoll.status:", updatedPoll.status);
-      console.log("updatedPoll.activatedAt:", updatedPoll.activatedAt);
-      console.log("updatedPoll.duration:", updatedPoll.duration);
+      pollRef.current = updatedPoll;
       setPoll(updatedPoll);
     };
 
     const handleConnect = () => {
       console.log("✅ Socket connected to server!");
+      loadActivePoll();
     };
 
     const handleDisconnect = () => {
@@ -88,7 +104,14 @@ export default function LivePollScreen() {
     socket.on("disconnect", handleDisconnect);
     socket.on("pollUpdated", handlePollUpdated);
 
+    // Fallback polling every 3 seconds in case socket events miss
+    const fallbackInterval = setInterval(() => {
+      if (mounted) loadActivePoll();
+    }, 3000);
+
     return () => {
+      mounted = false;
+      clearInterval(fallbackInterval);
       socket.off("connect", handleConnect);
       socket.off("disconnect", handleDisconnect);
       socket.off("pollUpdated", handlePollUpdated);
@@ -98,16 +121,14 @@ export default function LivePollScreen() {
   // Calculate and update remaining time every second
   useEffect(() => {
     const updateRemainingTime = () => {
-      console.log("updateRemainingTime called - poll:", poll);
-      if (poll && poll.status === "Active" && poll.activatedAt) {
-        const activatedAt = new Date(poll.activatedAt).getTime();
+      const p = pollRef.current || poll;
+      if (p && p.status === "Active" && p.activatedAt) {
+        const activatedAt = new Date(p.activatedAt).getTime();
         const now = Date.now();
         const elapsed = Math.floor((now - activatedAt) / 1000);
-        const remaining = Math.max(0, (poll.duration || 60) - elapsed);
-        console.log("activatedAt:", activatedAt, "now:", now, "elapsed:", elapsed, "remaining:", remaining);
+        const remaining = Math.max(0, (p.duration || 60) - elapsed);
         setRemainingTime(remaining);
       } else {
-        console.log("Setting remainingTime to 0 because poll not active or no activatedAt");
         setRemainingTime(0);
       }
     };
@@ -120,17 +141,6 @@ export default function LivePollScreen() {
 
     return () => clearInterval(tickInterval);
   }, [poll]);
-
-  const loadActivePoll = async () => {
-    try {
-      const res = await getActivePoll();
-      setPoll(res.data.poll);
-    } catch (err) {
-      console.log(err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const tv = totalVotes(poll);
 

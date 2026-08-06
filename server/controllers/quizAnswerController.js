@@ -1,6 +1,7 @@
 import QuizAnswer from "../models/QuizAnswer.js";
 import Quiz from "../models/Quiz.js";
 import Employee from "../models/Employee.js";
+import { getIO } from "../server.js";
 
 
 // Submit Answer
@@ -92,6 +93,24 @@ export const submitAnswer = async (req, res) => {
     // Update employee points
     employee.points += totalPoints;
     await employee.save();
+
+    // Emit leaderboard update so all live screens update in real time
+    try {
+      const empObj = employee.toObject();
+      getIO().emit("leaderboardUpdated", {
+        updatedEmployee: {
+          _id: empObj._id,
+          name: empObj.name,
+          department: empObj.department,
+          points: empObj.points,
+          photo: empObj.photo,
+          approvalStatus: empObj.approvalStatus,
+          status: empObj.status,
+        },
+      });
+    } catch (e) {
+      console.log("Socket emit leaderboardUpdated failed:", e.message);
+    }
 
     res.json({
       success: true,

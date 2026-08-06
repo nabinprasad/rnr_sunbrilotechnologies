@@ -23,6 +23,26 @@ export default function Dashboard() {
     currentActivity: "-",
     hostMessage: "",
   });
+  const [liveNow, setLiveNow] = useState(new Date());
+
+  // Real-time date & time clock updates every second
+  useEffect(() => {
+    const tick = setInterval(() => setLiveNow(new Date()), 1000);
+    return () => clearInterval(tick);
+  }, []);
+
+  const formattedLiveDate = liveNow.toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+  const formattedLiveTime = liveNow.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+  });
 
   const featureList = [
     { label: "Quiz", enabled: event.quizEnabled },
@@ -87,7 +107,19 @@ export default function Dashboard() {
               Live Event Monitoring & Management
             </p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-4 py-2 shadow-sm">
+              <span className="text-blue-600">📅</span>
+              <span className="text-sm font-bold text-slate-700">
+                {formattedLiveDate}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl px-5 py-2 shadow-lg">
+              <span className="text-yellow-300 animate-pulse">🕒</span>
+              <span className="text-white font-black text-lg tabular-nums">
+                {formattedLiveTime}
+              </span>
+            </div>
             <img
               src="/sunbrilologo.png"
               alt="Sunbrilo"

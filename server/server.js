@@ -51,12 +51,10 @@ const ONE_SECOND = 1 * 1000;
 const LONG_TTL_ROUTES = [
   "/api/event",
   "/api/tambola/session",
-  "/api/quiz-session",
   "/api/awards",
   "/api/teams",
   "/api/quiz",
   "/api/certificates",
-  "/api/employees/leaderboard",
 ];
 const MED_TTL_ROUTES = ["/api/polls", "/api/employees"];
 
