@@ -35,18 +35,22 @@ export default function EmployeeLivePoll() {
 
   const loadActivePoll = useCallback(async () => {
     try {
-      setLoading(true);
       const res = await getActivePoll();
       const activePoll = res.data.poll;
+      const prevPollId = pollRef.current?._id;
       pollRef.current = activePoll;
       setPoll(activePoll);
 
       if (activePoll && employeeRef.current?._id) {
-        try {
-          const voteRes = await checkVote(activePoll._id, employeeRef.current._id);
-          setHasVoted(voteRes.data.hasVoted);
-        } catch (err) {
-          console.log("Error checking vote:", err);
+        // Only re-check vote status when the active poll actually changed —
+        // avoids re-hitting checkVote on every 3s fallback tick for no reason.
+        if (activePoll._id !== prevPollId) {
+          try {
+            const voteRes = await checkVote(activePoll._id, employeeRef.current._id);
+            setHasVoted(voteRes.data.hasVoted);
+          } catch (err) {
+            console.log("Error checking vote:", err);
+          }
         }
       } else {
         setHasVoted(false);
@@ -104,10 +108,11 @@ export default function EmployeeLivePoll() {
     socket.on("disconnect", handleDisconnect);
     socket.on("pollUpdated", handlePollUpdated);
 
-    // Fallback polling every 3 seconds in case socket events miss
+    // Fallback polling in case socket events miss — kept infrequent since
+    // socket "pollUpdated" already covers real-time updates.
     const fallbackInterval = setInterval(() => {
       if (mounted) loadActivePoll();
-    }, 3000);
+    }, 10000);
 
     return () => {
       mounted = false;
@@ -136,7 +141,10 @@ export default function EmployeeLivePoll() {
     updateRemainingTime();
     const interval = setInterval(updateRemainingTime, 1000);
     return () => clearInterval(interval);
-  }, [poll]);
+    // Only restart the ticker when the timing-relevant fields actually change —
+    // not on every vote broadcast, which replaces `poll` with a new object but
+    // leaves activatedAt/duration untouched and would otherwise desync the tick.
+  }, [poll?._id, poll?.activatedAt, poll?.duration, poll?.status]);
 
   const toggleOption = (index) => {
     if (hasVoted || submitting) return;
@@ -288,12 +296,10 @@ export default function EmployeeLivePoll() {
                 );
               })}
 
-              <button
-                onClick={() => navigate("/employee/home")}
-                className="mt-6 w-full border border-white/30 text-white py-3 rounded-xl font-semibold hover:bg-white/10 transition"
-              >
-                ← Back to Home
-              </button>
+              <div className="mt-6 flex items-center justify-center gap-2 text-white/60 text-sm py-3">
+                <span className="w-2 h-2 rounded-full bg-green-400 pulse-dot" />
+                Waiting for the next poll question...
+              </div>
             </div>
           ) : (
             /* Not Voted — Show Options */

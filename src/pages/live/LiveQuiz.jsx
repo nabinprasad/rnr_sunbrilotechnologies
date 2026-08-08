@@ -5,6 +5,36 @@ import { getQuiz } from "../../api/quizApi";
 import { getLeaderboard } from "../../api/employeeApi";
 import { getEmployeePhotoUrl } from "../../utils/employeePhoto";
 
+function PodiumSpot({ emp, place, heightClass, ringClass, medal, isWinner }) {
+  return (
+    <div className="flex flex-col items-center w-1/3 max-w-[180px]">
+      <div
+        className={`w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-4 ${ringClass} mb-3 ${
+          isWinner ? "winner-pulse" : ""
+        }`}
+      >
+        <img
+          src={getEmployeePhotoUrl(emp.photo)}
+          alt={emp.name}
+          className="w-full h-full object-cover"
+          onError={(e) => {
+            e.target.src = "https://i.pravatar.cc/150";
+          }}
+        />
+      </div>
+      <div className="text-3xl mb-1">{medal}</div>
+      <p className="font-black text-white text-lg truncate max-w-full">{emp.name}</p>
+      <p className="text-blue-200 text-xs truncate max-w-full mb-2">{emp.department}</p>
+      <p className="text-yellow-300 font-black text-xl mb-3">{emp.points} pts</p>
+      <div
+        className={`w-full ${heightClass} bg-white/10 border border-white/20 rounded-t-xl flex items-start justify-center pt-2`}
+      >
+        <span className="text-4xl font-black text-white/40">{place}</span>
+      </div>
+    </div>
+  );
+}
+
 export default function LiveQuiz() {
   const [session, setSession] = useState(null);
   const [questions, setQuestions] = useState([]);
@@ -329,9 +359,49 @@ export default function LiveQuiz() {
               </div>
             ) : session?.status === "Finished" ? (
               <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-10 border border-white/20 text-center">
-                <div className="text-8xl mb-6">🎉</div>
-                <h2 className="text-5xl font-black mb-4">Quiz Complete!</h2>
-                <p className="text-2xl text-blue-200">Thank you for participating!</p>
+                <style>{`
+                  @keyframes winner-pulse { 0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(250, 204, 21, 0.3); } 50% { transform: scale(1.03); box-shadow: 0 0 40px rgba(250, 204, 21, 0.6); } }
+                  .winner-pulse { animation: winner-pulse 1.6s ease-in-out infinite; }
+                `}</style>
+                <div className="text-7xl mb-4">🎉</div>
+                <h2 className="text-5xl font-black mb-2">Quiz Complete!</h2>
+                <p className="text-xl text-blue-200 mb-10">Thank you for participating!</p>
+
+                {leaderboard.length > 0 && (
+                  <div className="flex items-end justify-center gap-4 md:gap-6 max-w-3xl mx-auto">
+                    {/* 2nd place */}
+                    {leaderboard[1] && (
+                      <PodiumSpot
+                        emp={leaderboard[1]}
+                        place={2}
+                        heightClass="h-40"
+                        ringClass="border-gray-300"
+                        medal="🥈"
+                      />
+                    )}
+
+                    {/* 1st place */}
+                    <PodiumSpot
+                      emp={leaderboard[0]}
+                      place={1}
+                      heightClass="h-56"
+                      ringClass="border-yellow-400"
+                      medal="🥇"
+                      isWinner
+                    />
+
+                    {/* 3rd place */}
+                    {leaderboard[2] && (
+                      <PodiumSpot
+                        emp={leaderboard[2]}
+                        place={3}
+                        heightClass="h-28"
+                        ringClass="border-amber-600"
+                        medal="🥉"
+                      />
+                    )}
+                  </div>
+                )}
               </div>
             ) : (
               <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-10 border border-white/20 text-center">
@@ -346,23 +416,31 @@ export default function LiveQuiz() {
           <div className="lg:col-span-1">
             <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20">
               <h3 className="text-3xl font-bold text-center mb-8 flex items-center justify-center gap-2">
-                🏆 Live Leaderboard
+                {session?.status === "Finished" ? "🏆 Final Results" : "🏆 Live Leaderboard"}
               </h3>
 
               <div className="space-y-3">
                 {leaderboard.length > 0 ? (
-                  leaderboard.map((emp, index) => (
+                  leaderboard.map((emp, index) => {
+                    const isWinner = session?.status === "Finished" && index === 0;
+                    return (
                     <div
                       key={emp._id}
                       className={`flex items-center gap-4 p-4 rounded-2xl transition-all ${
-                        index < 3 ? "bg-white/20" : "bg-white/10"
+                        isWinner
+                          ? "bg-yellow-400/20 border-2 border-yellow-400"
+                          : index < 3
+                          ? "bg-white/20"
+                          : "bg-white/10"
                       } hover:bg-white/30`}
                     >
                       <div className={`text-3xl font-black ${getRankColor(index)} w-12 text-center`}>
                         {getRankIcon(index)}
                       </div>
 
-                      <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white/30 flex-shrink-0">
+                      <div className={`w-14 h-14 rounded-full overflow-hidden border-2 flex-shrink-0 ${
+                        isWinner ? "border-yellow-400" : "border-white/30"
+                      }`}>
                         <img
                           src={getEmployeePhotoUrl(emp.photo)}
                           alt={emp.name}
@@ -374,7 +452,14 @@ export default function LiveQuiz() {
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <p className="font-bold text-lg truncate">{emp.name}</p>
+                        <p className="font-bold text-lg truncate flex items-center gap-2">
+                          {emp.name}
+                          {isWinner && (
+                            <span className="text-xs font-bold uppercase tracking-wider bg-yellow-400/20 text-yellow-300 border border-yellow-400 rounded-full px-2 py-0.5">
+                              Winner
+                            </span>
+                          )}
+                        </p>
                         <p className="text-sm text-blue-200 truncate">{emp.department}</p>
                       </div>
 
@@ -382,7 +467,8 @@ export default function LiveQuiz() {
                         {emp.points} pts
                       </div>
                     </div>
-                  ))
+                    );
+                  })
                 ) : (
                   <div className="text-center py-10 text-blue-200">
                     <div className="text-5xl mb-3">📊</div>

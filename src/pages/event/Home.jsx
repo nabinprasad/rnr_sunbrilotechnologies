@@ -38,6 +38,21 @@ const highlights = [
   },
 ];
 
+const celebrationPieces = [
+  { emoji: "🎉", left: 4, size: 1.6, duration: 14, delay: 0 },
+  { emoji: "🏆", left: 12, size: 2, duration: 18, delay: 3 },
+  { emoji: "✨", left: 20, size: 1.2, duration: 11, delay: 1 },
+  { emoji: "🎊", left: 30, size: 1.8, duration: 16, delay: 5 },
+  { emoji: "⭐", left: 40, size: 1.1, duration: 13, delay: 2 },
+  { emoji: "🎈", left: 50, size: 1.7, duration: 17, delay: 6 },
+  { emoji: "🥳", left: 60, size: 1.5, duration: 15, delay: 0.5 },
+  { emoji: "🎁", left: 68, size: 1.4, duration: 19, delay: 4 },
+  { emoji: "🌟", left: 76, size: 1.2, duration: 12, delay: 7 },
+  { emoji: "🎉", left: 84, size: 1.6, duration: 20, delay: 2.5 },
+  { emoji: "🏆", left: 91, size: 1.3, duration: 14, delay: 8 },
+  { emoji: "✨", left: 96, size: 1.1, duration: 16, delay: 3.5 },
+];
+
 const stats = [
   {
     label: "Active Programs",
@@ -161,6 +176,25 @@ export default function Home() {
   return (
     <main className="landing-page-bg relative min-h-screen overflow-hidden text-slate-950">
       <div className="landing-grid pointer-events-none absolute inset-0" />
+
+      {/* Live celebration background animation — purely decorative, sits behind all content */}
+      <div className="celebration-bg" aria-hidden="true">
+        {celebrationPieces.map((p, i) => (
+          <span
+            key={i}
+            className="celebration-piece"
+            style={{
+              left: `${p.left}%`,
+              fontSize: `${p.size}rem`,
+              animationDuration: `${p.duration}s`,
+              animationDelay: `${p.delay}s`,
+            }}
+          >
+            {p.emoji}
+          </span>
+        ))}
+      </div>
+
       <div className="absolute inset-x-0 top-0 h-2 bg-gradient-to-r from-teal-400 via-blue-500 to-amber-400" />
 
       <div className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col px-5 py-6 sm:px-8 lg:px-10">
