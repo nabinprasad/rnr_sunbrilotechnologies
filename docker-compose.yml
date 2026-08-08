@@ -11,6 +11,8 @@ services:
       - .:/app
       - /app/node_modules
 
+    restart: unless-stopped
+
   backend:
     build:
       context: ./server
@@ -20,3 +22,5 @@ services:
     volumes:
       - ./server:/app
       - /app/node_modules
+
+    restart: unless-stopped
