@@ -320,7 +320,7 @@ export const getLeaderboard = async (req, res) => {
     // Only fetch fields needed for the leaderboard to reduce DB load
     const employees = await Employee.find({ approvalStatus: "Approved" })
       .sort({ points: -1 })
-      .select("name department designation photo points")
+      .select("name department designation photo points status approvalStatus")
       .limit(100) // Usually leaderboard doesn't need thousands of rows
       .lean();
 

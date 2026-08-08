@@ -21,30 +21,40 @@ function OptionBar({ option, total, index, rank }) {
   const p = pct(option.votes, total);
   const c = COLORS[index % COLORS.length];
   const isLeader = rank === 0 && option.votes > 0;
+  const isWinner = total > 0 && p === 100;
 
   return (
     <div className="mb-6">
       <div className="flex justify-between items-end mb-2">
         <div className="flex items-center gap-3">
-          {isLeader && (
-            <span className="text-2xl" title="Leading">👑</span>
+          {isWinner ? (
+            <span className="text-2xl" title="Winner">🏆</span>
+          ) : (
+            isLeader && <span className="text-2xl" title="Leading">👑</span>
           )}
-          <span className="text-white font-bold text-xl">{option.text}</span>
+          <span className={`font-bold text-xl ${isWinner ? "text-yellow-300" : "text-white"}`}>
+            {option.text}
+          </span>
+          {isWinner && (
+            <span className="text-xs font-bold uppercase tracking-wider bg-yellow-400/20 text-yellow-300 border border-yellow-400 rounded-full px-2 py-0.5">
+              Winner
+            </span>
+          )}
         </div>
         <div className="text-right">
-          <span className="text-white/90 text-2xl font-black">{p}%</span>
+          <span className={`text-2xl font-black ${isWinner ? "text-yellow-300" : "text-white/90"}`}>{p}%</span>
           <span className="text-white/50 text-sm ml-2">
             ({option.votes} vote{option.votes !== 1 ? "s" : ""})
           </span>
         </div>
       </div>
 
-      <div className="h-10 w-full bg-white/10 rounded-full overflow-hidden relative">
+      <div className={`h-10 w-full bg-white/10 rounded-full overflow-hidden relative ${isWinner ? "ring-2 ring-yellow-400" : ""}`}>
         <div
-          className={`h-full bg-gradient-to-r ${c.bar} rounded-full transition-all duration-1000 ease-out relative`}
+          className={`h-full bg-gradient-to-r ${isWinner ? "from-yellow-400 to-amber-500" : c.bar} rounded-full transition-all duration-1000 ease-out relative`}
           style={{
             width: `${p}%`,
-            boxShadow: p > 0 ? `0 0 20px ${c.glow}80` : "none",
+            boxShadow: p > 0 ? `0 0 20px ${isWinner ? "#f59e0b" : c.glow}80` : "none",
           }}
         >
           {p > 15 && (
@@ -104,10 +114,11 @@ export default function LivePollScreen() {
     socket.on("disconnect", handleDisconnect);
     socket.on("pollUpdated", handlePollUpdated);
 
-    // Fallback polling every 3 seconds in case socket events miss
+    // Fallback polling in case socket events miss — kept infrequent since
+    // socket "pollUpdated" already covers real-time updates.
     const fallbackInterval = setInterval(() => {
       if (mounted) loadActivePoll();
-    }, 3000);
+    }, 10000);
 
     return () => {
       mounted = false;
@@ -140,7 +151,9 @@ export default function LivePollScreen() {
     }, 1000);
 
     return () => clearInterval(tickInterval);
-  }, [poll]);
+    // Only restart the ticker when timing-relevant fields change, not on every
+    // vote broadcast (which replaces `poll` with a new object each vote).
+  }, [poll?._id, poll?.activatedAt, poll?.duration, poll?.status]);
 
   const tv = totalVotes(poll);
 
@@ -205,7 +218,7 @@ export default function LivePollScreen() {
           <>
             <div className="text-9xl mb-8 float">📊</div>
             <h1 className="text-6xl font-black text-white mb-4">
-              {poll?.status === "Closed" ? "Poll Closed" : "Waiting for Poll..."}
+              {poll?.status === "Closed" ? "🏁 Polling Ended" : "Waiting for Poll..."}
             </h1>
             <p className="text-white/50 text-2xl">
               {poll?.status === "Closed"
@@ -289,6 +302,16 @@ export default function LivePollScreen() {
           </p>
         )}
       </div>
+
+      {/* 100% leader banner — shown live, before the poll is even closed */}
+      {tv > 0 && rankedOptions[0]?.votes === tv && (
+        <div className="mb-8 flex items-center justify-center gap-3 bg-yellow-400/10 border-2 border-yellow-400 rounded-2xl py-4 slide-in">
+          <span className="text-4xl">🏆</span>
+          <span className="text-yellow-300 text-2xl md:text-3xl font-black">
+            {rankedOptions[0].text} is leading with 100% of the votes!
+          </span>
+        </div>
+      )}
 
       {/* Option bars */}
       <div className="flex-1 max-w-5xl w-full mx-auto slide-in">

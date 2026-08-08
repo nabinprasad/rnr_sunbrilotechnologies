@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import AdminLayout from "../../components/layout/AdminLayout";
 import PageHeader from "../../components/ui/PageHeader";
 import { getLeaderboard } from "../../api/employeeApi";
 import { resetEmployeeAnswers } from "../../api/quizAnswerApi";
+import { getQuizSession } from "../../api/quizSessionApi";
 import { getEmployeePhotoUrl, DEFAULT_EMPLOYEE_PHOTO } from "../../utils/employeePhoto.js";
+import socket from "../../socket";
 
 export default function Leaderboard() {
   const [leaders, setLeaders] = useState([]);
@@ -11,12 +12,30 @@ export default function Leaderboard() {
   const [winner, setWinner] = useState(null);
   const [resettingId, setResettingId] = useState(null);
   const [confirmReset, setConfirmReset] = useState(null);
+  const [quizStatus, setQuizStatus] = useState(null);
 
   useEffect(() => {
     loadLeaderboard();
+    loadQuizStatus();
     const interval = setInterval(loadLeaderboard, 3000);
-    return () => clearInterval(interval);
+
+    const handleSessionUpdate = (session) => setQuizStatus(session?.status || null);
+    socket.on("quizSessionUpdated", handleSessionUpdate);
+
+    return () => {
+      clearInterval(interval);
+      socket.off("quizSessionUpdated", handleSessionUpdate);
+    };
   }, []);
+
+  const loadQuizStatus = async () => {
+    try {
+      const res = await getQuizSession();
+      setQuizStatus(res.data.session?.status || null);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   const loadLeaderboard = async () => {
     try {
@@ -48,10 +67,15 @@ export default function Leaderboard() {
     }
   };
 
-  if (loading) return <AdminLayout><div className="text-center mt-20">Loading...</div></AdminLayout>;
+  if (loading)
+    return (
+      <div className="min-h-screen bg-slate-100 p-6">
+        <div className="text-center mt-20">Loading...</div>
+      </div>
+    );
 
   return (
-    <AdminLayout>
+    <div className="min-h-screen bg-slate-100 p-6">
       <PageHeader
         title="Live Leaderboard"
         subtitle="Top performers in the event"
@@ -59,12 +83,20 @@ export default function Leaderboard() {
 
       {/* Winner Banner */}
       {winner && (
-        <div className="mb-8 rounded-2xl bg-gradient-to-r from-yellow-400 to-amber-500 p-8 shadow-lg">
+        <div
+          className={`mb-8 rounded-2xl p-8 shadow-lg ${
+            quizStatus === "Finished"
+              ? "bg-gradient-to-r from-yellow-400 to-amber-500 ring-4 ring-yellow-300"
+              : "bg-gradient-to-r from-slate-500 to-slate-600"
+          }`}
+        >
           <div className="text-center text-white">
-            <p className="text-sm uppercase tracking-widest opacity-90">Champion</p>
+            <p className="text-sm uppercase tracking-widest opacity-90">
+              {quizStatus === "Finished" ? "🏆 Final Winner" : "Current Leader"}
+            </p>
             <div className="mt-4 flex items-center justify-center gap-4">
-              <img 
-                src={getEmployeePhotoUrl(winner.photo)} 
+              <img
+                src={getEmployeePhotoUrl(winner.photo)}
                 alt={winner.name}
                 className="h-20 w-20 rounded-full border-4 border-white object-cover"
                 onError={(event) => {
@@ -78,6 +110,11 @@ export default function Leaderboard() {
                 <p className="mt-2 text-3xl font-bold">🏆 {winner.points} Points</p>
               </div>
             </div>
+            {quizStatus !== "Finished" && (
+              <p className="mt-3 text-sm opacity-80">
+                Quiz still in progress — standings may change until it ends.
+              </p>
+            )}
           </div>
         </div>
       )}
@@ -158,6 +195,6 @@ export default function Leaderboard() {
           </tbody>
         </table>
       </div>
-    </AdminLayout>
+    </div>
   );
 }

@@ -100,6 +100,7 @@ const menuGroups = [
         name: "Leaderboard",
         path: "/admin/leaderboard",
         icon: <FaTrophy />,
+        newTab: true,
       },
     ],
   },

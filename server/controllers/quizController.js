@@ -3,7 +3,7 @@ import Quiz from "../models/Quiz.js";
 // Get All Questions
 export const getQuiz = async (req, res) => {
   try {
-    const questions = await Quiz.find().sort({ createdAt: -1 });
+    const questions = await Quiz.find().sort({ createdAt: 1 });
 
     res.json({
       success: true,
