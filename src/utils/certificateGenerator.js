@@ -136,7 +136,7 @@ const wrapText = (text, font, fontSize, maxWidth) => {
     return lines;
 };
 
-export const generateCertificate = async (templatePath, employeeName, certificateId, category, content, awardTitle = null, leftSignatureName = null, leftSignatureLabel = null, leftSignatureFont = "Halimun", download = true) => {
+export const generateCertificate = async (templatePath, employeeName, certificateId, category, content, awardTitle = null, leftSignatureName = null, leftSignatureLabel = null, leftSignatureFont = "Halimun", download = true, leftSignatureText = null) => {
     try {
         const existingPdfBytes = await fetch(templatePath).then((res) =>
             res.arrayBuffer()
@@ -321,9 +321,10 @@ export const generateCertificate = async (templatePath, employeeName, certificat
 
                 // ✅ DYNAMIC CURSIVE SIGNATURE ABOVE THE LINE (matching right-side style)
                 try {
-                    const sigTextWidth = resolvedSig.font.widthOfTextAtSize(leftSignatureName, resolvedSig.size);
+                    const signatureText = leftSignatureText || leftSignatureName;
+                    const sigTextWidth = resolvedSig.font.widthOfTextAtSize(signatureText, resolvedSig.size);
                     const sigCenterX = config.leftSignature.x + 10;
-                    page.drawText(leftSignatureName, {
+                    page.drawText(signatureText, {
                         x: sigCenterX - sigTextWidth / 2,
                         y: config.leftSignature.y + 27,  // cursive sig above the horizontal line
                         size: resolvedSig.size,
