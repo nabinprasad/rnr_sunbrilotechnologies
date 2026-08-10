@@ -11,6 +11,18 @@ import {
 } from "react-icons/fa";
 import toast from "react-hot-toast";
 
+// Converts an ISO/UTC date string to the "YYYY-MM-DDTHH:mm" format
+// required by <input type="datetime-local">, expressed in the browser's local time.
+const toDatetimeLocalValue = (isoString) => {
+  if (!isoString) return "";
+  const date = new Date(isoString);
+  if (isNaN(date.getTime())) return "";
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
+    date.getDate()
+  )}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+};
+
 export default function Settings() {
   const [formData, setFormData] = useState({
     title: "",
@@ -44,7 +56,7 @@ export default function Settings() {
         setFormData({
           title: event.title || "",
           subtitle: event.subtitle || "",
-          eventDate: event.eventDate || "",
+          eventDate: toDatetimeLocalValue(event.eventDate),
           venue: event.venue || "",
           hostMessage: event.hostMessage || "",
           announcement: event.announcement || "",
@@ -79,7 +91,13 @@ export default function Settings() {
     e.preventDefault();
     setSaving(true);
     try {
-      await updateEvent(formData);
+      const payload = {
+        ...formData,
+        eventDate: formData.eventDate
+          ? new Date(formData.eventDate).toISOString()
+          : formData.eventDate,
+      };
+      await updateEvent(payload);
       toast.success("Settings saved successfully!");
     } catch (err) {
       console.error(err);

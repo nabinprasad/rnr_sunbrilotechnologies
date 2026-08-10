@@ -146,12 +146,31 @@ export default function CertificateModal({
                 >
                     <option value="">Choose Template</option>
                     <option value="/certificates/ABOVE AND BEYOND.pdf">Above and Beyond</option>
+                    <option value="/certificates/General.pdf?award=cross-project-collaboration">Cross Project Collaboration</option>
                     <option value="/certificates/Employee of the Year.pdf">Employee of the Year</option>
                     <option value="/certificates/General.pdf">General</option>
                     <option value="/certificates/Long Service.pdf">Long Service</option>
                     <option value="/certificates/QUALITY CHAMPION.pdf">Quality Champion</option>
                     <option value="/certificates/SPECIAL AWARDS.pdf">Special Awards</option>
                     <option value="/certificates/TECHNICAL STEWARDSHIP.pdf">Technical Stewardship</option>
+                </select>
+
+                <label className="block mb-2 font-medium text-slate-700">Select Award (Optional)</label>
+                <select
+                    value={selectedAward?._id || ""}
+                    className="border border-slate-300 p-3 w-full rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onChange={(e) => {
+                        const awd = awards.find((a) => a._id === e.target.value);
+                        setSelectedAward(awd || null);
+                        if (awd) setCategory(awd.title);
+                    }}
+                >
+                    <option value="">None</option>
+                    {awards.map((award) => (
+                        <option key={award._id} value={award._id}>
+                            {award.title}
+                        </option>
+                    ))}
                 </select>
 
                 {/* Template Preview */}
