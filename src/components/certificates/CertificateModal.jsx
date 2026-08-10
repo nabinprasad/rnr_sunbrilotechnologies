@@ -20,6 +20,7 @@ export default function CertificateModal({
     const [category, setCategory] = useState("");
     const [content, setContent] = useState("");
     const [leftSignatureName, setLeftSignatureName] = useState("");
+    const [leftSignatureText, setLeftSignatureText] = useState("");
     const [leftSignatureLabel, setLeftSignatureLabel] = useState("");
     const [leftSignatureFont, setLeftSignatureFont] = useState("Halimun");
 
@@ -45,6 +46,7 @@ export default function CertificateModal({
             setCategory(editData.category || "");
             setContent(editData.content || "");
             setLeftSignatureName(editData.leftSignatureName || "");
+            setLeftSignatureText(editData.leftSignatureText || "");
             setLeftSignatureLabel(editData.leftSignatureLabel || "");
             setLeftSignatureFont(editData.leftSignatureFont || "Halimun");
         } else {
@@ -52,6 +54,7 @@ export default function CertificateModal({
             setCategory("");
             setContent("");
             setLeftSignatureName("");
+            setLeftSignatureText("");
             setLeftSignatureLabel("");
             setLeftSignatureFont("Halimun");
         }
@@ -94,6 +97,7 @@ export default function CertificateModal({
                 category: category,
                 content: content,
                 leftSignatureName: leftSignatureName,
+                leftSignatureText: leftSignatureText,
                 leftSignatureLabel: leftSignatureLabel,
                 leftSignatureFont: leftSignatureFont,
             };
@@ -120,7 +124,9 @@ export default function CertificateModal({
                     selectedAward?.title || null,
                     leftSignatureName,
                     leftSignatureLabel,
-                    leftSignatureFont
+                    leftSignatureFont,
+                    true,
+                    leftSignatureText
                 );
             }
 
@@ -237,6 +243,15 @@ export default function CertificateModal({
                     value={leftSignatureName}
                     onChange={(e) => setLeftSignatureName(e.target.value)}
                     placeholder="e.g., John Doe"
+                    className="border border-slate-300 p-3 w-full rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+
+                <label className="block mb-2 font-medium text-slate-700">Manager Sign (Left Signature)</label>
+                <input
+                    type="text"
+                    value={leftSignatureText}
+                    onChange={(e) => setLeftSignatureText(e.target.value)}
+                    placeholder="e.g., J. Doe (defaults to Manager Name if left blank)"
                     className="border border-slate-300 p-3 w-full rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
 
