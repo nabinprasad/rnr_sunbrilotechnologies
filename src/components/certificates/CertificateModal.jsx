@@ -146,7 +146,7 @@ export default function CertificateModal({
                 >
                     <option value="">Choose Template</option>
                     <option value="/certificates/ABOVE AND BEYOND.pdf">Above and Beyond</option>
-                    <option value="/certificates/General.pdf?award=cross-project-collaboration">Cross Project Collaboration</option>
+                    <option value="/certificates/CROSS PROJECT COLLABORATION.pdf">Cross Project Collaboration</option>
                     <option value="/certificates/Employee of the Year.pdf">Employee of the Year</option>
                     <option value="/certificates/General.pdf">General</option>
                     <option value="/certificates/Long Service.pdf">Long Service</option>
