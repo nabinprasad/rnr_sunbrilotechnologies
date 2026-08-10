@@ -46,18 +46,18 @@ const TEMPLATE_CONFIG = {
         rightSignature: { x: 690, y: 80, label: "CEO", name: "Sunil Kumar" },
     },
 
-    "/certificates/General.pdf?award=cross-project-collaboration": {
+    "/certificates/CROSS PROJECT COLLABORATION.pdf": {
         y: 310,
         fontSize: 52,
         color: rgb(0.78, 0.58, 0.15),
-        qr: { x: 90, y: 135, size: 90 },
+        qr: { x: 90, y: 135, size: 70 },
         categoryY: 380,
         contentY: 240,
         contentWidth: 450,
         awardTitleY: 420,
         awardTitleFontSize: 32,
-        leftSignature: { x: 170, y: 90, label: "Client Manager" },
-        rightSignature: { x: 690, y: 80, label: "CEO", name: "Sunil Kumar" },
+        leftSignature: { x: 170, y: 130, label: "Client Manager" },
+        rightSignature: { x: 690, y: 130, label: "CEO", name: "Sunil Kumar" },
     },
 
     "/certificates/Long Service.pdf": {
