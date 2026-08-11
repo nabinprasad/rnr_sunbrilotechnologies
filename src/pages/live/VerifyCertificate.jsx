@@ -97,8 +97,22 @@ Closing Screen
 
 ${verificationUrl}`;
   
-  // LinkedIn share URL with content (using official LinkedIn share endpoint)
-  const shareToFeedUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(verificationUrl)}&text=${encodeURIComponent(linkedInPostContent)}`;
+  // LinkedIn's share-offsite endpoint only accepts a "url" param — it silently
+  // ignores "text" (deprecated by LinkedIn), so the story line can't be prefilled
+  // via the link itself. Instead we copy it to the clipboard and let the user
+  // paste it into the compose box LinkedIn opens.
+  const shareToFeedUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(verificationUrl)}`;
+
+  const handleShareToLinkedIn = async () => {
+    try {
+      await navigator.clipboard.writeText(linkedInPostContent);
+      toast.success("Story copied! Paste it (Ctrl+V) into the LinkedIn post box that opens.", { duration: 6000 });
+    } catch (err) {
+      console.error("Clipboard copy failed:", err);
+      toast.error("Couldn't copy the story automatically — you can still write your own post.");
+    }
+    window.open(shareToFeedUrl, "_blank", "noopener,noreferrer");
+  };
 
   if (loading) {
     return (
@@ -230,14 +244,12 @@ ${verificationUrl}`;
               <FaLinkedin className="text-xl" /> Add to LinkedIn Profile
             </a>
 
-            <a
-              href={shareToFeedUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={handleShareToLinkedIn}
               className="flex items-center justify-center gap-3 w-full border border-white/20 text-white font-semibold py-3.5 rounded-2xl hover:bg-white/5 transition"
             >
               <FaLinkedin className="text-xl text-[#0077b5]" /> Post on LinkedIn Feed
-            </a>
+            </button>
           </div>
         </div>
       </div>
