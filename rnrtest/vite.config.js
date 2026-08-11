@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react(),tailwindcss()],
   server: {
     allowedHosts: [
-      "rnr-test.sunbrilotechnologies.com",
+      "rnr.sunbrilotechnologies.com",
     ],
   },
 });
