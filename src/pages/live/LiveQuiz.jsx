@@ -42,6 +42,8 @@ export default function LiveQuiz() {
   const [currentQuestion, setCurrentQuestion] = useState(null);
   const [timer, setTimer] = useState(0);
   const countdownRef = useRef(null);
+  const questionMusicRef = useRef(null);
+  const [soundEnabled, setSoundEnabled] = useState(false);
   const timerStartedAtRef = useRef(null);
   const sessionRef = useRef(null);
   const questionsRef = useRef([]);
@@ -264,6 +266,39 @@ export default function LiveQuiz() {
     };
   }, [applySessionToState, syncQuestionIfReady, loadLeaderboard]);
 
+  // Play background music while a question is live, restarting for each new question
+  useEffect(() => {
+    const audio = questionMusicRef.current;
+    if (!audio || !soundEnabled) return;
+
+    if (currentQuestion && session?.status === "Live") {
+      audio.currentTime = 0;
+      audio.volume = 0.4;
+      audio.play().catch((err) => console.log("Quiz music playback failed:", err));
+    } else {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+
+    return () => {
+      audio.pause();
+    };
+  }, [currentQuestion?._id, session?.status, soundEnabled]);
+
+  const handleEnableSound = () => {
+    const audio = questionMusicRef.current;
+    if (audio) {
+      // Unlock audio playback with this real user gesture so later
+      // programmatic play() calls (triggered by socket events) aren't blocked.
+      audio.volume = 0.4;
+      audio
+        .play()
+        .then(() => audio.pause())
+        .catch((err) => console.log("Sound unlock failed:", err));
+    }
+    setSoundEnabled(true);
+  };
+
   const getRankColor = (index) => {
     if (index === 0) return "text-yellow-400";
     if (index === 1) return "text-gray-300";
@@ -280,6 +315,19 @@ export default function LiveQuiz() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-900 text-white p-10 relative overflow-hidden">
+      <audio ref={questionMusicRef} src="/music/Quiz-question.mp3" />
+
+      {!soundEnabled && (
+        <button
+          onClick={handleEnableSound}
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 bg-black/70 backdrop-blur-sm text-white"
+        >
+          <span className="text-6xl">🔊</span>
+          <span className="text-2xl font-bold">Click to Enable Sound</span>
+          <span className="text-blue-200 text-sm">Required once by your browser to play question music</span>
+        </button>
+      )}
+
       {/* Background Decorations */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-24 -left-24 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl"></div>

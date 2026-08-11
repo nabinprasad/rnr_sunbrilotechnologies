@@ -15,7 +15,9 @@ import {
   FaVolumeMute,
 } from "react-icons/fa";
 
-export default function LiveAwards() {
+const isLongServiceAward = (title) => /long service/i.test(title || "");
+
+export default function LiveAwards({ mode = "default" }) {
   const [awards, setAwards] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(-1); // -1 is Welcome, -2 is Spin Wheel
   const [revealed, setRevealed] = useState(false);
@@ -32,8 +34,6 @@ export default function LiveAwards() {
   const [isSpinning, setIsSpinning] = useState(false);
   const [rotation, setRotation] = useState(0);
   const [selectedWinner, setSelectedWinner] = useState(null);
-  const [timer, setTimer] = useState(120); // 2 minutes in seconds
-  const [timerActive, setTimerActive] = useState(false);
   const currentAward = currentIndex >= 0 ? awards[currentIndex] : null;
   const nominees = currentAward?.nominees || [];
 
@@ -90,7 +90,12 @@ export default function LiveAwards() {
         getAwards(),
         getCertificates(),
       ]);
-      setAwards(awardsRes.data.awards);
+      const allAwards = awardsRes.data.awards || [];
+      const scopedAwards =
+        mode === "long-service-only"
+          ? allAwards.filter((a) => isLongServiceAward(a.title))
+          : allAwards.filter((a) => !isLongServiceAward(a.title));
+      setAwards(scopedAwards);
       setCertificates(certificatesRes.data.certificates || []);
     } catch (err) {
       console.error("Failed to fetch awards for live view", err);
@@ -217,55 +222,18 @@ export default function LiveAwards() {
     
     setIsSpinning(true);
     setSelectedWinner(null);
-    setTimerActive(false);
-    setTimer(120);
-
-    // Play drum roll
-    if (drumRollRef.current) {
-      drumRollRef.current.currentTime = 0;
-      drumRollRef.current.play();
-    }
 
     const randomIndex = Math.floor(Math.random() * allWinners.length);
     const randomWinner = allWinners[randomIndex];
     const segmentAngle = 360 / allWinners.length;
     const randomRotation = 360 * 5 + (360 - (randomIndex * segmentAngle + segmentAngle / 2));
-    
+
     setRotation(randomRotation);
 
     setTimeout(() => {
       setIsSpinning(false);
       setSelectedWinner(randomWinner);
-
-      if (drumRollRef.current) {
-        drumRollRef.current.pause();
-        drumRollRef.current.currentTime = 0;
-      }
-
-      if (applauseRef.current) {
-        applauseRef.current.currentTime = 0;
-        applauseRef.current.play();
-      }
     }, 4000);
-  };
-
-  // Timer countdown
-  useEffect(() => {
-    let interval;
-    if (timerActive && timer > 0) {
-      interval = setInterval(() => {
-        setTimer(prev => prev - 1);
-      }, 1000);
-    } else if (timer === 0 && timerActive) {
-      setTimerActive(false);
-    }
-    return () => clearInterval(interval);
-  }, [timerActive, timer]);
-
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60).toString().padStart(2, "0");
-    const secs = (seconds % 60).toString().padStart(2, "0");
-    return `${mins}:${secs}`;
   };
 
   const handleNext = () => {
@@ -318,8 +286,6 @@ export default function LiveAwards() {
     if (showSpinWheel) {
       setShowSpinWheel(false);
       setSelectedWinner(null);
-      setTimer(120);
-      setTimerActive(false);
     } else if (currentIndex >= 0) {
       setCurrentIndex((prev) => prev - 1);
     }
@@ -484,35 +450,12 @@ export default function LiveAwards() {
                 </p>
 
                 <div className="bg-white/5 backdrop-blur-xl border border-yellow-400/30 rounded-3xl p-6 md:p-8 w-full max-w-lg mx-auto mb-8">
-                  <div className="flex items-center justify-center gap-3 mb-4">
+                  <div className="flex items-center justify-center gap-3">
                     <FaMicrophone className="text-yellow-400 text-3xl" />
                     <h4 className="text-2xl md:text-3xl font-black text-yellow-400">
-                      Time to Speak!
+                      Let's hear a few words!
                     </h4>
                   </div>
-                  <div className="text-6xl md:text-7xl font-black text-white font-mono">
-                    {formatTime(timer)}
-                  </div>
-                </div>
-
-                <div className="flex gap-4 justify-center">
-                  <button
-                    onClick={() => setTimerActive(!timerActive)}
-                    className={`px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-200 ${
-                      timerActive ? "bg-red-500 hover:bg-red-600" : "bg-green-500 hover:bg-green-600"
-                    } text-white shadow-lg`}
-                  >
-                    {timerActive ? "⏸️ Pause" : "▶️ Start"}
-                  </button>
-                  <button
-                    onClick={() => {
-                      setTimer(120);
-                      setTimerActive(false);
-                    }}
-                    className="px-8 py-4 rounded-2xl font-bold text-lg bg-slate-600 hover:bg-slate-700 text-white shadow-lg transition-all duration-200"
-                  >
-                    🔄 Reset
-                  </button>
                 </div>
               </div>
             )}
@@ -853,7 +796,7 @@ shadow-[0_0_60px_rgba(250,204,21,0.12)]"
                             </p>
                             {certificateUrls[winner._id] ? (
                               <div className="mt-6 w-[320px] max-w-[80vw]">
-                                <div className="rounded-2xl overflow-hidden border border-yellow-300/30 bg-white shadow-2xl aspect-[4/3]">
+                                <div className="rounded-2xl overflow-hidden   aspect-[4/3]">
                                   <iframe
                                     src={`${certificateUrls[winner._id]}#toolbar=0&navpanes=0`}
                                     className="w-full h-full border-none pointer-events-none"

@@ -356,6 +356,14 @@ export default function Awards() {
           >
             📺 Live Presentation
           </a>
+          <a
+            href="/live-long-service"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 border border-amber-300 text-amber-700 px-4 py-2 rounded-xl font-semibold hover:bg-amber-50 transition text-sm"
+          >
+            🎖️ Long Service (after Tambola)
+          </a>
           <button
             onClick={() => setShowAddModal(true)}
             className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:opacity-90 transition shadow text-sm"

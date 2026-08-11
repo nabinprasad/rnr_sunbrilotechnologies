@@ -176,6 +176,7 @@ export default function AppRoutes() {
       <Route path="/live-tambola" element={<LiveTambola />} />
       <Route path="/live-poll" element={<LivePollScreen />} />
       <Route path="/live-awards" element={<LiveAwards />} />
+      <Route path="/live-long-service" element={<LiveAwards mode="long-service-only" />} />
       <Route path="/live-results" element={<LiveResults />} />
       <Route path="/verify-certificate/:id" element={<VerifyCertificate />} />
 
