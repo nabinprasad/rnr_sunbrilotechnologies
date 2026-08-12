@@ -4,6 +4,7 @@ import TambolaClaim from "../models/TambolaClaim.js";
 import Employee from "../models/Employee.js";
 import Event from "../models/Event.js";
 import { getIO } from "../server.js";
+import { invalidatePrefix } from "../middleware/cache.js";
 import {
   generateTambolaTicket,
   validateClaim,
@@ -16,6 +17,11 @@ const CLAIM_LABELS = {
 };
 
 function emitSessionUpdate(session) {
+  // Drop the cached GET /api/tambola/session response so the next poll
+  // (every 3s on the live/admin/employee screens) doesn't serve stale
+  // pre-update data and make the just-called number flicker away.
+  invalidatePrefix("/api/tambola/session");
+
   try {
     const sessionObj = session.toObject();
     console.log("📡 Emitting tambolaSessionUpdated event:", sessionObj);
@@ -77,7 +83,7 @@ export const startSession = async (req, res) => {
       });
     }
 
-    let session = await TambolaSession.findOne();
+    let session = await TambolaSession.findOne().sort({ createdAt: -1 });
 
     if (!session) {
       session = await TambolaSession.create({});
@@ -117,7 +123,7 @@ export const startSession = async (req, res) => {
 
 export const callNextNumber = async (req, res) => {
   try {
-    const session = await TambolaSession.findOne();
+    const session = await TambolaSession.findOne().sort({ createdAt: -1 });
 
     if (!session || session.status !== "Live") {
       return res.status(400).json({
@@ -170,7 +176,7 @@ export const callNextNumber = async (req, res) => {
 
 export const endSession = async (req, res) => {
   try {
-    const session = await TambolaSession.findOne();
+    const session = await TambolaSession.findOne().sort({ createdAt: -1 });
 
     if (!session) {
       return res.status(404).json({
@@ -200,7 +206,7 @@ export const resetSession = async (req, res) => {
     await TambolaTicket.deleteMany({});
     await TambolaClaim.deleteMany({});
 
-    let session = await TambolaSession.findOne();
+    let session = await TambolaSession.findOne().sort({ createdAt: -1 });
 
     if (!session) {
       session = await TambolaSession.create({});
@@ -275,7 +281,7 @@ export const submitClaim = async (req, res) => {
   try {
     const { employeeId, employeeName, claimType } = req.body;
 
-    const session = await TambolaSession.findOne();
+    const session = await TambolaSession.findOne().sort({ createdAt: -1 });
 
     if (!session || session.status !== "Live") {
       return res.status(400).json({
@@ -383,7 +389,7 @@ export const reviewClaim = async (req, res) => {
       });
     }
 
-    const session = await TambolaSession.findOne();
+    const session = await TambolaSession.findOne().sort({ createdAt: -1 });
 
     if (action === "approve") {
       if (session?.winners?.[claim.claimType]) {

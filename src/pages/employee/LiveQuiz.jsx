@@ -69,15 +69,14 @@ export default function EmployeeLiveQuiz() {
     stopCountdown();
     countdownRef.current = setInterval(() => {
       if (!timerStartedAtRef.current) return;
-      const d = Number(currentQuestion?.timer || sessionRef.current?.timerDuration || sessionRef.current?.timer || 30);
       const e = Math.floor((Date.now() - timerStartedAtRef.current) / 1000);
-      const r = Math.max(0, d - e);
+      const r = Math.max(0, duration - e);
       setTimer(r);
       if (r <= 0) {
         stopCountdown();
       }
     }, 250);
-  }, [stopCountdown, currentQuestion]);
+  }, [stopCountdown]);
 
   const applySessionToState = useCallback((sess) => {
     if (!sess) return;
@@ -166,12 +165,6 @@ export default function EmployeeLiveQuiz() {
         sessionLoadedRef.current = true;
         sessionRef.current = quizSession;
         setSession(quizSession);
-        lastSessionStatus.current = quizSession?.status;
-        if (quizSession?.currentQuestion) {
-          lastSessionQuestionId.current = String(
-            quizSession.currentQuestion?._id || quizSession.currentQuestion,
-          );
-        }
 
         syncQuestionIfReady();
       } catch (err) {
