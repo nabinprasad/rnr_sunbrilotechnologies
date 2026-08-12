@@ -16,8 +16,10 @@ export default function EmployeeLogin() {
     if (storedEmp?._id) {
       socket.emit("joinEmployee", storedEmp._id);
 
+      let alreadyHandled = false;
       const handleApproved = (data) => {
-        if (data?.employee?._id === storedEmp._id) {
+        if (data?.employee?._id === storedEmp._id && !alreadyHandled) {
+          alreadyHandled = true;
           setEmployee(data.employee);
           toast.success("✅ Your request has been approved! Click Join Event to continue.");
         }

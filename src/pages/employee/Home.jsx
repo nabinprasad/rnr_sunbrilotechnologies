@@ -60,28 +60,30 @@ export default function EmployeeHome() {
     const interval = setInterval(loadLiveData, 3000);
 
     const storedEmployee = getEmployee();
+    let handleApprovedRoom, handleApprovedGlobal;
     if (storedEmployee?._id) {
       socket.emit("joinEmployee", storedEmployee._id);
       console.log("🏠 Home: joined employee room:", storedEmployee._id);
 
-      // Listen for approval events via room
-      const handleApprovedRoom = (data) => {
+      // Listen for approval events via room and ID-specific global fallback,
+      // but only act on whichever arrives first to avoid a duplicate popup
+      let approvalHandled = false;
+      handleApprovedRoom = (data) => {
         console.log("✅ Home: employeeApproved received via room:", data);
-        if (data?.employee) {
-          setEmployee(data.employee);
-          setEmployeeData(data.employee);
-          toast.success("✅ Your request has been approved! Click Enter Event Lobby to continue.");
-        }
+        if (approvalHandled || !data?.employee) return;
+        approvalHandled = true;
+        setEmployee(data.employee);
+        setEmployeeData(data.employee);
+        toast.success("✅ Your request has been approved! Click Enter Event Lobby to continue.");
       };
 
-      // Also listen for ID-specific global event (fallback)
-      const handleApprovedGlobal = (data) => {
+      handleApprovedGlobal = (data) => {
         console.log("✅ Home: employeeApproved global received:", data);
-        if (data?.employee) {
-          setEmployee(data.employee);
-          setEmployeeData(data.employee);
-          toast.success("✅ Your request has been approved! Click Enter Event Lobby to continue.");
-        }
+        if (approvalHandled || !data?.employee) return;
+        approvalHandled = true;
+        setEmployee(data.employee);
+        setEmployeeData(data.employee);
+        toast.success("✅ Your request has been approved! Click Enter Event Lobby to continue.");
       };
 
       socket.on("employeeApproved", handleApprovedRoom);
@@ -110,8 +112,8 @@ export default function EmployeeHome() {
 
     return () => {
       clearInterval(interval);
-      socket.off("employeeApproved");
-      socket.off(`employeeApproved:${storedEmployee?._id}`);
+      socket.off("employeeApproved", handleApprovedRoom);
+      socket.off(`employeeApproved:${storedEmployee?._id}`, handleApprovedGlobal);
       socket.off("quizSessionUpdated", handleQuizSession);
       socket.off("tambolaSessionUpdated", handleTambolaSession);
       socket.off("pollUpdated", handlePollUpdated);
