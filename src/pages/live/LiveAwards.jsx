@@ -160,35 +160,54 @@ export default function LiveAwards({ mode = "default" }) {
   useEffect(() => {
     if (!revealed || !currentAward?.winners?.length) return;
 
+    const normalize = (value) => String(value || "").trim().toLowerCase();
+    const awardTitle = normalize(currentAward.title);
+    const awardCategory = normalize(currentAward.category);
+
     currentAward.winners.forEach(async (winner) => {
       const winnerId = winner._id || winner;
-      const certificate = certificates.find((cert) => {
+      const employeeCertificates = certificates.filter((cert) => {
         const certEmployeeId = cert.employeeId?._id || cert.employeeId;
-        if (String(certEmployeeId) !== String(winnerId)) return false;
+        return String(certEmployeeId) === String(winnerId);
+      });
 
+      const certificate = employeeCertificates.find((cert) => {
         if (cert.awardId && currentAward._id) {
           return String(cert.awardId) === String(currentAward._id);
         }
 
-        if (cert.category && currentAward.title) {
-          if (String(cert.category).trim() === String(currentAward.title).trim()) {
-            return true;
-          }
+        const certAwardTitle = normalize(cert.awardTitle);
+        const certCategory = normalize(cert.category);
+        const certTemplate = normalize(cert.templateName);
 
-          if (
-            mode === "long-service-only" &&
-            isLongServiceAward(cert.category)
-          ) {
-            return true;
-          }
+        if (
+          certAwardTitle &&
+          (certAwardTitle === awardTitle ||
+            awardTitle.includes(certAwardTitle) ||
+            certAwardTitle.includes(awardTitle) ||
+            certAwardTitle === awardCategory ||
+            awardCategory.includes(certAwardTitle) ||
+            certAwardTitle.includes(awardCategory))
+        ) {
+          return true;
+        }
+
+        if (
+          certCategory &&
+          (certCategory === awardTitle ||
+            awardTitle.includes(certCategory) ||
+            certCategory.includes(awardTitle) ||
+            certCategory === awardCategory)
+        ) {
+          return true;
         }
 
         if (mode === "long-service-only") {
-          return isLongServiceAward(cert.templateName || cert.category || cert.awardTitle);
+          return isLongServiceAward(certTemplate || certAwardTitle || certCategory);
         }
 
         return false;
-      });
+      }) || employeeCertificates[0] || null;
 
       if (!certificate || certificateUrls[winnerId]) return;
 
