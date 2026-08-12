@@ -13,6 +13,8 @@ export default function LiveTambola() {
   const prevWinners = useRef({ earlyFive: null, middleLine: null, fullHouse: null });
   const [showConfetti, setShowConfetti] = useState(false);
   const [confettiWinner, setConfettiWinner] = useState("");
+  const applauseRef = useRef(null);
+  const [soundEnabled, setSoundEnabled] = useState(false);
 
   useEffect(() => {
     loadSession();
@@ -22,13 +24,23 @@ export default function LiveTambola() {
       if (updatedSession?.winners) {
         Object.keys(CLAIM_LABELS).forEach((key) => {
           if (
-            updatedSession.winners[key] && 
+            updatedSession.winners[key] &&
             updatedSession.winners[key] !== prevWinners.current[key]
           ) {
             // New winner!
             setConfettiWinner(`${CLAIM_LABELS[key]}: ${updatedSession.winners[key]}`);
             setShowConfetti(true);
             setTimeout(() => setShowConfetti(false), 5000);
+
+            const applause = applauseRef.current;
+            if (applause) {
+              applause.currentTime = 0;
+              applause.play().catch((err) => console.log("Applause playback failed:", err));
+              setTimeout(() => {
+                applause.pause();
+                applause.currentTime = 0;
+              }, 8000);
+            }
           }
         });
         prevWinners.current = updatedSession.winners;
@@ -57,8 +69,38 @@ export default function LiveTambola() {
 
   const recentNumbers = session?.calledNumbers?.slice(-20) || [];
 
+  const handleEnableSound = () => {
+    const applause = applauseRef.current;
+    if (applause) {
+      // Unlock audio playback with this real user gesture so later
+      // programmatic play() calls (triggered by socket events) aren't blocked.
+      applause.volume = 0.6;
+      applause
+        .play()
+        .then(() => {
+          applause.pause();
+          applause.currentTime = 0;
+        })
+        .catch((err) => console.log("Sound unlock failed:", err));
+    }
+    setSoundEnabled(true);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900 text-white p-10 relative overflow-hidden">
+      <audio ref={applauseRef} src="/music/applause.mp3" />
+
+      {!soundEnabled && (
+        <button
+          onClick={handleEnableSound}
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 bg-black/70 backdrop-blur-sm text-white"
+        >
+          <span className="text-6xl">🔊</span>
+          <span className="text-2xl font-bold">Click to Enable Sound</span>
+          <span className="text-purple-200 text-sm">Required once by your browser to play winner applause</span>
+        </button>
+      )}
+
       {/* Background Decorations */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-32 -left-32 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl"></div>
