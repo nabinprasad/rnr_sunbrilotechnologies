@@ -40,15 +40,20 @@ export default function Lobby() {
       socket.emit("joinEmployee", currentEmp._id);
       console.log("🏠 Lobby: joined employee room:", currentEmp._id);
 
-      // Listen for approval events via room
+      // Listen for approval events via room and ID-specific global fallback,
+      // but only act on whichever arrives first to avoid a duplicate popup
+      let approvalHandled = false;
       const handleApprovedRoom = (data) => {
         console.log("✅ Lobby: employeeApproved received via room:", data);
+        if (approvalHandled) return;
+        approvalHandled = true;
         handleApproval(data);
       };
 
-      // Also listen for ID-specific global event (fallback)
       const handleApprovedGlobal = (data) => {
         console.log("✅ Lobby: employeeApproved global received:", data);
+        if (approvalHandled) return;
+        approvalHandled = true;
         handleApproval(data);
       };
 

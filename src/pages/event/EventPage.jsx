@@ -231,12 +231,12 @@ export default function EventPage() {
         <div className="rounded-2xl bg-white shadow-xl p-8 sm:p-10 overflow-x-auto">
           <div className="space-y-4">
             {[
-              { time: "09:30 AM", activity: "Registration & Check-in" },
-              { time: "10:00 AM", activity: "Welcome Speech & Keynote" },
-              { time: "11:00 AM", activity: "Quiz Competition" },
-              { time: "01:00 PM", activity: "Lunch Break" },
-              { time: "02:00 PM", activity: "Games & Interactive Activities" },
-              { time: "04:00 PM", activity: "Awards Ceremony" },
+              { time: "05:00 PM", activity: "Registration & Check-in" },
+              { time: "05:15 PM", activity: "Welcome Speech & Keynote" },
+              { time: "05:30 PM", activity: "Quiz Competition" },
+              { time: "05:50 PM", activity: "Break" },
+              { time: "06:00 PM", activity: "Games & Interactive Activities" },
+              { time: "06:30 PM", activity: "Awards Ceremony" },
             ].map((slot, idx) => (
               <div
                 key={idx}
