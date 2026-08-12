@@ -164,7 +164,30 @@ export default function LiveAwards({ mode = "default" }) {
       const winnerId = winner._id || winner;
       const certificate = certificates.find((cert) => {
         const certEmployeeId = cert.employeeId?._id || cert.employeeId;
-        return String(certEmployeeId) === String(winnerId);
+        if (String(certEmployeeId) !== String(winnerId)) return false;
+
+        if (cert.awardId && currentAward._id) {
+          return String(cert.awardId) === String(currentAward._id);
+        }
+
+        if (cert.category && currentAward.title) {
+          if (String(cert.category).trim() === String(currentAward.title).trim()) {
+            return true;
+          }
+
+          if (
+            mode === "long-service-only" &&
+            isLongServiceAward(cert.category)
+          ) {
+            return true;
+          }
+        }
+
+        if (mode === "long-service-only") {
+          return isLongServiceAward(cert.templateName || cert.category || cert.awardTitle);
+        }
+
+        return false;
       });
 
       if (!certificate || certificateUrls[winnerId]) return;
@@ -188,7 +211,7 @@ export default function LiveAwards({ mode = "default" }) {
         }));
       }
     });
-  }, [revealed, currentAward, certificates, certificateUrls]);
+  }, [revealed, currentAward, certificates, certificateUrls, mode]);
 
   const handleReveal = () => {
     // Lower background music
